@@ -35,7 +35,7 @@ local RO = {
     Mangle = 33917,
 
     --Talents
-    BalanceAffinity = 197623,
+    BalanceAffinity = 197632,
     MoonkinForm = 197625,
     FeralAffinity = 197490,
     CatForm = 768,
