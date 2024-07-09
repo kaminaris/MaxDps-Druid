@@ -6,6 +6,7 @@
 ## LoadOnDemand: 1
 ## X-Curse-Project-ID: 103301
 ## X-WoWI-ID: 24641
+## X-Wago-ID: ANz0YDK4
 
 Main.lua
 Specialization/Balance.lua
