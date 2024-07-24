@@ -1,14 +1,14 @@
-local _, addonTable = ...;
+local _, addonTable = ...
 
 --- @type MaxDps
-if not MaxDps then return end;
+if not MaxDps then return end
 
-local Druid = addonTable.Druid;
-local MaxDps = MaxDps;
-local GetComboPoints = GetComboPoints;
-local GetSpellCount = GetSpellCount;
-local UnitHealth = UnitHealth;
-local UnitHealthMax = UnitHealthMax;
+local Druid = addonTable.Druid
+local MaxDps = MaxDps
+local GetComboPoints = GetComboPoints
+local GetSpellCount = C_Spell.GetSpellCastCount
+local UnitHealth = UnitHealth
+local UnitHealthMax = UnitHealthMax
 
 local RO = {
     Moonfire = 8921,
@@ -55,7 +55,7 @@ local RO = {
     --Necrolord
     AdaptiveSwarm = 325727,
     --
-};
+}
 
 local CN = {
     None      = 0,
@@ -63,162 +63,162 @@ local CN = {
     Venthyr   = 2,
     NightFae  = 3,
     Necrolord = 4
-};
+}
 
-setmetatable(RO, Druid.spellMeta);
+setmetatable(RO, Druid.spellMeta)
 
-local lasteclipse;
+local lasteclipse
 
 function Druid:Restoration()
-    local fd = MaxDps.FrameData;
-    local covenantId = fd.covenant.covenantId;
-    fd.targets = MaxDps:SmartAoe();
-    local cooldown = fd.cooldown;
-    local buff = fd.buff;
-    local debuff = fd.debuff;
-    local talents = fd.talents;
-    local targets = fd.targets;
-    local gcd = fd.gcd;
-    local targetHp = MaxDps:TargetPercentHealth() * 100;
-    local health = UnitHealth('player');
-    local healthMax = UnitHealthMax('player');
-    local healthPercent = ( health / healthMax ) * 100;
-    local currentSpell = fd.currentSpell;
+    local fd = MaxDps.FrameData
+    local covenantId = fd.covenant.covenantId
+    fd.targets = MaxDps:SmartAoe()
+    local cooldown = fd.cooldown
+    local buff = fd.buff
+    local debuff = fd.debuff
+    local talents = fd.talents
+    local targets = fd.targets
+    local gcd = fd.gcd
+    local targetHp = MaxDps:TargetPercentHealth() * 100
+    local health = UnitHealth('player')
+    local healthMax = UnitHealthMax('player')
+    local healthPercent = ( health / healthMax ) * 100
+    local currentSpell = fd.currentSpell
 
     -- Update Spell Locations
-    --MaxDps:Fetch();
+    --MaxDps:Fetch()
 
     -- Update Talents
-    MaxDps:CheckTalents();
+    MaxDps:CheckTalents()
 
     -- Essences
-    MaxDps:GlowEssences();
+    MaxDps:GlowEssences()
 
     -- Cooldowns
 
     --talents
 
     if talents[RO.HearoftheWild] then
-        MaxDps:GlowCooldown(RO.HearoftheWild, cooldown[RO.HearoftheWild].ready);
+        MaxDps:GlowCooldown(RO.HearoftheWild, cooldown[RO.HearoftheWild].ready)
     end
 
     --Covenant
     --Kyrian
     if covenantId == CN.Kyrian and cooldown[RO.KindredSpirits].ready then
-        MaxDps:GlowCooldown(RO.KindredSpirits, cooldown[RO.KindredSpirits].ready);
+        MaxDps:GlowCooldown(RO.KindredSpirits, cooldown[RO.KindredSpirits].ready)
     end
 
     --Venthyr
     if covenantId == CN.Venthyr and cooldown[RO.RavenousFrenzy].ready then
-        MaxDps:GlowCooldown(RO.RavenousFrenzy, cooldown[RO.RavenousFrenzy].ready);
+        MaxDps:GlowCooldown(RO.RavenousFrenzy, cooldown[RO.RavenousFrenzy].ready)
     end
 
     --NightFae
     if covenantId == CN.NightFae and cooldown[RO.ConvoketheSpirits].ready then
-        MaxDps:GlowCooldown(RO.ConvoketheSpirits, cooldown[RO.ConvoketheSpirits].ready);
+        MaxDps:GlowCooldown(RO.ConvoketheSpirits, cooldown[RO.ConvoketheSpirits].ready)
     end
 
     --Necrolord
     if covenantId == CN.Necrolord and cooldown[RO.AdaptiveSwarm].ready then
-        MaxDps:GlowCooldown(RO.AdaptiveSwarm, cooldown[RO.AdaptiveSwarm].ready);
+        MaxDps:GlowCooldown(RO.AdaptiveSwarm, cooldown[RO.AdaptiveSwarm].ready)
     end
 
     if talents[RO.BalanceAffinity] then
         if buff[RO.MoonkinForm].up then
             if debuff[RO.SunfireDebuff].remains < 1 and cooldown[RO.Sunfire].ready then
-                return RO.Sunfire;
+                return RO.Sunfire
             end
 
             if debuff[RO.MoonfireDebuff].remains < 1 and cooldown[RO.Moonfire].ready then
-                return RO.Moonfire;
+                return RO.Moonfire
             end
 
             if cooldown[RO.Starsurge].ready then
-                return RO.Starsurge;
+                return RO.Starsurge
             end
 
             if buff[RO.EclipseLunar].up then
                 lasteclipse = "lunar"
-                return RO.Starfire;
+                return RO.Starfire
             end
 
             if buff[RO.EclipseSolar].up then
                 lasteclipse = "solar"
-                return RO.Wrath;
+                return RO.Wrath
             end
 
             if lasteclipse == "solar" then
-                return RO.Wrath;
+                return RO.Wrath
             end
 
             if lasteclipse == "lunar" then
-                return RO.Starfire;
+                return RO.Starfire
             end
 
             if targets > 1 then -- We want to aoe
-                if GetSpellCount(RO.Wrath) >= 1 then -- We have charges of wrath so we can use it to get to lunar which cleaves
-                    return RO.Wrath;
+                if C_Spell.GetSpellCastCount(RO.Wrath) >= 1 then -- We have charges of wrath so we can use it to get to lunar which cleaves
+                    return RO.Wrath
                 end
             end
 
-            if GetSpellCount(RO.Wrath) >= 1 then
-                return RO.Wrath;
+            if C_Spell.GetSpellCastCount(RO.Wrath) >= 1 then
+                return RO.Wrath
             end
 
-            if GetSpellCount(RO.Starfire) >= 1 then
-                return RO.Starfire;
+            if C_Spell.GetSpellCastCount(RO.Starfire) >= 1 then
+                return RO.Starfire
             end
 
             if lasteclipse ~= "lunar" and lasteclipse ~= "solar" then -- Havn't gone into a ecipse yet
                 if targets > 1 then -- We want to aoe so cast wrath till we get to lunar ecplipse
-                    return RO.Wrath;
+                    return RO.Wrath
                 else
-                    return RO.Starfire;
+                    return RO.Starfire
                 end
             end
 
         else
-            return RO.MoonkinForm;
+            return RO.MoonkinForm
         end
     end
 
     if talents[RO.FeralAffinity] then
         if buff[RO.CatForm].up then
-            local comboPoints = GetComboPoints("player", "target");
+            local comboPoints = GetComboPoints("player", "target")
             if debuff[RO.RakeDebuff].remains < 1 and cooldown[RO.Rake].ready then
-                return RO.Rake;
+                return RO.Rake
             end
 
             if comboPoints < 5 then
                 if targets > 1 then
-                    return RO.Swipe;
+                    return RO.Swipe
                 else
-                    return RO.Shred;
+                    return RO.Shred
                 end
             end
 
             if debuff[RO.RipDebuff].remains < 1 and comboPoints == 5 and cooldown[RO.RipDebuff].ready then
-                return RO.RipDebuff;
+                return RO.RipDebuff
             end
 
             if comboPoints >= 5 then
-                return RO.FerociousBite;
+                return RO.FerociousBite
             end
         else
-            return RO.CatForm;
+            return RO.CatForm
         end
     end
 
     if talents[RO.GuardianAffinity] then
         if buff[RO.BearForm].up then
             if debuff[RO.ThrashDebuff].count <= 3 and cooldown[RO.Thrash].ready then
-                return RO.Thrash;
+                return RO.Thrash
             end
             if cooldown[RO.Mangle].ready then
-                return RO.Mangle;
+                return RO.Mangle
             end
         else
-            return RO.BearForm;
+            return RO.BearForm
         end
     end
 
