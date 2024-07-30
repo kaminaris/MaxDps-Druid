@@ -255,20 +255,20 @@ function Balance:precombat()
     --end
 end
 function Balance:aoe()
-    if (MaxDps:FindSpell(classtable.Moonfire) and CheckSpellCosts(classtable.Moonfire, 'Moonfire')) and ((select(2,IsInInstance()) == 'party')) and cooldown[classtable.Moonfire].ready then
+    if (MaxDps:FindSpell(classtable.Moonfire) and CheckSpellCosts(classtable.Moonfire, 'Moonfire')) and (debuff[classtable.MoonfireDeBuff].refreshable and (select(2,IsInInstance()) == 'party')) and cooldown[classtable.Moonfire].ready then
         return classtable.Moonfire
     end
     cd_condition_aoe = not (not cooldown[classtable.IncarnationChosenofElune].ready and not cooldown[classtable.CelestialAlignment].ready and not cooldown[classtable.AstralCommunion].ready and not cooldown[classtable.ConvoketheSpirits].ready) and ( cooldown[classtable.CaInc].remains <5 and not buff[classtable.CaIncBuff].up and ( ttd <25 + 10 * talents[classtable.IncarnationChosenofElune] ) )
     if (MaxDps:FindSpell(classtable.Sunfire) and CheckSpellCosts(classtable.Sunfire, 'Sunfire')) and (debuff[classtable.SunfireDeBuff].refreshable and ( ttd - debuff[classtable.SunfireDeBuff].remains ) >6 - ( targets % 2 ) and LunarPowerDeficit >passive_asp + 3) and cooldown[classtable.Sunfire].ready then
         return classtable.Sunfire
     end
-    if (MaxDps:FindSpell(classtable.Moonfire) and CheckSpellCosts(classtable.Moonfire, 'Moonfire')) and (not (select(2,IsInInstance()) == 'party')) and cooldown[classtable.Moonfire].ready then
+    if (MaxDps:FindSpell(classtable.Moonfire) and CheckSpellCosts(classtable.Moonfire, 'Moonfire')) and (debuff[classtable.MoonfireDeBuff].refreshable and not (select(2,IsInInstance()) == 'party')) and cooldown[classtable.Moonfire].ready then
         return classtable.Moonfire
     end
     if (MaxDps:FindSpell(classtable.StellarFlare) and CheckSpellCosts(classtable.StellarFlare, 'StellarFlare')) and (LunarPowerDeficit >passive_asp + 8 and targets <( 11 - (talents[classtable.UmbralIntensity] and 1 or 0) - (talents[classtable.AstralSmolder] and 1 or 0)  ) and cd_condition_aoe) and cooldown[classtable.StellarFlare].ready then
         return classtable.StellarFlare
     end
-    starfall_condition1 = cd_condition_aoe and ( talents[classtable.OrbitalStrike] and LunarPowerDeficit <passive_asp + 8 * targets or buff[classtable.TouchtheCosmosBuff].up ) or LunarPowerDeficit <( passive_asp + 8 + 12 * ( buff[classtable.EclipseLunarBuff].remains <4 or buff[classtable.EclipseSolarBuff].remains <4 ) )
+    starfall_condition1 = cd_condition_aoe and ( talents[classtable.OrbitalStrike] and LunarPowerDeficit <passive_asp + 8 * targets or buff[classtable.TouchtheCosmosBuff].up ) or LunarPowerDeficit <( passive_asp + 8 + 12 * ( (buff[classtable.EclipseLunarBuff].remains <4 or buff[classtable.EclipseSolarBuff].remains <4) and 1 or 0 ) )
     --if (MaxDps:FindSpell(classtable.CancelBuff) and CheckSpellCosts(classtable.CancelBuff, 'CancelBuff')) and (buff[classtable.StarlordBuff].remains <2 and starfall_condition1) and cooldown[classtable.CancelBuff].ready then
     --    return classtable.CancelBuff
     --end
@@ -334,7 +334,7 @@ function Balance:aoe()
     if (MaxDps:FindSpell(classtable.Starsurge) and CheckSpellCosts(classtable.Starsurge, 'Starsurge')) and (buff[classtable.StarweaversWeftBuff].up and targets <17) and cooldown[classtable.Starsurge].ready then
         return classtable.Starsurge
     end
-    if (MaxDps:FindSpell(classtable.Starfire) and CheckSpellCosts(classtable.Starfire, 'Starfire')) and (targets >( 3 - ( buff[classtable.DreamstateBuff].up or buff[classtable.BalanceT314pcBuffLunarBuff].count >buff[classtable.BalanceT314pcBuffSolarBuff].count ) ) and buff[classtable.EclipseLunarBuff].up or fd.eclipseInLunar) and cooldown[classtable.Starfire].ready then
+    if (MaxDps:FindSpell(classtable.Starfire) and CheckSpellCosts(classtable.Starfire, 'Starfire')) and (targets >( 3 - ( (buff[classtable.DreamstateBuff].up or buff[classtable.BalanceT314pcBuffLunarBuff].count >buff[classtable.BalanceT314pcBuffSolarBuff].count ) and 1 or 0 )) and buff[classtable.EclipseLunarBuff].up or fd.eclipseInLunar) and cooldown[classtable.Starfire].ready then
         return classtable.Starfire
     end
     if (MaxDps:FindSpell(classtable.Wrath) and CheckSpellCosts(classtable.Wrath, 'Wrath')) and cooldown[classtable.Wrath].ready then
@@ -354,7 +354,7 @@ function Balance:fallthru()
     if (MaxDps:FindSpell(classtable.Sunfire) and CheckSpellCosts(classtable.Sunfire, 'Sunfire')) and (debuff[classtable.MoonfireDeBuff].remains >debuff[classtable.SunfireDeBuff].remains * 22 % 18) and cooldown[classtable.Sunfire].ready then
         return classtable.Sunfire
     end
-    if (MaxDps:FindSpell(classtable.Moonfire) and CheckSpellCosts(classtable.Moonfire, 'Moonfire')) and cooldown[classtable.Moonfire].ready then
+    if (MaxDps:FindSpell(classtable.Moonfire) and CheckSpellCosts(classtable.Moonfire, 'Moonfire')) and debuff[classtable.MoonfireDeBuff].refreshable and cooldown[classtable.Moonfire].ready then
         return classtable.Moonfire
     end
 end
