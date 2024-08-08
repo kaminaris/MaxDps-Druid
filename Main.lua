@@ -16,14 +16,12 @@ Druid.spellMeta = {
 }
 
 function Druid:Enable()
-	Druid:UnregisterEvent('UNIT_SPELLCAST_SUCCEEDED')
 	if MaxDps.Spec == 1 then
 		MaxDps.NextSpell = Druid.Balance
 		MaxDps:Print(MaxDps.Colors.Info .. 'Druid Balance', "info")
 	elseif MaxDps.Spec == 2 then
 		MaxDps.NextSpell = Druid.Feral
 		MaxDps:Print(MaxDps.Colors.Info .. 'Druid Feral', "info")
-		Druid:RegisterEvent('UNIT_SPELLCAST_SUCCEEDED')
 	elseif MaxDps.Spec == 3 then
 		MaxDps.NextSpell = Druid.Guardian
 		MaxDps:Print(MaxDps.Colors.Info .. 'Druid Guardian', "info")
