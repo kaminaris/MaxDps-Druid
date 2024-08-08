@@ -1,486 +1,548 @@
 local _, addonTable = ...
-
---- @type MaxDps
-if not MaxDps then
-	return
-end
-
 local Druid = addonTable.Druid
-local MaxDps = MaxDps
+local MaxDps = _G.MaxDps
+if not MaxDps then return end
+
 local UnitPower = UnitPower
+local UnitHealth = UnitHealth
+local UnitAura = C_UnitAuras.GetAuraDataByIndex
+local UnitAuraByName = C_UnitAuras.GetAuraDataBySpellName
+local UnitHealthMax = UnitHealthMax
 local UnitPowerMax = UnitPowerMax
-local GetTime = GetTime
-local Energy = Enum.PowerType.Energy
-local ComboPoints = Enum.PowerType.ComboPoints
+local SpellHaste
+local SpellCrit
+local GetSpellInfo = C_Spell.GetSpellInfo
+local GetSpellCooldown = C_Spell.GetSpellCooldown
+local GetSpellCount = C_Spell.GetSpellCastCount
 
-local Necrolord = Enum.CovenantType.Necrolord
-local Venthyr = Enum.CovenantType.Venthyr
-local NightFae = Enum.CovenantType.NightFae
-local Kyrian = Enum.CovenantType.Kyrian
+local ManaPT = Enum.PowerType.Mana
+local RagePT = Enum.PowerType.Rage
+local FocusPT = Enum.PowerType.Focus
+local EnergyPT = Enum.PowerType.Energy
+local ComboPointsPT = Enum.PowerType.ComboPoints
+local RunesPT = Enum.PowerType.Runes
+local RunicPowerPT = Enum.PowerType.RunicPower
+local SoulShardsPT = Enum.PowerType.SoulShards
+local LunarPowerPT = Enum.PowerType.LunarPower
+local HolyPowerPT = Enum.PowerType.HolyPower
+local MaelstromPT = Enum.PowerType.Maelstrom
+local ChiPT = Enum.PowerType.Chi
+local InsanityPT = Enum.PowerType.Insanity
+local ArcaneChargesPT = Enum.PowerType.ArcaneCharges
+local FuryPT = Enum.PowerType.Fury
+local PainPT = Enum.PowerType.Pain
+local EssencePT = Enum.PowerType.Essence
+local RuneBloodPT = Enum.PowerType.RuneBlood
+local RuneFrostPT = Enum.PowerType.RuneFrost
+local RuneUnholyPT = Enum.PowerType.RuneUnholy
 
-local FR = {
-	Bloodtalons       = 319439,
-	BloodtalonsAura   = 145152,
-	CatForm           = 768,
-	Prowl             = 5215,
-	Starsurge         = 197626,
-	Sunfire           = 197630,
-	TigersFury        = 5217,
-	Rake              = 1822,
-	RakeAura          = 155722,
-	Rip               = 1079,
-	Clearcasting      = 135700,
-	BalanceAffinity   = 197488,
-	ConvokeTheSpirits = 323764,
-	MoonkinForm       = 197625,
-	FerociousBite     = 22568,
-	FeralFrenzy       = 274837,
-	Moonfire          = 155625,
-	BrutalSlash       = 202028,
-	Shred             = 5221,
-	Swipe             = 106785,
-	LunarInspiration  = 155580,
-	HeartOfTheWild    = 319454,
-	Thrash            = 106830,
-	Berserk           = 106951,
-	Incarnation       = 102543,
-	Predator          = 202021,
-	KindredSpirits    = 326434,
-	AdaptiveSwarm     = 325727,
-	AdaptiveSwarmAura = 325733,
-	SavageRoar        = 52610,
-	PrimalWrath       = 285381,
-	Sabertooth        = 202031,
-	RavenousFrenzy    = 323546,
+local fd
+local ttd
+local timeShift
+local gcd
+local cooldown
+local buff
+local debuff
+local talents
+local targets
+local targetHP
+local targetmaxHP
+local targethealthPerc
+local curentHP
+local maxHP
+local healthPerc
+local timeInCombat
+local className, classFilename, classId = UnitClass('player')
+local currentSpec = GetSpecialization()
+local currentSpecName = currentSpec and select(2, GetSpecializationInfo(currentSpec)) or 'None'
+local classtable
+local LibRangeCheck = LibStub('LibRangeCheck-3.0', true)
 
-	SuddenAmbush      = 340698,
+local LunarPower
+local LunarPowerMax
+local LunarPowerDeficit
+local Energy
+local EnergyMax
+local EnergyDeficit
+local EnergyRegen
+local EnergyTimeToMax
+local ComboPoints
+local ComboPointsMax
+local ComboPointsDeficit
+local Mana
+local ManaMax
+local ManaDeficit
+local Rage
+local RageMax
+local RageDeficit
 
-	-- leggo buffs
-	ApexPredatorsCraving = 339140,
-}
+local Feral = {}
 
-setmetatable(FR, Druid.spellMeta)
+local trinket_one_buffs
+local trinket_two_buffs
+local trinket_one_sync
+local trinket_two_sync
+local trinket_priority
+local effective_energy
+local time_to_pool
+local need_bt
+local lastconvoke
+local lastzerk
+local lastpotion
+local zerk_biteweave
+local regrowth
+local easy_swipe
+local proccing_bt
 
-local filler = 0
+local function CheckSpellCosts(spell,spellstring)
+    if not IsSpellKnownOrOverridesKnown(spell) then return false end
+    if spellstring == 'TouchofDeath' then
+        if targethealthPerc > 15 then
+            return false
+        end
+    end
+    if spellstring == 'KillShot' then
+        if (classtable.SicEmBuff and not buff[classtable.SicEmBuff].up) and targethealthPerc > 15 then
+            return false
+        end
+    end
+    if spellstring == 'HammerofWrath' then
+        if ( (classtable.AvengingWrathBuff and not buff[classtable.AvengingWrathBuff].up) or (classtable.FinalVerdictBuff and not buff[classtable.FinalVerdictBuff].up) ) and targethealthPerc > 20 then
+            return false
+        end
+    end
+    if spellstring == 'Execute' then
+        if (classtable.SuddenDeathBuff and not buff[classtable.SuddenDeathBuff].up) and targethealthPerc > 35 then
+            return false
+        end
+    end
+    local costs = C_Spell.GetSpellPowerCost(spell)
+    if type(costs) ~= 'table' and spellstring then return true end
+    for i,costtable in pairs(costs) do
+        if UnitPower('player', costtable.type) < costtable.cost then
+            return false
+        end
+    end
+    return true
+end
+local function MaxGetSpellCost(spell,power)
+    local costs = C_Spell.GetSpellPowerCost(spell)
+    if type(costs) ~= 'table' then return 0 end
+    for i,costtable in pairs(costs) do
+        if costtable.name == power then
+            return costtable.cost
+        end
+    end
+    return 0
+end
 
--- timestamp when ability was used last time
-local BtBuff = {
-	[FR.Rake] = 0,
-	[FR.Shred] = 0,
-	[FR.Swipe] = 0,
-	[FR.Thrash] = 0,
-	[FR.Moonfire] = 0,
-	[FR.BrutalSlash] = 0
-}
 
+
+local function CheckTrinketNames(checkName)
+    --if slot == 1 then
+    --    slot = 13
+    --end
+    --if slot == 2 then
+    --    slot = 14
+    --end
+    for i=13,14 do
+        local itemID = GetInventoryItemID('player', i)
+        local itemName = C_Item.GetItemInfo(itemID)
+        if checkName == itemName then
+            return true
+        end
+    end
+    return false
+end
+
+
+local function CheckTrinketCooldown(slot)
+    if slot == 1 then
+        slot = 13
+    end
+    if slot == 2 then
+        slot = 14
+    end
+    if slot == 13 or slot == 14 then
+        local itemID = GetInventoryItemID('player', slot)
+        local _, duration, _ = C_Item.GetItemCooldown(itemID)
+        if duration == 0 then return true else return false end
+    else
+        local tOneitemID = GetInventoryItemID('player', 13)
+        local tTwoitemID = GetInventoryItemID('player', 14)
+        local tOneitemName = C_Item.GetItemInfo(tOneitemID)
+        local tTwoitemName = C_Item.GetItemInfo(tTwoitemID)
+        if tOneitemName == slot then
+            local _, duration, _ = C_Item.GetItemCooldown(tOneitemID)
+            if duration == 0 then return true else return false end
+        end
+        if tTwoitemName == slot then
+            local _, duration, _ = C_Item.GetItemCooldown(tTwoitemID)
+            if duration == 0 then return true else return false end
+        end
+    end
+end
+
+
+
+
+local function active_bt_triggers()
+    return 2
+end
+
+
+local function CheckPrevSpell(spell)
+    if MaxDps and MaxDps.spellHistory then
+        if MaxDps.spellHistory[1] then
+            if MaxDps.spellHistory[1] == spell then
+                return true
+            end
+            if MaxDps.spellHistory[1] ~= spell then
+                return false
+            end
+        end
+    end
+    return true
+end
+
+
+function Feral:precombat()
+    --if (MaxDps:FindSpell(classtable.Prowl) and CheckSpellCosts(classtable.Prowl, 'Prowl')) and (not buff[classtable.ProwlBuff].up) and cooldown[classtable.Prowl].ready then
+    --    return classtable.Prowl
+    --end
+    if (MaxDps:FindSpell(classtable.CatForm) and CheckSpellCosts(classtable.CatForm, 'CatForm')) and (not buff[classtable.CatFormBuff].up) and cooldown[classtable.CatForm].ready then
+        return classtable.CatForm
+    end
+end
+function Feral:aoe_builder()
+    if (MaxDps:FindSpell(classtable.Rake) and CheckSpellCosts(classtable.Rake, 'Rake')) and (not debuff[classtable.RakeDeBuff].up and buff[classtable.SuddenAmbushBuff].up and not ( need_bt and buff[classtable.BtRakeBuff].up )) and cooldown[classtable.Rake].ready then
+        return classtable.Rake
+    end
+    if (MaxDps:FindSpell(classtable.BrutalSlash) and CheckSpellCosts(classtable.BrutalSlash, 'BrutalSlash')) and (not ( need_bt and buff[classtable.BtSwipeBuff].up ) and ( cooldown[classtable.BrutalSlash].fullRecharge <4 or ttd <4 or targets <4 )) and cooldown[classtable.BrutalSlash].ready then
+        return classtable.BrutalSlash
+    end
+    if (MaxDps:FindSpell(classtable.ThrashCat) and CheckSpellCosts(classtable.ThrashCat, 'ThrashCat')) and (debuff[classtable.ThrashCatDeBuff].refreshable and not talents[classtable.ThrashingClaws]) and cooldown[classtable.ThrashCat].ready then
+        return classtable.ThrashCat
+    end
+    --if (MaxDps:FindSpell(classtable.Prowl) and CheckSpellCosts(classtable.Prowl, 'Prowl')) and (not ( buff[classtable.BtRakeBuff].up and active_bt_triggers == 2 ) and cooldown[classtable.Rake].ready and gcd == 0 and not buff[classtable.SuddenAmbushBuff].up and ( debuff[classtable.RakeDeBuff].refreshable or debuff[classtable.RakeDeBuff].remains <1.4 )) and cooldown[classtable.Prowl].ready then
+    --    return classtable.Prowl
+    --end
+    if (MaxDps:FindSpell(classtable.Shadowmeld) and CheckSpellCosts(classtable.Shadowmeld, 'Shadowmeld')) and (not ( buff[classtable.BtRakeBuff].up and active_bt_triggers == 2 ) and cooldown[classtable.Rake].ready and gcd == 0 and not buff[classtable.SuddenAmbushBuff].up and ( debuff[classtable.RakeDeBuff].refreshable or debuff[classtable.RakeDeBuff].remains <1.4 )) and cooldown[classtable.Shadowmeld].ready then
+        return classtable.Shadowmeld
+    end
+    if (MaxDps:FindSpell(classtable.Rake) and CheckSpellCosts(classtable.Rake, 'Rake')) and (( debuff[classtable.RakeDeBuff].refreshable or ( debuff[classtable.RakeDeBuff].remains <1 ) ) and not ( buff[classtable.BtRakeBuff].up and active_bt_triggers == 2 )) and cooldown[classtable.Rake].ready then
+        return classtable.Rake
+    end
+    if (MaxDps:FindSpell(classtable.BrutalSlash) and CheckSpellCosts(classtable.BrutalSlash, 'BrutalSlash')) and (not ( buff[classtable.BtSwipeBuff].up and active_bt_triggers == 2 )) and cooldown[classtable.BrutalSlash].ready then
+        return classtable.BrutalSlash
+    end
+    if (MaxDps:FindSpell(classtable.MoonfireCat) and CheckSpellCosts(classtable.MoonfireCat, 'MoonfireCat')) and (debuff[classtable.MoonfireCatDeBuff].refreshable and ( targets <4 or talents[classtable.BrutalSlash] ) and not ( buff[classtable.BtMoonfireBuff].up and active_bt_triggers == 2 )) and cooldown[classtable.MoonfireCat].ready then
+        return classtable.MoonfireCat
+    end
+    if (MaxDps:FindSpell(classtable.SwipeCat) and CheckSpellCosts(classtable.SwipeCat, 'SwipeCat')) and (not ( buff[classtable.BtSwipeBuff].up and active_bt_triggers == 2 )) and cooldown[classtable.SwipeCat].ready then
+        return classtable.SwipeCat
+    end
+    if (MaxDps:FindSpell(classtable.MoonfireCat) and CheckSpellCosts(classtable.MoonfireCat, 'MoonfireCat')) and (debuff[classtable.MoonfireCatDeBuff].refreshable and not ( buff[classtable.BtMoonfireBuff].up and active_bt_triggers == 2 )) and cooldown[classtable.MoonfireCat].ready then
+        return classtable.MoonfireCat
+    end
+    if (MaxDps:FindSpell(classtable.Rake) and CheckSpellCosts(classtable.Rake, 'Rake')) and (( debuff[classtable.RakeDeBuff].refreshable or ( debuff[classtable.RakeDeBuff].remains <1 ) ) and not ( buff[classtable.BtRakeBuff].up and active_bt_triggers == 2 )) and cooldown[classtable.Rake].ready then
+        return classtable.Rake
+    end
+    if (MaxDps:FindSpell(classtable.Shred) and CheckSpellCosts(classtable.Shred, 'Shred')) and (not ( buff[classtable.BtShredBuff].up and active_bt_triggers == 2 ) and not easy_swipe and not buff[classtable.SuddenAmbushBuff].up) and cooldown[classtable.Shred].ready then
+        return classtable.Shred
+    end
+    if (MaxDps:FindSpell(classtable.ThrashCat) and CheckSpellCosts(classtable.ThrashCat, 'ThrashCat')) and (not ( buff[classtable.BtThrashBuff].up and active_bt_triggers == 2 ) and not talents[classtable.ThrashingClaws]) and cooldown[classtable.ThrashCat].ready then
+        return classtable.ThrashCat
+    end
+    if (MaxDps:FindSpell(classtable.MoonfireCat) and CheckSpellCosts(classtable.MoonfireCat, 'MoonfireCat')) and (need_bt and not buff[classtable.BtMoonfireBuff].up) and cooldown[classtable.MoonfireCat].ready then
+        return classtable.MoonfireCat
+    end
+    if (MaxDps:FindSpell(classtable.Shred) and CheckSpellCosts(classtable.Shred, 'Shred')) and (need_bt and not buff[classtable.BtShredBuff].up and not easy_swipe) and cooldown[classtable.Shred].ready then
+        return classtable.Shred
+    end
+    if (MaxDps:FindSpell(classtable.Rake) and CheckSpellCosts(classtable.Rake, 'Rake')) and (debuff[classtable.RakeDeBuff].remains <1.6 and need_bt and not buff[classtable.BtRakeBuff].up) and cooldown[classtable.Rake].ready then
+        return classtable.Rake
+    end
+end
+function Feral:berserk()
+    if (ComboPoints == 5) then
+        local finisherCheck = Feral:finisher()
+        if finisherCheck then
+            return Feral:finisher()
+        end
+    end
+    if (targets >= 2) then
+        local aoe_builderCheck = Feral:aoe_builder()
+        if aoe_builderCheck then
+            return Feral:aoe_builder()
+        end
+    end
+    --if (MaxDps:FindSpell(classtable.Prowl) and CheckSpellCosts(classtable.Prowl, 'Prowl')) and (not ( buff[classtable.BtRakeBuff].up and active_bt_triggers == 2 ) and cooldown[classtable.Rake].ready and gcd == 0 and not buff[classtable.SuddenAmbushBuff].up and ( debuff[classtable.RakeDeBuff].refreshable or debuff[classtable.RakeDeBuff].remains <1.4 ) and not buff[classtable.ShadowmeldBuff].up) and cooldown[classtable.Prowl].ready then
+    --    return classtable.Prowl
+    --end
+    if (MaxDps:FindSpell(classtable.Shadowmeld) and CheckSpellCosts(classtable.Shadowmeld, 'Shadowmeld')) and (not ( buff[classtable.BtRakeBuff].up and active_bt_triggers == 2 ) and cooldown[classtable.Rake].ready and not buff[classtable.SuddenAmbushBuff].up and ( debuff[classtable.RakeDeBuff].refreshable or debuff[classtable.RakeDeBuff].remains <1.4 ) and not buff[classtable.ProwlBuff].up) and cooldown[classtable.Shadowmeld].ready then
+        return classtable.Shadowmeld
+    end
+    if (MaxDps:FindSpell(classtable.Rake) and CheckSpellCosts(classtable.Rake, 'Rake')) and (not ( buff[classtable.BtRakeBuff].up and active_bt_triggers == 2 ) and ( debuff[classtable.RakeDeBuff].remains <3 or buff[classtable.SuddenAmbushBuff].up and 1 >debuff[classtable.RakeDeBuff].remains )) and cooldown[classtable.Rake].ready then
+        return classtable.Rake
+    end
+    if (MaxDps:FindSpell(classtable.MoonfireCat) and CheckSpellCosts(classtable.MoonfireCat, 'MoonfireCat')) and (debuff[classtable.MoonfireCatDeBuff].refreshable) and cooldown[classtable.MoonfireCat].ready then
+        return classtable.MoonfireCat
+    end
+    if (MaxDps:FindSpell(classtable.ThrashCat) and CheckSpellCosts(classtable.ThrashCat, 'ThrashCat')) and (not talents[classtable.ThrashingClaws] and debuff[classtable.ThrashCatDeBuff].refreshable) and cooldown[classtable.ThrashCat].ready then
+        return classtable.ThrashCat
+    end
+    if (MaxDps:FindSpell(classtable.Shred) and CheckSpellCosts(classtable.Shred, 'Shred')) and (active_bt_triggers == 2 and not buff[classtable.BtShredBuff].up) and cooldown[classtable.Shred].ready then
+        return classtable.Shred
+    end
+    if (MaxDps:FindSpell(classtable.BrutalSlash) and CheckSpellCosts(classtable.BrutalSlash, 'BrutalSlash')) and (active_bt_triggers == 2 and not buff[classtable.BtSwipeBuff].up) and cooldown[classtable.BrutalSlash].ready then
+        return classtable.BrutalSlash
+    end
+    if (MaxDps:FindSpell(classtable.BrutalSlash) and CheckSpellCosts(classtable.BrutalSlash, 'BrutalSlash')) and (cooldown[classtable.BrutalSlash].charges >1 and not buff[classtable.BtSwipeBuff].up) and cooldown[classtable.BrutalSlash].ready then
+        return classtable.BrutalSlash
+    end
+    if (MaxDps:FindSpell(classtable.Shred) and CheckSpellCosts(classtable.Shred, 'Shred')) and (not buff[classtable.BtShredBuff].up) and cooldown[classtable.Shred].ready then
+        return classtable.Shred
+    end
+    if (MaxDps:FindSpell(classtable.BrutalSlash) and CheckSpellCosts(classtable.BrutalSlash, 'BrutalSlash')) and (cooldown[classtable.BrutalSlash].charges >1) and cooldown[classtable.BrutalSlash].ready then
+        return classtable.BrutalSlash
+    end
+    if (MaxDps:FindSpell(classtable.Shred) and CheckSpellCosts(classtable.Shred, 'Shred')) and cooldown[classtable.Shred].ready then
+        return classtable.Shred
+    end
+end
+function Feral:builder()
+    if (MaxDps:FindSpell(classtable.Shadowmeld) and CheckSpellCosts(classtable.Shadowmeld, 'Shadowmeld')) and (gcd == 0 and Energy >= 35 and not buff[classtable.SuddenAmbushBuff].up and ( debuff[classtable.RakeDeBuff].refreshable or debuff[classtable.RakeDeBuff].remains <1.4 ) * not ( need_bt and buff[classtable.BtRakeBuff].up ) and buff[classtable.TigersFuryBuff].up) and cooldown[classtable.Shadowmeld].ready then
+        return classtable.Shadowmeld
+    end
+    if (MaxDps:FindSpell(classtable.Rake) and CheckSpellCosts(classtable.Rake, 'Rake')) and (( ( debuff[classtable.RakeDeBuff].refreshable and 1 >= debuff[classtable.RakeDeBuff].remains or debuff[classtable.RakeDeBuff].remains <3 ) or buff[classtable.SuddenAmbushBuff].up and 1 >debuff[classtable.RakeDeBuff].remains ) and not ( need_bt and buff[classtable.BtRakeBuff].up )) and cooldown[classtable.Rake].ready then
+        return classtable.Rake
+    end
+    if (MaxDps:FindSpell(classtable.BrutalSlash) and CheckSpellCosts(classtable.BrutalSlash, 'BrutalSlash')) and (cooldown[classtable.BrutalSlash].fullRecharge <4 and not ( need_bt and buff[classtable.BtSwipeBuff].up )) and cooldown[classtable.BrutalSlash].ready then
+        return classtable.BrutalSlash
+    end
+    if (MaxDps:FindSpell(classtable.ThrashCat) and CheckSpellCosts(classtable.ThrashCat, 'ThrashCat')) and (debuff[classtable.ThrashCatDeBuff].refreshable) and cooldown[classtable.ThrashCat].ready then
+        return classtable.ThrashCat
+    end
+    if (MaxDps:FindSpell(classtable.MoonfireCat) and CheckSpellCosts(classtable.MoonfireCat, 'MoonfireCat')) and (debuff[classtable.MoonfireCatDeBuff].refreshable and cooldown[classtable.ConvoketheSpirits].remains >5) and cooldown[classtable.MoonfireCat].ready then
+        return classtable.MoonfireCat
+    end
+    if (MaxDps:FindSpell(classtable.Shred) and CheckSpellCosts(classtable.Shred, 'Shred')) and (buff[classtable.ClearcastingBuff].up) and cooldown[classtable.Shred].ready then
+        return classtable.Shred
+    end
+    if (MaxDps:FindSpell(classtable.BrutalSlash) and CheckSpellCosts(classtable.BrutalSlash, 'BrutalSlash')) and (not ( need_bt and buff[classtable.BtSwipeBuff].up )) and cooldown[classtable.BrutalSlash].ready then
+        return classtable.BrutalSlash
+    end
+    if (MaxDps:FindSpell(classtable.SwipeCat) and CheckSpellCosts(classtable.SwipeCat, 'SwipeCat')) and (talents[classtable.WildSlashes] and not ( need_bt and buff[classtable.BtSwipeBuff].up )) and cooldown[classtable.SwipeCat].ready then
+        return classtable.SwipeCat
+    end
+    if (MaxDps:FindSpell(classtable.Shred) and CheckSpellCosts(classtable.Shred, 'Shred')) and (not ( need_bt and buff[classtable.BtShredBuff].up )) and cooldown[classtable.Shred].ready then
+        return classtable.Shred
+    end
+    if (MaxDps:FindSpell(classtable.SwipeCat) and CheckSpellCosts(classtable.SwipeCat, 'SwipeCat')) and (need_bt and not buff[classtable.BtSwipeBuff].up) and cooldown[classtable.SwipeCat].ready then
+        return classtable.SwipeCat
+    end
+    if (MaxDps:FindSpell(classtable.Rake) and CheckSpellCosts(classtable.Rake, 'Rake')) and (need_bt and not buff[classtable.BtRakeBuff].up and 1 >= debuff[classtable.RakeDeBuff].remains) and cooldown[classtable.Rake].ready then
+        return classtable.Rake
+    end
+    if (MaxDps:FindSpell(classtable.MoonfireCat) and CheckSpellCosts(classtable.MoonfireCat, 'MoonfireCat')) and (need_bt and not buff[classtable.BtMoonfireBuff].up) and cooldown[classtable.MoonfireCat].ready then
+        return classtable.MoonfireCat
+    end
+    if (MaxDps:FindSpell(classtable.ThrashCat) and CheckSpellCosts(classtable.ThrashCat, 'ThrashCat')) and (need_bt and not buff[classtable.BtThrashBuff].up) and cooldown[classtable.ThrashCat].ready then
+        return classtable.ThrashCat
+    end
+end
+function Feral:cooldown()
+    if (MaxDps:FindSpell(classtable.Incarnation) and CheckSpellCosts(classtable.Incarnation, 'Incarnation')) and cooldown[classtable.Incarnation].ready then
+        MaxDps:GlowCooldown(classtable.Incarnation, cooldown[classtable.Incarnation].ready)
+    end
+    if (MaxDps:FindSpell(classtable.Berserk) and CheckSpellCosts(classtable.Berserk, 'Berserk')) and cooldown[classtable.Berserk].ready then
+        return classtable.Berserk
+    end
+    if (MaxDps:FindSpell(classtable.FeralFrenzy) and CheckSpellCosts(classtable.FeralFrenzy, 'FeralFrenzy')) and (ComboPoints <= 1 or buff[classtable.BsIncBuff].up and ComboPoints <= 2) and cooldown[classtable.FeralFrenzy].ready then
+        return classtable.FeralFrenzy
+    end
+    if (MaxDps:FindSpell(classtable.ConvoketheSpirits) and CheckSpellCosts(classtable.ConvoketheSpirits, 'ConvoketheSpirits')) and (( buff[classtable.TigersFuryBuff].up and ( ComboPoints <= 2 or buff[classtable.BsIncBuff].up and ComboPoints <= 3 ) and ( ttd >5 - (talents[classtable.AshamanesGuidance] and talents[classtable.AshamanesGuidance] or 0) or ttd == ttd ) )) and cooldown[classtable.ConvoketheSpirits].ready then
+        MaxDps:GlowCooldown(classtable.ConvoketheSpirits, cooldown[classtable.ConvoketheSpirits].ready)
+    end
+end
+function Feral:finisher()
+    if (MaxDps:FindSpell(classtable.PrimalWrath) and CheckSpellCosts(classtable.PrimalWrath, 'PrimalWrath')) and (targets >1 and ( ( debuff[classtable.PrimalWrathDeBuff].remains <6.5 and not buff[classtable.BsIncBuff].up or debuff[classtable.PrimalWrathDeBuff].refreshable ) or targets >3 and not talents[classtable.RampantFerocity] or debuff[classtable.PrimalWrathDeBuff].remains <1 )) and cooldown[classtable.PrimalWrath].ready then
+        return classtable.PrimalWrath
+    end
+    if (MaxDps:FindSpell(classtable.Rip) and CheckSpellCosts(classtable.Rip, 'Rip')) and (debuff[classtable.RipDeBuff].refreshable and ( not talents[classtable.PrimalWrath] or targets == 1 ) and ( buff[classtable.BloodtalonsBuff].up or not talents[classtable.Bloodtalons] ) and ( buff[classtable.TigersFuryBuff].up or debuff[classtable.RipDeBuff].remains <cooldown[classtable.TigersFury].remains )) and cooldown[classtable.Rip].ready then
+        return classtable.Rip
+    end
+    if (MaxDps:FindSpell(classtable.PoolResource) and CheckSpellCosts(classtable.PoolResource, 'PoolResource')) and cooldown[classtable.PoolResource].ready then
+        return classtable.PoolResource
+    end
+    if (MaxDps:FindSpell(classtable.FerociousBite) and CheckSpellCosts(classtable.FerociousBite, 'FerociousBite')) and (not buff[classtable.BsIncBuff].up or not talents[classtable.SouloftheForest]) and cooldown[classtable.FerociousBite].ready then
+        return classtable.FerociousBite
+    end
+    if (MaxDps:FindSpell(classtable.FerociousBite) and CheckSpellCosts(classtable.FerociousBite, 'FerociousBite')) and cooldown[classtable.FerociousBite].ready then
+        return classtable.FerociousBite
+    end
+end
+function Feral:variable()
+    effective_energy = Energy + ( 40 * buff[classtable.ClearcastingBuff].count ) + ( 3 * EnergyRegen ) + ( 50 * cooldown[classtable.TigersFury].remains <3.5 and 1 or 0)
+    time_to_pool = ( ( 115 - effective_energy - ( 23 * buff[classtable.IncarnationBuff].duration ) ) % EnergyRegen )
+    need_bt = talents[classtable.Bloodtalons] and buff[classtable.BloodtalonsBuff].count <= 1
+    lastconvoke = ( cooldown[classtable.ConvoketheSpirits].remains + cooldown[classtable.ConvoketheSpirits].duration ) >ttd and cooldown[classtable.ConvoketheSpirits].remains <ttd
+    lastzerk = ( cooldown[classtable.BsInc].remains + cooldown[classtable.BsInc].duration + 5 ) >ttd and cooldown[classtable.ConvoketheSpirits].remains <ttd
+    lastpotion = ( 300 - ( ( timeInCombat + 300 ) % 300 ) + 300 + 15 ) >ttd and 300 - ( ( timeInCombat + 300 ) % 300 ) + 15 <ttd
+    proccing_bt = need_bt
+end
+
+function Feral:callaction()
+    --if (MaxDps:FindSpell(classtable.Prowl) and CheckSpellCosts(classtable.Prowl, 'Prowl')) and (not buff[classtable.BsIncBuff].up and not buff[classtable.ProwlBuff].up) and cooldown[classtable.Prowl].ready then
+    --    return classtable.Prowl
+    --end
+    if (MaxDps:FindSpell(classtable.CatForm) and CheckSpellCosts(classtable.CatForm, 'CatForm')) and (not buff[classtable.CatFormBuff].up and not talents[classtable.FluidForm]) and cooldown[classtable.CatForm].ready then
+        return classtable.CatForm
+    end
+    local variableCheck = Feral:variable()
+    if variableCheck then
+        return variableCheck
+    end
+    if (MaxDps:FindSpell(classtable.TigersFury) and CheckSpellCosts(classtable.TigersFury, 'TigersFury')) and (EnergyDeficit >35 or ComboPoints == 5) and cooldown[classtable.TigersFury].ready then
+        MaxDps:GlowCooldown(classtable.TigersFury, cooldown[classtable.TigersFury].ready)
+    end
+    if (MaxDps:FindSpell(classtable.Rake) and CheckSpellCosts(classtable.Rake, 'Rake')) and (buff[classtable.ShadowmeldBuff].up or buff[classtable.ProwlBuff].up) and cooldown[classtable.Rake].ready then
+        return classtable.Rake
+    end
+    if (MaxDps:FindSpell(classtable.NaturesVigil) and CheckSpellCosts(classtable.NaturesVigil, 'NaturesVigil')) and (targets >0) and cooldown[classtable.NaturesVigil].ready then
+        return classtable.NaturesVigil
+    end
+    if (MaxDps:FindSpell(classtable.Renewal) and CheckSpellCosts(classtable.Renewal, 'Renewal')) and (curentHP <60 and regrowth) and cooldown[classtable.Renewal].ready then
+        return classtable.Renewal
+    end
+    if (MaxDps:FindSpell(classtable.FerociousBite) and CheckSpellCosts(classtable.FerociousBite, 'FerociousBite')) and (buff[classtable.ApexPredatorsCravingBuff].up and not ( need_bt and active_bt_triggers == 2 )) and cooldown[classtable.FerociousBite].ready then
+        return classtable.FerociousBite
+    end
+    if (MaxDps:FindSpell(classtable.AdaptiveSwarm) and CheckSpellCosts(classtable.AdaptiveSwarm, 'AdaptiveSwarm')) and (( not debuff[classtable.AdaptiveSwarmDamageDeBuff].up or debuff[classtable.AdaptiveSwarmDamageDeBuff].remains <2 ) and debuff[classtable.AdaptiveSwarmDamageDeBuff].count <3 and not (classtable and classtable.AdaptiveSwarmDamage and GetSpellCooldown(classtable.AdaptiveSwarmDamage).duration >=5 ) and not (classtable and classtable.AdaptiveSwarm and GetSpellCooldown(classtable.AdaptiveSwarm).duration >=5 ) and ttd >5 and ( buff[classtable.CatFormBuff].up and not talents[classtable.UnbridledSwarm] or targets == 1 )) and cooldown[classtable.AdaptiveSwarm].ready then
+        return classtable.AdaptiveSwarm
+    end
+    if (MaxDps:FindSpell(classtable.AdaptiveSwarm) and CheckSpellCosts(classtable.AdaptiveSwarm, 'AdaptiveSwarm')) and (buff[classtable.CatFormBuff].up and debuff[classtable.AdaptiveSwarmDamageDeBuff].count <3 and talents[classtable.UnbridledSwarm] and targets >1) and cooldown[classtable.AdaptiveSwarm].ready then
+        return classtable.AdaptiveSwarm
+    end
+    if (debuff[classtable.RipDeBuff].up) then
+        local cooldownCheck = Feral:cooldown()
+        if cooldownCheck then
+            return Feral:cooldown()
+        end
+    end
+    if (buff[classtable.BsIncBuff].up) then
+        local berserkCheck = Feral:berserk()
+        if berserkCheck then
+            return Feral:berserk()
+        end
+    end
+    if (ComboPoints == 5) then
+        local finisherCheck = Feral:finisher()
+        if finisherCheck then
+            return Feral:finisher()
+        end
+    end
+    if (targets == 1 and ComboPoints <5 and ( time_to_pool <= 0 or not need_bt or proccing_bt )) then
+        local builderCheck = Feral:builder()
+        if builderCheck then
+            return Feral:builder()
+        end
+    end
+    if (targets >= 2 and ComboPoints <5 and ( time_to_pool <= 0 or not need_bt or proccing_bt )) then
+        local aoe_builderCheck = Feral:aoe_builder()
+        if aoe_builderCheck then
+            return Feral:aoe_builder()
+        end
+    end
+    if (MaxDps:FindSpell(classtable.Regrowth) and CheckSpellCosts(classtable.Regrowth, 'Regrowth')) and (buff[classtable.PredatorySwiftnessBuff].up and regrowth) and cooldown[classtable.Regrowth].ready then
+        return classtable.Regrowth
+    end
+    if (ComboPoints == 5) then
+        local finisherCheck = Feral:finisher()
+        if finisherCheck then
+            return Feral:finisher()
+        end
+    end
+    if (targets >= 2) then
+        local aoe_builderCheck = Feral:aoe_builder()
+        if aoe_builderCheck then
+            return Feral:aoe_builder()
+        end
+    end
+end
 function Druid:Feral()
-	local fd = MaxDps.FrameData
-	local cooldown = fd.cooldown
-	local buff = fd.buff
-	local debuff = fd.debuff
-	local currentSpell = fd.currentSpell
-	local spellHistory = fd.spellHistory
-	local talents = fd.talents
-	local targets = MaxDps:SmartAoe()
-	local covenantId = fd.covenant.covenantId
-	local energy = UnitPower('player', Energy)
-	local energyMax = UnitPowerMax('player', Energy)
-	local energyDeficit = energyMax - energy
-
-	fd.targets = targets
-	fd.energy = energy
-	fd.energyMax = energyMax
-	fd.energyDeficit = energyDeficit
-
-	local comboPoints = UnitPower('player', ComboPoints)
-	fd.comboPoints = comboPoints
-
-	local Incarnation = talents[FR.Incarnation] and FR.Incarnation or FR.Berserk
-	fd.Incarnation = Incarnation
-
-	-- berserk,if=combo_points>=3
-	-- incarnation,if=combo_points>=3
-	MaxDps:GlowCooldown(Incarnation, cooldown[Incarnation].ready and comboPoints >= 3)
-
-	if talents[FR.HeartOfTheWild] then
-		MaxDps:GlowCooldown(FR.HeartOfTheWild, cooldown[FR.HeartOfTheWild].ready)
-	end
-
-	if covenantId == Venthyr then
-		MaxDps:GlowCooldown(FR.RavenousFrenzy, cooldown[FR.RavenousFrenzy].ready)
-	elseif covenantId == NightFae then
-		MaxDps:GlowCooldown(FR.ConvokeTheSpirits, cooldown[FR.ConvokeTheSpirits].ready)
-	elseif covenantId == Kyrian then
-		MaxDps:GlowCooldown(FR.KindredSpirits, cooldown[FR.KindredSpirits].ready)
-	end
-
-	if buff[FR.MoonkinForm].up then
-		-- starsurge,if=buff.heart_of_the_wild.up
-		if talents[FR.BalanceAffinity] and cooldown[FR.Starsurge].ready and buff[FR.HeartOfTheWild].up then
-			return FR.Starsurge
-		end
-
-		-- sunfire,if=!prev_gcd.1.sunfire
-		if spellHistory[1] ~= FR.Sunfire then
-			return FR.Sunfire
-		end
-
-		-- tigers_fury,if=buff.cat_form.down
-		if cooldown[FR.TigersFury].ready and not buff[FR.CatForm].up then
-			return FR.TigersFury
-		end
-
-		-- cat_form,if=buff.cat_form.down
-		if not buff[FR.CatForm].up then
-			return FR.CatForm
-		end
-	end
-
-	-- prowl
-	--if cooldown[FR.Prowl].ready then
-	--	return FR.Prowl
-	--end
-
-	-- heart_of_the_wild,if=energy<40&dot.rake.remains>4.5&(dot.rip.remains>4.5|combo_points<5)&cooldown.tigers_fury.remains>=4.5&buff.clearcasting.stack<1&!buff.apex_predators_craving.up&!cooldown.convoke_the_spirits.up&variable.owlweave=1
-
-	--if energy < 40 and debuff[FR.Rake].remains > 4.5 and (debuff[FR.Rip].remains > 4.5 or comboPoints < 5) and cooldown[FR.TigersFury].remains >= 4.5 and buff[FR.Clearcasting].count < 1 and not buff[FR.ApexPredatorsCraving].up and not cooldown[FR.ConvokeTheSpirits].up and owlweave == 1 then
-	--	return FR.HeartOfTheWild
-	--end
-
-	-- moonkin_form,if=energy<40&dot.rake.remains>4.5&(dot.rip.remains>4.5|combo_points<5)&cooldown.tigers_fury.remains>=4.5&buff.clearcasting.stack<1&!buff.apex_predators_craving.up&!cooldown.convoke_the_spirits.up&variable.owlweave=1
-	--if energy < 40 and debuff[FR.Rake].remains > 4.5 and (debuff[FR.Rip].remains > 4.5 or comboPoints < 5) and cooldown[FR.TigersFury].remains >= 4.5 and buff[FR.Clearcasting].count < 1 and not buff[FR.ApexPredatorsCraving].up and not cooldown[FR.ConvokeTheSpirits].up and owlweave == 1 then
-	--	return FR.MoonkinForm
-	--end
-
-	-- run_action_list,name=stealth,if=buff.shadowmeld.up|buff.prowl.up
-	if buff[FR.Prowl].up then -- buff[FR.Shadowmeld].up or
-		return Druid:FeralStealth()
-	end
-
-	-- call_action_list,name=cooldown
-	local result = Druid:FeralCooldown()
-	if result then
-		return result
-	end
-
-	-- run_action_list,name=finisher,if=combo_points>=(5-variable.4cp_bite)
-	if comboPoints >= 5 then -- fourCpBite = 0
-		return Druid:FeralFinisher()
-	end
-
-	-- call_action_list,name=stealth,if=buff.bs_inc.up|buff.sudden_ambush.up
-	if buff[Incarnation].up or buff[FR.SuddenAmbush].up then
-		result = Druid:FeralStealth()
-		if result then
-			return result
-		end
-	end
-
-	-- run_action_list,name=bloodtalons,if=talent.bloodtalons.enabled&buff.bloodtalons.down
-	if talents[FR.Bloodtalons] and not buff[FR.BloodtalonsAura].up then
-		return Druid:FeralBloodtalons()
-	end
-
-	-- ferocious_bite,target_if=max:target.time_to_die,if=buff.apex_predators_craving.up&(!talent.bloodtalons.enabled|buff.bloodtalons.up)
-	if energy >= 25 and
-		comboPoints >= 1 and
-		buff[FR.ApexPredatorsCraving].up and
-		(not talents[FR.Bloodtalons] or buff[FR.BloodtalonsAura].up)
-	then
-		return FR.FerociousBite
-	end
-
-	-- feral_frenzy,if=combo_points<3
-	if talents[FR.FeralFrenzy] and
-		cooldown[FR.FeralFrenzy].ready and
-		energy >= 25 and
-		comboPoints < 3
-	then
-		return FR.FeralFrenzy
-	end
-
-	-- rake,target_if=(refreshable|persistent_multiplier>dot.rake.pmultiplier)&druid.rake.ticks_gained_on_refresh>spell_targets.swipe_cat*2-2
-	if energy >= 35 and debuff[FR.RakeAura].refreshable then
-		return FR.Rake
-	end
-
-	-- moonfire_cat,target_if=refreshable&druid.moonfire.ticks_gained_on_refresh>spell_targets.swipe_cat*2-2
-	if talents[FR.LunarInspiration] and debuff[FR.Moonfire].refreshable then
-		return FR.Moonfire
-	end
-
-	-- brutal_slash,if=(raid_event.adds.in>(1+max_charges-charges_fractional)*recharge_time)&(spell_targets.brutal_slash*action.brutal_slash.damage%action.brutal_slash.cost)>(action.shred.damage%action.shred.cost)
-	if talents[FR.BrutalSlash] and cooldown[FR.BrutalSlash].ready and energy >= 25 -- and (
-		--((1 + cooldown[FR.BrutalSlash].maxCharges - cooldown[FR.BrutalSlash].charges) * cooldown[FR.BrutalSlash].partialRecharge) and
-		--(targets * cooldown[FR.BrutalSlash].damage / cooldown[FR.BrutalSlash].cost) > (cooldown[FR.Shred].damage / cooldown[FR.Shred].cost))
-	then
-		return FR.BrutalSlash
-	end
-
-	-- swipe_cat,if=spell_targets.swipe_cat>1+buff.bs_inc.up*2
-	if not talents[FR.BrutalSlash] and targets > 1 + (buff[Incarnation].up and 2 or 0) then
-		return FR.Swipe
-	end
-
-	-- shred,if=buff.clearcasting.up
-	if buff[FR.Clearcasting].up then
-		return FR.Shred
-	end
-
-	-- rake,target_if=buff.bs_inc.up&druid.rake.ticks_gained_on_refresh>2
-	if energy >= 35 and buff[Incarnation].up then
-		return FR.Rake
-	end
-
-	-- call_action_list,name=filler
-	return Druid:FeralFiller()
-end
-
-function Druid:FeralBloodtalons()
-	local fd = MaxDps.FrameData
-	local buff = fd.buff
-	local debuff = fd.debuff
-	local talents = fd.talents
-	local targets = fd.targets
-	local energy = fd.energy
-	local cooldown = fd.cooldown
-
-	-- rake,target_if=(!ticking|(refreshable&persistent_multiplier>dot.rake.pmultiplier))&buff.bt_rake.down&druid.rake.ticks_gained_on_refresh>=2
-	if energy >= 35 and (
-		not debuff[FR.RakeAura].up or
-		(
-			debuff[FR.RakeAura].refreshable and
-			Druid:BtBuffDown(FR.Rake)
-		)
-	) then
-		return FR.Rake
-	end
-
-	-- lunar_inspiration,target_if=refreshable&buff.bt_moonfire.down
-	if talents[FR.LunarInspiration] and debuff[FR.Moonfire].refreshable and Druid:BtBuffDown(FR.Moonfire) then
-		return FR.Moonfire
-	end
-
-	-- thrash_cat,target_if=refreshable&buff.bt_thrash.down&druid.thrash_cat.ticks_gained_on_refresh>8
-	if debuff[FR.Thrash].refreshable and buff[FR.Thrash].down and Druid:BtBuffDown(FR.Thrash) then
-		return FR.Thrash
-	end
-
-	-- brutal_slash,if=buff.bt_brutal_slash.down
-	if talents[FR.BrutalSlash] and
-		cooldown[FR.BrutalSlash].ready and
-		--energy >= 25 and
-		Druid:BtBuffDown(FR.BrutalSlash)
-	then
-		return FR.BrutalSlash
-	end
-
-	-- swipe_cat,if=buff.bt_swipe.down&spell_targets.swipe_cat>1
-	if not talents[FR.BrutalSlash] and
-		--energy >= 35 and
-		targets > 1 and
-		Druid:BtBuffDown(FR.Swipe)
-	then
-		return FR.Swipe
-	end
-
-	-- shred,if=buff.bt_shred.down
-	if Druid:BtBuffDown(FR.Shred) then -- energy >= 40 and
-		return FR.Shred
-	end
-
-	-- swipe_cat,if=buff.bt_swipe.down
-	if not talents[FR.BrutalSlash] and Druid:BtBuffDown(FR.Swipe) then
-		return FR.Swipe
-	end
-
-	-- thrash_cat,if=buff.bt_thrash.down
-	if Druid:BtBuffDown(FR.Thrash) then
-		return FR.Thrash
-	end
-end
-
-function Druid:FeralCooldown()
-	local fd = MaxDps.FrameData
-	local cooldown = fd.cooldown
-	local debuff = fd.debuff
-	local energyDeficit = fd.energyDeficit
-	local covenantId = fd.covenant.covenantId
-
-	-- tigers_fury,if=energy.deficit>55|buff.bs_inc.up|(talent.predator.enabled&variable.shortest_ttd<3)
-	if cooldown[FR.TigersFury].ready and energyDeficit >= 55 then
-		return FR.TigersFury
-	end
-
-	-- ravenous_frenzy,if=buff.bs_inc.up|fight_remains<21
-	--if buff[Incarnation].up then
-	--	return FR.RavenousFrenzy
-	--end
-
-	-- convoke_the_spirits,if=(dot.rip.remains>4&combo_points<3&dot.rake.ticking)|fight_remains<5
-	--if cooldown[FR.ConvokeTheSpirits].ready and
-	--	currentSpell ~= FR.ConvokeTheSpirits and ((debuff[FR.Rip].remains > 4 and comboPoints < 3 and debuff[FR.Rake].up) or fightRemains < 5) then
-	--	return FR.ConvokeTheSpirits
-	--end
-
-	-- kindred_spirits,if=buff.tigers_fury.up|(conduit.deep_allegiance.enabled)
-	--if currentSpell ~= FR.KindredSpirits and (buff[FR.TigersFury].up or (conduit[FR.DeepAllegiance])) then
-	--	return FR.KindredSpirits
-	--end
-
-	-- adaptive_swarm,target_if=max:time_to_die*(combo_points=5&!dot.adaptive_swarm_damage.ticking)
-	if covenantId == Necrolord and
-		cooldown[FR.AdaptiveSwarm].ready and
-		not debuff[FR.AdaptiveSwarmAura].up
-	then
-		return FR.AdaptiveSwarm
-	end
-end
-
-function Druid:FeralFiller()
-	local fd = MaxDps.FrameData
-	local debuff = fd.debuff
-	local talents = fd.talents
-	local energy = fd.energy
-
-	if energy < 50 then
-		return nil
-	end
-
-	-- rake,target_if=variable.filler=1&dot.rake.pmultiplier<=persistent_multiplier
-	if filler == 1 then
-		return FR.Rake
-	end
-
-	-- rake,if=variable.filler=2
-	if filler == 2 then
-		return FR.Rake
-	end
-
-	-- lunar_inspiration,if=variable.filler=3
-	if talents[FR.LunarInspiration] and filler == 3 then
-		return FR.Moonfire
-	end
-
-	-- swipe,if=variable.filler=4
-	if not talents[FR.BrutalSlash] and filler == 4 then
-		return FR.Swipe
-	end
-
-	-- shred
-	return FR.Shred
-end
-
-function Druid:FeralFinisher()
-	local fd = MaxDps.FrameData
-	local cooldown = fd.cooldown
-	local buff = fd.buff
-	local debuff = fd.debuff
-	local talents = fd.talents
-	local targets = fd.targets
-	local timeToDie = fd.timeToDie
-	local comboPoints = fd.comboPoints
-	local energy = fd.energy
-
-	-- savage_roar,if=buff.savage_roar.down|buff.savage_roar.remains<(combo_points*6+1)*0.3
-	if talents[FR.SavageRoar] and
-		energy >= 25 and
-		comboPoints >= 1 and
-		(not buff[FR.SavageRoar].up or buff[FR.SavageRoar].remains < (comboPoints * 6 + 1) * 0.3)
-	then
-		return FR.SavageRoar
-	end
-
-	-- variable,name=best_rip,value=0,if=talent.primal_wrath.enabled
-	--if talents[FR.PrimalWrath] then
-	--	local bestRip = WTFFFFFF
-	--end
-	--
-	-- cycling_variable,name=best_rip,op=max,value=druid.rip.ticks_gained_on_refresh,if=talent.primal_wrath.enabled
-	--if talents[FR.PrimalWrath] then
-	--	return best_rip
-	--end
-
-	-- primal_wrath,if=druid.primal_wrath.ticks_gained_on_refresh>(variable.rip_ticks>?variable.best_rip)|spell_targets.primal_wrath>(3+1*talent.sabertooth.enabled)
-	if talents[FR.PrimalWrath] and
-		energy >= 20 and
-		comboPoints >= 1 and
-		targets > (3 + 1 * (talents[FR.Sabertooth] and 1 or 0))
-	then
-		return FR.PrimalWrath
-	end
-
-	-- rip,target_if=refreshable&druid.rip.ticks_gained_on_refresh>variable.rip_ticks&((buff.tigers_fury.up|cooldown.tigers_fury.remains>5)&(buff.bloodtalons.up|!talent.bloodtalons.enabled)&dot.rip.pmultiplier<=persistent_multiplier|!talent.sabertooth.enabled)
-	if energy >= 20 and
-		comboPoints >= 1 and
-		debuff[FR.Rip].refreshable
-	then
-		return FR.Rip
-	end
-
-	-- ferocious_bite,max_energy=1,target_if=max:time_to_die
-	if energy >= 25 and comboPoints >= 1 then
-		return FR.FerociousBite
-	end
-end
-
-function Druid:FeralStealth()
-	local fd = MaxDps.FrameData
-	local buff = fd.buff
-	local debuff = fd.debuff
-	local talents = fd.talents
-	local targets = fd.targets
-	local energy = fd.energy
-	local comboPoints = fd.comboPoints
-
-	-- run_action_list,name=bloodtalons,if=talent.bloodtalons.enabled&buff.bloodtalons.down
-	if talents[FR.Bloodtalons] and not buff[FR.BloodtalonsAura].up then
-		return Druid:FeralBloodtalons()
-	end
-
-	-- rake,target_if=(dot.rake.pmultiplier<1.5|refreshable)&druid.rake.ticks_gained_on_refresh>2
-	if energy >= 35 and debuff[FR.RakeAura].refreshable then
-		return FR.Rake
-	end
-
-	-- brutal_slash,if=spell_targets.brutal_slash>2
-	if talents[FR.BrutalSlash] and energy >= 25 and targets > 2 then
-		return FR.BrutalSlash
-	end
-
-	-- shred,if=combo_points<4
-	if energy >= 40 and comboPoints < 4 then
-		return FR.Shred
-	end
-end
-
-local BtAbilities = {
-	[FR.Rake] = true,
-	[FR.Shred] = true,
-	[FR.Swipe] = true,
-	[FR.Thrash] = true,
-	[FR.Moonfire] = true,
-	[FR.BrutalSlash] = true
-}
-function Druid:UNIT_SPELLCAST_SUCCEEDED(event, unitId, castGUID, spellId)
-	if unitId ~= 'player' or not BtAbilities[spellId] then
-		return
-	end
-
-	BtBuff[spellId] = GetTime()
-end
-
-function Druid:BtBuffDown(spellId)
-	local fd = MaxDps.FrameData
-	local talents = fd.talents
-
-	-- if you don't have BT talent, any filler is ok
-	if not talents[FR.Bloodtalons] then
-		return true
-	end
-
-	local t = GetTime()
-	local lastTimestamp = BtBuff[spellId]
-
-	return t - lastTimestamp > 4
+    fd = MaxDps.FrameData
+    ttd = (fd.timeToDie and fd.timeToDie) or 500
+    timeShift = fd.timeShift
+    gcd = fd.gcd
+    cooldown = fd.cooldown
+    buff = fd.buff
+    debuff = fd.debuff
+    talents = fd.talents
+    targets = MaxDps:SmartAoe()
+    Mana = UnitPower('player', ManaPT)
+    ManaMax = UnitPowerMax('player', ManaPT)
+    ManaDeficit = ManaMax - Mana
+    targetHP = UnitHealth('target')
+    targetmaxHP = UnitHealthMax('target')
+    targethealthPerc = (targetHP / targetmaxHP) * 100
+    curentHP = UnitHealth('player')
+    maxHP = UnitHealthMax('player')
+    healthPerc = (curentHP / maxHP) * 100
+    timeInCombat = MaxDps.combatTime or 0
+    classtable = MaxDps.SpellTable
+    SpellHaste = UnitSpellHaste('player')
+    SpellCrit = GetCritChance()
+    LunarPower = UnitPower('player', LunarPowerPT)
+    LunarPowerMax = UnitPowerMax('player', LunarPowerPT)
+    LunarPowerDeficit = LunarPowerMax - LunarPower
+    classtable.Incarnation =  classtable.IncarnationAvatarofAshamane
+    classtable.MoonfireCat =  classtable.Moonfire
+    classtable.ThrashCat =  classtable.Thrash
+    classtable.SwipeCat =  classtable.Swipe
+    Energy = UnitPower('player', EnergyPT)
+    EnergyMax = UnitPowerMax('player', EnergyPT)
+    EnergyDeficit = EnergyMax - Energy
+    EnergyRegen = GetPowerRegenForPowerType(Enum.PowerType.Energy)
+    EnergyTimeToMax = EnergyDeficit / EnergyRegen
+    EnergyPerc = (Energy / EnergyMax) * 100
+    ComboPoints = UnitPower('player', ComboPointsPT)
+    ComboPointsMax = UnitPowerMax('player', ComboPointsPT)
+    ComboPointsDeficit = ComboPointsMax - ComboPoints
+    for spellId in pairs(MaxDps.Flags) do
+        self.Flags[spellId] = false
+        self:ClearGlowIndependent(spellId, spellId)
+    end
+    classtable.ProwlBuff = 5215
+    classtable.CatFormBuff = 768
+    classtable.RakeDeBuff = 155722
+    classtable.SuddenAmbushBuff = 0
+    classtable.BtRakeBuff = 0
+    classtable.BtSwipeBuff = 0
+    classtable.ThrashCatDeBuff = 405233
+    classtable.MoonfireCatDeBuff = 0
+    classtable.BtMoonfireBuff = 0
+    classtable.BtShredBuff = 0
+    classtable.BtThrashBuff = 0
+    classtable.ShadowmeldBuff = 58984
+    classtable.TigersFuryBuff = 0
+    classtable.ClearcastingBuff = 135700
+    classtable.BsIncBuff = 0
+    classtable.PrimalWrathDeBuff = 0
+    classtable.RipDeBuff = 1079
+    classtable.BloodtalonsBuff = 0
+    classtable.IncarnationBuff = 102543
+    classtable.ApexPredatorsCravingBuff = 0
+    classtable.AdaptiveSwarmDamageDeBuff = 0
+    classtable.PredatorySwiftnessBuff = 69369
+
+    local precombatCheck = Feral:precombat()
+    if precombatCheck then
+        return Feral:precombat()
+    end
+    local callactionCheck = Feral:callaction()
+    if callactionCheck then
+        return Feral:callaction()
+    end
 end
