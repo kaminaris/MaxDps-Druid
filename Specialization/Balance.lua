@@ -139,7 +139,7 @@ end
 
 
 function Balance:precombat()
-    if (MaxDps:FindSpell(classtable.MoonkinForm) and CheckSpellCosts(classtable.MoonkinForm, 'MoonkinForm')) and cooldown[classtable.MoonkinForm].ready then
+    if (MaxDps:FindSpell(classtable.MoonkinForm) and CheckSpellCosts(classtable.MoonkinForm, 'MoonkinForm')) and not buff[classtable.MoonkinForm].up and cooldown[classtable.MoonkinForm].ready then
         return classtable.MoonkinForm
     end
     --if (MaxDps:FindSpell(classtable.Wrath) and CheckSpellCosts(classtable.Wrath, 'Wrath')) and cooldown[classtable.Wrath].ready then
