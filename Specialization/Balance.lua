@@ -159,7 +159,7 @@ end
 
 function Balance:callaction()
     if (MaxDps:FindSpell(classtable.SolarBeam) and CheckSpellCosts(classtable.SolarBeam, 'SolarBeam')) and cooldown[classtable.SolarBeam].ready then
-        MaxDps:GlowCooldown(classtable.SolarBeam, select(8,UnitCastingInfo('target') == false) and cooldown[classtable.SolarBeam].ready)
+        MaxDps:GlowCooldown(classtable.SolarBeam, ( select(8,UnitCastingInfo('target')) ~= nil and not select(8,UnitCastingInfo('target')) or select(7,UnitChannelInfo('target')) ~= nil and not select(7,UnitChannelInfo('target'))) )
     end
     if (MaxDps:FindSpell(classtable.Moonfire) and CheckSpellCosts(classtable.Moonfire, 'Moonfire')) and (debuff[classtable.MoonfireDeBuff].refreshable) and cooldown[classtable.Moonfire].ready then
         return classtable.Moonfire

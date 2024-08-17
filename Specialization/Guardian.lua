@@ -150,7 +150,7 @@ end
 
 function Guardian:callaction()
     if (MaxDps:FindSpell(classtable.SkullBash) and CheckSpellCosts(classtable.SkullBash, 'SkullBash')) and cooldown[classtable.SkullBash].ready then
-        MaxDps:GlowCooldown(classtable.SkullBash, select(8,UnitCastingInfo('target') == false) and cooldown[classtable.SkullBash].ready)
+        MaxDps:GlowCooldown(classtable.SkullBash, ( select(8,UnitCastingInfo('target')) ~= nil and not select(8,UnitCastingInfo('target')) or select(7,UnitChannelInfo('target')) ~= nil and not select(7,UnitChannelInfo('target'))) )
     end
     if (MaxDps:FindSpell(classtable.Incarnation) and CheckSpellCosts(classtable.Incarnation, 'Incarnation')) and cooldown[classtable.Incarnation].ready then
         MaxDps:GlowCooldown(classtable.Incarnation, cooldown[classtable.Incarnation].ready)

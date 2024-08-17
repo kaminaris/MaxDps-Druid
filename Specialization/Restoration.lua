@@ -203,7 +203,7 @@ end
 
 function Restoration:callaction()
     if (MaxDps:FindSpell(classtable.SkullBash) and CheckSpellCosts(classtable.SkullBash, 'SkullBash')) and cooldown[classtable.SkullBash].ready then
-        MaxDps:GlowCooldown(classtable.SkullBash, select(8,UnitCastingInfo('target') == false) and cooldown[classtable.SkullBash].ready)
+        MaxDps:GlowCooldown(classtable.SkullBash, ( select(8,UnitCastingInfo('target')) ~= nil and not select(8,UnitCastingInfo('target')) or select(7,UnitChannelInfo('target')) ~= nil and not select(7,UnitChannelInfo('target'))) )
     end
     if (MaxDps:FindSpell(classtable.NaturesVigil) and CheckSpellCosts(classtable.NaturesVigil, 'NaturesVigil')) and (not buff[classtable.ProwlBuff].up and not buff[classtable.ShadowmeldBuff].up) and cooldown[classtable.NaturesVigil].ready then
         return classtable.NaturesVigil
