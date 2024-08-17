@@ -96,13 +96,14 @@ local proccing_bt
 
 local function CheckSpellCosts(spell,spellstring)
     if not IsSpellKnownOrOverridesKnown(spell) then return false end
+    if not C_Spell.IsSpellUsable(spell) then return false end
     if spellstring == 'TouchofDeath' then
         if targethealthPerc > 15 then
             return false
         end
     end
     if spellstring == 'KillShot' then
-        if (classtable.SicEmBuff and not buff[classtable.SicEmBuff].up) and targethealthPerc > 15 then
+        if (classtable.SicEmBuff and not buff[classtable.SicEmBuff].up) or (classtable.HuntersPreyBuff and not buff[classtable.HuntersPreyBuff].up) and targethealthPerc > 15 then
             return false
         end
     end
@@ -206,6 +207,23 @@ local function CheckPrevSpell(spell)
 end
 
 
+local function boss()
+    if UnitExists('boss1')
+    or UnitExists('boss2')
+    or UnitExists('boss3')
+    or UnitExists('boss4')
+    or UnitExists('boss5')
+    or UnitExists('boss6')
+    or UnitExists('boss7')
+    or UnitExists('boss8')
+    or UnitExists('boss9')
+    or UnitExists('boss10') then
+        return true
+    end
+    return false
+end
+
+
 function Feral:precombat()
     --if (MaxDps:FindSpell(classtable.Prowl) and CheckSpellCosts(classtable.Prowl, 'Prowl')) and (not buff[classtable.ProwlBuff].up) and cooldown[classtable.Prowl].ready then
     --    return classtable.Prowl
@@ -298,6 +316,9 @@ function Feral:berserk()
     if (MaxDps:FindSpell(classtable.BrutalSlash) and CheckSpellCosts(classtable.BrutalSlash, 'BrutalSlash')) and (active_bt_triggers == 2 and not buff[classtable.BtSwipeBuff].up) and cooldown[classtable.BrutalSlash].ready then
         return classtable.BrutalSlash
     end
+    if (MaxDps:FindSpell(classtable.SwipeCat) and CheckSpellCosts(classtable.SwipeCat, 'SwipeCat')) and (active_bt_triggers == 2 and not buff[classtable.BtSwipeBuff].up and talents[classtable.WildSlashes]) and cooldown[classtable.SwipeCat].ready then
+        return classtable.SwipeCat
+    end
     if (MaxDps:FindSpell(classtable.BrutalSlash) and CheckSpellCosts(classtable.BrutalSlash, 'BrutalSlash')) and (cooldown[classtable.BrutalSlash].charges >1 and not buff[classtable.BtSwipeBuff].up) and cooldown[classtable.BrutalSlash].ready then
         return classtable.BrutalSlash
     end
@@ -306,6 +327,9 @@ function Feral:berserk()
     end
     if (MaxDps:FindSpell(classtable.BrutalSlash) and CheckSpellCosts(classtable.BrutalSlash, 'BrutalSlash')) and (cooldown[classtable.BrutalSlash].charges >1) and cooldown[classtable.BrutalSlash].ready then
         return classtable.BrutalSlash
+    end
+    if (MaxDps:FindSpell(classtable.SwipeCat) and CheckSpellCosts(classtable.SwipeCat, 'SwipeCat')) and (not buff[classtable.BtSwipeBuff].up and talents[classtable.WildSlashes]) and cooldown[classtable.SwipeCat].ready then
+        return classtable.SwipeCat
     end
     if (MaxDps:FindSpell(classtable.Shred) and CheckSpellCosts(classtable.Shred, 'Shred')) and cooldown[classtable.Shred].ready then
         return classtable.Shred
@@ -324,11 +348,11 @@ function Feral:builder()
     if (MaxDps:FindSpell(classtable.ThrashCat) and CheckSpellCosts(classtable.ThrashCat, 'ThrashCat')) and (debuff[classtable.ThrashCatDeBuff].refreshable) and cooldown[classtable.ThrashCat].ready then
         return classtable.ThrashCat
     end
-    if (MaxDps:FindSpell(classtable.MoonfireCat) and CheckSpellCosts(classtable.MoonfireCat, 'MoonfireCat')) and (debuff[classtable.MoonfireCatDeBuff].refreshable and cooldown[classtable.ConvoketheSpirits].remains >5) and cooldown[classtable.MoonfireCat].ready then
-        return classtable.MoonfireCat
-    end
     if (MaxDps:FindSpell(classtable.Shred) and CheckSpellCosts(classtable.Shred, 'Shred')) and (buff[classtable.ClearcastingBuff].up) and cooldown[classtable.Shred].ready then
         return classtable.Shred
+    end
+    if (MaxDps:FindSpell(classtable.MoonfireCat) and CheckSpellCosts(classtable.MoonfireCat, 'MoonfireCat')) and (debuff[classtable.MoonfireCatDeBuff].refreshable) and cooldown[classtable.MoonfireCat].ready then
+        return classtable.MoonfireCat
     end
     if (MaxDps:FindSpell(classtable.BrutalSlash) and CheckSpellCosts(classtable.BrutalSlash, 'BrutalSlash')) and (not ( need_bt and buff[classtable.BtSwipeBuff].up )) and cooldown[classtable.BrutalSlash].ready then
         return classtable.BrutalSlash
@@ -362,12 +386,12 @@ function Feral:cooldown()
     if (MaxDps:FindSpell(classtable.FeralFrenzy) and CheckSpellCosts(classtable.FeralFrenzy, 'FeralFrenzy')) and (ComboPoints <= 1 or buff[classtable.BsIncBuff].up and ComboPoints <= 2) and cooldown[classtable.FeralFrenzy].ready then
         return classtable.FeralFrenzy
     end
-    if (MaxDps:FindSpell(classtable.ConvoketheSpirits) and CheckSpellCosts(classtable.ConvoketheSpirits, 'ConvoketheSpirits')) and (( buff[classtable.TigersFuryBuff].up and ( ComboPoints <= 2 or buff[classtable.BsIncBuff].up and ComboPoints <= 3 ) and ( ttd >5 - (talents[classtable.AshamanesGuidance] and talents[classtable.AshamanesGuidance] or 0) or ttd == ttd ) )) and cooldown[classtable.ConvoketheSpirits].ready then
+    if (MaxDps:FindSpell(classtable.ConvoketheSpirits) and CheckSpellCosts(classtable.ConvoketheSpirits, 'ConvoketheSpirits')) and (boss and ttd <5 or ( buff[classtable.TigersFuryBuff].up and ( ComboPoints <= 2 or buff[classtable.BsIncBuff].up and ComboPoints <= 3 ) and ( ttd >5 - (talents[classtable.AshamanesGuidance] and talents[classtable.AshamanesGuidance] or 0) or ttd == ttd ) )) and cooldown[classtable.ConvoketheSpirits].ready then
         MaxDps:GlowCooldown(classtable.ConvoketheSpirits, cooldown[classtable.ConvoketheSpirits].ready)
     end
 end
 function Feral:finisher()
-    if (MaxDps:FindSpell(classtable.PrimalWrath) and CheckSpellCosts(classtable.PrimalWrath, 'PrimalWrath')) and (targets >1 and ( ( debuff[classtable.PrimalWrathDeBuff].remains <6.5 and not buff[classtable.BsIncBuff].up or debuff[classtable.PrimalWrathDeBuff].refreshable ) or targets >3 and not talents[classtable.RampantFerocity] or debuff[classtable.PrimalWrathDeBuff].remains <1 )) and cooldown[classtable.PrimalWrath].ready then
+    if (MaxDps:FindSpell(classtable.PrimalWrath) and CheckSpellCosts(classtable.PrimalWrath, 'PrimalWrath')) and (targets >1 and ( ( debuff[classtable.PrimalWrathDeBuff].remains <6.5 and not buff[classtable.BsIncBuff].up or debuff[classtable.PrimalWrathDeBuff].refreshable ) or ( not talents[classtable.RampantFerocity] and ( targets >1 and not debuff[classtable.BloodseekerVinesDeBuff].up and not buff[classtable.RavageBuff].up or targets >6 + (talents[classtable.Ravage] and talents[classtable.Ravage] or 0) ) ) or debuff[classtable.PrimalWrathDeBuff].remains <1 )) and cooldown[classtable.PrimalWrath].ready then
         return classtable.PrimalWrath
     end
     if (MaxDps:FindSpell(classtable.Rip) and CheckSpellCosts(classtable.Rip, 'Rip')) and (debuff[classtable.RipDeBuff].refreshable and ( not talents[classtable.PrimalWrath] or targets == 1 ) and ( buff[classtable.BloodtalonsBuff].up or not talents[classtable.Bloodtalons] ) and ( buff[classtable.TigersFuryBuff].up or debuff[classtable.RipDeBuff].remains <cooldown[classtable.TigersFury].remains )) and cooldown[classtable.Rip].ready then
@@ -379,7 +403,7 @@ function Feral:finisher()
     if (MaxDps:FindSpell(classtable.FerociousBite) and CheckSpellCosts(classtable.FerociousBite, 'FerociousBite')) and (not buff[classtable.BsIncBuff].up or not talents[classtable.SouloftheForest]) and cooldown[classtable.FerociousBite].ready then
         return classtable.FerociousBite
     end
-    if (MaxDps:FindSpell(classtable.FerociousBite) and CheckSpellCosts(classtable.FerociousBite, 'FerociousBite')) and cooldown[classtable.FerociousBite].ready then
+    if (MaxDps:FindSpell(classtable.FerociousBite) and CheckSpellCosts(classtable.FerociousBite, 'FerociousBite')) and (debuff[classtable.BloodseekerVinesDeBuff].up) and cooldown[classtable.FerociousBite].ready then
         return classtable.FerociousBite
     end
 end
@@ -399,6 +423,9 @@ function Feral:callaction()
     --end
     if (MaxDps:FindSpell(classtable.CatForm) and CheckSpellCosts(classtable.CatForm, 'CatForm')) and (not buff[classtable.CatFormBuff].up and not talents[classtable.FluidForm]) and cooldown[classtable.CatForm].ready then
         return classtable.CatForm
+    end
+    if (MaxDps:FindSpell(classtable.SkullBash) and CheckSpellCosts(classtable.SkullBash, 'SkullBash')) and cooldown[classtable.SkullBash].ready then
+        MaxDps:GlowCooldown(classtable.SkullBash, select(8,UnitCastingInfo('target') == false) and cooldown[classtable.SkullBash].ready)
     end
     local variableCheck = Feral:variable()
     if variableCheck then
@@ -530,6 +557,8 @@ function Druid:Feral()
     classtable.ClearcastingBuff = 135700
     classtable.BsIncBuff = 0
     classtable.PrimalWrathDeBuff = 0
+    classtable.BloodseekerVinesDeBuff = 0
+    classtable.RavageBuff = 0
     classtable.RipDeBuff = 1079
     classtable.BloodtalonsBuff = 0
     classtable.IncarnationBuff = 102543
@@ -541,6 +570,7 @@ function Druid:Feral()
     if precombatCheck then
         return Feral:precombat()
     end
+
     local callactionCheck = Feral:callaction()
     if callactionCheck then
         return Feral:callaction()
