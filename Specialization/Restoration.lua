@@ -81,13 +81,14 @@ local Restoration = {}
 
 local function CheckSpellCosts(spell,spellstring)
     if not IsSpellKnownOrOverridesKnown(spell) then return false end
+    if not C_Spell.IsSpellUsable(spell) then return false end
     if spellstring == 'TouchofDeath' then
         if targethealthPerc > 15 then
             return false
         end
     end
     if spellstring == 'KillShot' then
-        if (classtable.SicEmBuff and not buff[classtable.SicEmBuff].up) and targethealthPerc > 15 then
+        if (classtable.SicEmBuff and not buff[classtable.SicEmBuff].up) or (classtable.HuntersPreyBuff and not buff[classtable.HuntersPreyBuff].up) and targethealthPerc > 15 then
             return false
         end
     end
@@ -299,6 +300,7 @@ function Druid:Restoration()
     if precombatCheck then
         return Restoration:precombat()
     end
+
     local callactionCheck = Restoration:callaction()
     if callactionCheck then
         return Restoration:callaction()
