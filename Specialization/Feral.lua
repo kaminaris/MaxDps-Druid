@@ -97,26 +97,6 @@ local proccing_bt
 local function CheckSpellCosts(spell,spellstring)
     if not IsSpellKnown(spell) then return false end
     if not C_Spell.IsSpellUsable(spell) then return false end
-    if spellstring == 'TouchofDeath' then
-        if targethealthPerc > 15 then
-            return false
-        end
-    end
-    if spellstring == 'KillShot' then
-        if (classtable.SicEmBuff and not buff[classtable.SicEmBuff].up) or (classtable.HuntersPreyBuff and not buff[classtable.HuntersPreyBuff].up) and targethealthPerc > 15 then
-            return false
-        end
-    end
-    if spellstring == 'HammerofWrath' then
-        if ( (classtable.AvengingWrathBuff and not buff[classtable.AvengingWrathBuff].up) or (classtable.FinalVerdictBuff and not buff[classtable.FinalVerdictBuff].up) ) and targethealthPerc > 20 then
-            return false
-        end
-    end
-    if spellstring == 'Execute' then
-        if (classtable.SuddenDeathBuff and not buff[classtable.SuddenDeathBuff].up) and targethealthPerc > 35 then
-            return false
-        end
-    end
     local costs = C_Spell.GetSpellPowerCost(spell)
     if type(costs) ~= 'table' and spellstring then return true end
     for i,costtable in pairs(costs) do
@@ -246,7 +226,7 @@ function Feral:aoe_builder()
     --    return classtable.Prowl
     --end
     if (CheckSpellCosts(classtable.Shadowmeld, 'Shadowmeld')) and (not ( buff[classtable.BtRakeBuff].up and active_bt_triggers == 2 ) and cooldown[classtable.Rake].ready and gcd == 0 and not buff[classtable.SuddenAmbushBuff].up and ( debuff[classtable.RakeDeBuff].refreshable or debuff[classtable.RakeDeBuff].remains <1.4 )) and cooldown[classtable.Shadowmeld].ready then
-        return classtable.Shadowmeld
+        MaxDps:GlowCooldown(classtable.Shadowmeld, cooldown[classtable.Shadowmeld].ready)
     end
     if (CheckSpellCosts(classtable.Rake, 'Rake')) and (( debuff[classtable.RakeDeBuff].refreshable or ( debuff[classtable.RakeDeBuff].remains <1 ) ) and not ( buff[classtable.BtRakeBuff].up and active_bt_triggers == 2 )) and cooldown[classtable.Rake].ready then
         return classtable.Rake
@@ -299,7 +279,7 @@ function Feral:berserk()
     --    return classtable.Prowl
     --end
     if (CheckSpellCosts(classtable.Shadowmeld, 'Shadowmeld')) and (not ( buff[classtable.BtRakeBuff].up and active_bt_triggers == 2 ) and cooldown[classtable.Rake].ready and not buff[classtable.SuddenAmbushBuff].up and ( debuff[classtable.RakeDeBuff].refreshable or debuff[classtable.RakeDeBuff].remains <1.4 ) and not buff[classtable.ProwlBuff].up) and cooldown[classtable.Shadowmeld].ready then
-        return classtable.Shadowmeld
+        MaxDps:GlowCooldown(classtable.Shadowmeld, cooldown[classtable.Shadowmeld].ready)
     end
     if (CheckSpellCosts(classtable.Rake, 'Rake')) and (not ( buff[classtable.BtRakeBuff].up and active_bt_triggers == 2 ) and ( debuff[classtable.RakeDeBuff].remains <3 or buff[classtable.SuddenAmbushBuff].up and 1 >debuff[classtable.RakeDeBuff].remains )) and cooldown[classtable.Rake].ready then
         return classtable.Rake
@@ -337,7 +317,7 @@ function Feral:berserk()
 end
 function Feral:builder()
     if (CheckSpellCosts(classtable.Shadowmeld, 'Shadowmeld')) and (gcd == 0 and Energy >= 35 and not buff[classtable.SuddenAmbushBuff].up and ( debuff[classtable.RakeDeBuff].refreshable or debuff[classtable.RakeDeBuff].remains <1.4 ) * not ( need_bt and buff[classtable.BtRakeBuff].up ) and buff[classtable.TigersFuryBuff].up) and cooldown[classtable.Shadowmeld].ready then
-        return classtable.Shadowmeld
+        MaxDps:GlowCooldown(classtable.Shadowmeld, cooldown[classtable.Shadowmeld].ready)
     end
     if (CheckSpellCosts(classtable.Rake, 'Rake')) and (( ( debuff[classtable.RakeDeBuff].refreshable and 1 >= debuff[classtable.RakeDeBuff].remains or debuff[classtable.RakeDeBuff].remains <3 ) or buff[classtable.SuddenAmbushBuff].up and 1 >debuff[classtable.RakeDeBuff].remains ) and not ( need_bt and buff[classtable.BtRakeBuff].up )) and cooldown[classtable.Rake].ready then
         return classtable.Rake
@@ -397,13 +377,10 @@ function Feral:finisher()
     if (CheckSpellCosts(classtable.Rip, 'Rip')) and (debuff[classtable.RipDeBuff].refreshable and ( not talents[classtable.PrimalWrath] or targets == 1 ) and ( buff[classtable.BloodtalonsBuff].up or not talents[classtable.Bloodtalons] ) and ( buff[classtable.TigersFuryBuff].up or debuff[classtable.RipDeBuff].remains <cooldown[classtable.TigersFury].remains )) and cooldown[classtable.Rip].ready then
         return classtable.Rip
     end
-    if (CheckSpellCosts(classtable.PoolResource, 'PoolResource')) and cooldown[classtable.PoolResource].ready then
-        return classtable.PoolResource
-    end
     if (CheckSpellCosts(classtable.FerociousBite, 'FerociousBite')) and (not buff[classtable.BsIncBuff].up or not talents[classtable.SouloftheForest]) and cooldown[classtable.FerociousBite].ready then
         return classtable.FerociousBite
     end
-    if (CheckSpellCosts(classtable.FerociousBite, 'FerociousBite')) and (debuff[classtable.BloodseekerVinesDeBuff].up) and cooldown[classtable.FerociousBite].ready then
+    if (CheckSpellCosts(classtable.FerociousBite, 'FerociousBite')) and cooldown[classtable.FerociousBite].ready then
         return classtable.FerociousBite
     end
 end
