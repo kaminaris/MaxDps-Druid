@@ -80,7 +80,7 @@ local Guardian = {}
 
 
 local function CheckSpellCosts(spell,spellstring)
-    if not IsSpellKnownOrOverridesKnown(spell) then return false end
+    if not IsSpellKnown(spell) then return false end
     if not C_Spell.IsSpellUsable(spell) then return false end
     if spellstring == 'TouchofDeath' then
         if targethealthPerc > 15 then
@@ -140,79 +140,79 @@ end
 
 
 function Guardian:precombat()
-    --if (MaxDps:FindSpell(classtable.MarkoftheWild) and CheckSpellCosts(classtable.MarkoftheWild, 'MarkoftheWild')) and cooldown[classtable.MarkoftheWild].ready then
+    --if (CheckSpellCosts(classtable.MarkoftheWild, 'MarkoftheWild')) and cooldown[classtable.MarkoftheWild].ready then
     --    return classtable.MarkoftheWild
     --end
-    --if (MaxDps:FindSpell(classtable.BearForm) and CheckSpellCosts(classtable.BearForm, 'BearForm')) and cooldown[classtable.BearForm].ready then
+    --if (CheckSpellCosts(classtable.BearForm, 'BearForm')) and cooldown[classtable.BearForm].ready then
     --    return classtable.BearForm
     --end
 end
 
 function Guardian:callaction()
-    if (MaxDps:FindSpell(classtable.SkullBash) and CheckSpellCosts(classtable.SkullBash, 'SkullBash')) and cooldown[classtable.SkullBash].ready then
+    if (CheckSpellCosts(classtable.SkullBash, 'SkullBash')) and cooldown[classtable.SkullBash].ready then
         MaxDps:GlowCooldown(classtable.SkullBash, ( select(8,UnitCastingInfo('target')) ~= nil and not select(8,UnitCastingInfo('target')) or select(7,UnitChannelInfo('target')) ~= nil and not select(7,UnitChannelInfo('target'))) )
     end
-    if (MaxDps:FindSpell(classtable.Incarnation) and CheckSpellCosts(classtable.Incarnation, 'Incarnation')) and cooldown[classtable.Incarnation].ready then
+    if (CheckSpellCosts(classtable.Incarnation, 'Incarnation')) and cooldown[classtable.Incarnation].ready then
         MaxDps:GlowCooldown(classtable.Incarnation, cooldown[classtable.Incarnation].ready)
     end
-    if (MaxDps:FindSpell(classtable.Berserk) and CheckSpellCosts(classtable.Berserk, 'Berserk')) and cooldown[classtable.Berserk].ready then
+    if (CheckSpellCosts(classtable.Berserk, 'Berserk')) and cooldown[classtable.Berserk].ready then
         return classtable.Berserk
     end
-    if (MaxDps:FindSpell(classtable.HeartoftheWild) and CheckSpellCosts(classtable.HeartoftheWild, 'HeartoftheWild')) and cooldown[classtable.HeartoftheWild].ready then
+    if (CheckSpellCosts(classtable.HeartoftheWild, 'HeartoftheWild')) and cooldown[classtable.HeartoftheWild].ready then
         return classtable.HeartoftheWild
     end
-    if (MaxDps:FindSpell(classtable.NaturesVigil) and CheckSpellCosts(classtable.NaturesVigil, 'NaturesVigil')) and cooldown[classtable.NaturesVigil].ready then
+    if (CheckSpellCosts(classtable.NaturesVigil, 'NaturesVigil')) and cooldown[classtable.NaturesVigil].ready then
         return classtable.NaturesVigil
     end
-    if (MaxDps:FindSpell(classtable.ConvoketheSpirits) and CheckSpellCosts(classtable.ConvoketheSpirits, 'ConvoketheSpirits')) and cooldown[classtable.ConvoketheSpirits].ready then
+    if (CheckSpellCosts(classtable.ConvoketheSpirits, 'ConvoketheSpirits')) and cooldown[classtable.ConvoketheSpirits].ready then
         MaxDps:GlowCooldown(classtable.ConvoketheSpirits, cooldown[classtable.ConvoketheSpirits].ready)
     end
-    if (MaxDps:FindSpell(classtable.Renewal) and CheckSpellCosts(classtable.Renewal, 'Renewal')) and (curentHP <70) and cooldown[classtable.Renewal].ready then
+    if (CheckSpellCosts(classtable.Renewal, 'Renewal')) and (curentHP <70) and cooldown[classtable.Renewal].ready then
         return classtable.Renewal
     end
-    if (MaxDps:FindSpell(classtable.FrenziedRegeneration) and CheckSpellCosts(classtable.FrenziedRegeneration, 'FrenziedRegeneration')) and (curentHP <70 and ( not buff[classtable.FrenziedRegenerationBuff].up or RageDeficit <20 ) and (UnitThreatSituation('player') == 2 or UnitThreatSituation('player') == 3)) and cooldown[classtable.FrenziedRegeneration].ready then
+    if (CheckSpellCosts(classtable.FrenziedRegeneration, 'FrenziedRegeneration')) and (curentHP <70 and ( not buff[classtable.FrenziedRegenerationBuff].up or RageDeficit <20 ) and (UnitThreatSituation('player') == 2 or UnitThreatSituation('player') == 3)) and cooldown[classtable.FrenziedRegeneration].ready then
         return classtable.FrenziedRegeneration
     end
-    if (MaxDps:FindSpell(classtable.SurvivalInstincts) and CheckSpellCosts(classtable.SurvivalInstincts, 'SurvivalInstincts')) and (down and curentHP <70 and (UnitThreatSituation('player') == 2 or UnitThreatSituation('player') == 3)) and cooldown[classtable.SurvivalInstincts].ready then
+    if (CheckSpellCosts(classtable.SurvivalInstincts, 'SurvivalInstincts')) and (down and curentHP <70 and (UnitThreatSituation('player') == 2 or UnitThreatSituation('player') == 3)) and cooldown[classtable.SurvivalInstincts].ready then
         return classtable.SurvivalInstincts
     end
-    if (MaxDps:FindSpell(classtable.Barkskin) and CheckSpellCosts(classtable.Barkskin, 'Barkskin')) and (down and curentHP <70 and (UnitThreatSituation('player') == 2 or UnitThreatSituation('player') == 3)) and cooldown[classtable.Barkskin].ready then
+    if (CheckSpellCosts(classtable.Barkskin, 'Barkskin')) and (down and curentHP <70 and (UnitThreatSituation('player') == 2 or UnitThreatSituation('player') == 3)) and cooldown[classtable.Barkskin].ready then
         return classtable.Barkskin
     end
-    if (MaxDps:FindSpell(classtable.Pulverize) and CheckSpellCosts(classtable.Pulverize, 'Pulverize')) and cooldown[classtable.Pulverize].ready then
+    if (CheckSpellCosts(classtable.Pulverize, 'Pulverize')) and cooldown[classtable.Pulverize].ready then
         return classtable.Pulverize
     end
-    if (MaxDps:FindSpell(classtable.RageoftheSleeper) and CheckSpellCosts(classtable.RageoftheSleeper, 'RageoftheSleeper')) and cooldown[classtable.RageoftheSleeper].ready then
+    if (CheckSpellCosts(classtable.RageoftheSleeper, 'RageoftheSleeper')) and cooldown[classtable.RageoftheSleeper].ready then
         return classtable.RageoftheSleeper
     end
-    if (MaxDps:FindSpell(classtable.LunarBeam) and CheckSpellCosts(classtable.LunarBeam, 'LunarBeam')) and cooldown[classtable.LunarBeam].ready then
+    if (CheckSpellCosts(classtable.LunarBeam, 'LunarBeam')) and cooldown[classtable.LunarBeam].ready then
         return classtable.LunarBeam
     end
-    if (MaxDps:FindSpell(classtable.BristlingFur) and CheckSpellCosts(classtable.BristlingFur, 'BristlingFur')) and cooldown[classtable.BristlingFur].ready then
+    if (CheckSpellCosts(classtable.BristlingFur, 'BristlingFur')) and cooldown[classtable.BristlingFur].ready then
         return classtable.BristlingFur
     end
-    if (MaxDps:FindSpell(classtable.Ironfur) and CheckSpellCosts(classtable.Ironfur, 'Ironfur')) and ((UnitThreatSituation('player') == 2 or UnitThreatSituation('player') == 3) and ( not buff[classtable.IronfurBuff].up or RageDeficit <20 )) and cooldown[classtable.Ironfur].ready then
+    if (CheckSpellCosts(classtable.Ironfur, 'Ironfur')) and ((UnitThreatSituation('player') == 2 or UnitThreatSituation('player') == 3) and ( not buff[classtable.IronfurBuff].up or RageDeficit <20 )) and cooldown[classtable.Ironfur].ready then
         return classtable.Ironfur
     end
-    if (MaxDps:FindSpell(classtable.ThrashBear) and CheckSpellCosts(classtable.ThrashBear, 'ThrashBear')) and (not debuff[classtable.ThrashBearDeBuff].up) and cooldown[classtable.ThrashBear].ready then
+    if (CheckSpellCosts(classtable.ThrashBear, 'ThrashBear')) and (not debuff[classtable.ThrashBearDeBuff].up) and cooldown[classtable.ThrashBear].ready then
         return classtable.ThrashBear
     end
-    if (MaxDps:FindSpell(classtable.Moonfire) and CheckSpellCosts(classtable.Moonfire, 'Moonfire')) and (debuff[classtable.MoonfireDeBuff].refreshable) and cooldown[classtable.Moonfire].ready then
+    if (CheckSpellCosts(classtable.Moonfire, 'Moonfire')) and (debuff[classtable.MoonfireDeBuff].refreshable) and cooldown[classtable.Moonfire].ready then
         return classtable.Moonfire
     end
-    if (MaxDps:FindSpell(classtable.Raze) and CheckSpellCosts(classtable.Raze, 'Raze')) and (targets >1) and cooldown[classtable.Raze].ready then
+    if (CheckSpellCosts(classtable.Raze, 'Raze')) and (targets >1) and cooldown[classtable.Raze].ready then
         return classtable.Raze
     end
-    if (MaxDps:FindSpell(classtable.Maul) and CheckSpellCosts(classtable.Maul, 'Maul')) and cooldown[classtable.Maul].ready then
+    if (CheckSpellCosts(classtable.Maul, 'Maul')) and cooldown[classtable.Maul].ready then
         return classtable.Maul
     end
-    if (MaxDps:FindSpell(classtable.Mangle) and CheckSpellCosts(classtable.Mangle, 'Mangle')) and cooldown[classtable.Mangle].ready then
+    if (CheckSpellCosts(classtable.Mangle, 'Mangle')) and cooldown[classtable.Mangle].ready then
         return classtable.Mangle
     end
-    if (MaxDps:FindSpell(classtable.ThrashBear) and CheckSpellCosts(classtable.ThrashBear, 'ThrashBear')) and cooldown[classtable.ThrashBear].ready then
+    if (CheckSpellCosts(classtable.ThrashBear, 'ThrashBear')) and cooldown[classtable.ThrashBear].ready then
         return classtable.ThrashBear
     end
-    if (MaxDps:FindSpell(classtable.SwipeBear) and CheckSpellCosts(classtable.SwipeBear, 'SwipeBear')) and cooldown[classtable.SwipeBear].ready then
+    if (CheckSpellCosts(classtable.SwipeBear, 'SwipeBear')) and cooldown[classtable.SwipeBear].ready then
         return classtable.SwipeBear
     end
 end
