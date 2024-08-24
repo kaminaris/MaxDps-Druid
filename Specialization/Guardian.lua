@@ -82,7 +82,7 @@ local if_build
 local ripweaving
 
 local function CheckSpellCosts(spell,spellstring)
-    if not IsSpellKnown(spell) then return false end
+    if not IsSpellKnownOrOverridesKnown(spell) then return false end
     if not C_Spell.IsSpellUsable(spell) then return false end
     local costs = C_Spell.GetSpellPowerCost(spell)
     if type(costs) ~= 'table' and spellstring then return true end
@@ -159,7 +159,7 @@ function Guardian:bear()
         return classtable.BristlingFur
     end
     if (CheckSpellCosts(classtable.Barkskin, 'Barkskin')) and (buff[classtable.BearFormBuff].up) and cooldown[classtable.Barkskin].ready then
-        return classtable.Barkskin
+        MaxDps:GlowCooldown(classtable.Barkskin, cooldown[classtable.Barkskin].ready)
     end
     if (CheckSpellCosts(classtable.LunarBeam, 'LunarBeam')) and cooldown[classtable.LunarBeam].ready then
         return classtable.LunarBeam
@@ -168,7 +168,7 @@ function Guardian:bear()
         MaxDps:GlowCooldown(classtable.ConvoketheSpirits, cooldown[classtable.ConvoketheSpirits].ready)
     end
     if (CheckSpellCosts(classtable.Berserk, 'Berserk')) and cooldown[classtable.Berserk].ready then
-        return classtable.Berserk
+        MaxDps:GlowCooldown(classtable.Berserk, cooldown[classtable.Berserk].ready)
     end
     if (CheckSpellCosts(classtable.Incarnation, 'Incarnation')) and cooldown[classtable.Incarnation].ready then
         MaxDps:GlowCooldown(classtable.Incarnation, cooldown[classtable.Incarnation].ready)
