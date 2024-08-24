@@ -138,7 +138,7 @@ function Guardian:precombat()
     if (CheckSpellCosts(classtable.HeartoftheWild, 'HeartoftheWild')) and (talents[classtable.HeartoftheWild] and not talents[classtable.Rip]) and cooldown[classtable.HeartoftheWild].ready then
         return classtable.HeartoftheWild
     end
-    if (CheckSpellCosts(classtable.BearForm, 'BearForm')) and cooldown[classtable.BearForm].ready then
+    if (CheckSpellCosts(classtable.BearForm, 'BearForm')) and not buff[classtable.BearForm].up and cooldown[classtable.BearForm].ready then
         return classtable.BearForm
     end
 end
@@ -167,13 +167,13 @@ function Guardian:bear()
     if (CheckSpellCosts(classtable.ConvoketheSpirits, 'ConvoketheSpirits')) and (( talents[classtable.WildpowerSurge] and buff[classtable.CatFormBuff].up and buff[classtable.FelinePotentialBuff].up ) or not talents[classtable.WildpowerSurge]) and cooldown[classtable.ConvoketheSpirits].ready then
         MaxDps:GlowCooldown(classtable.ConvoketheSpirits, cooldown[classtable.ConvoketheSpirits].ready)
     end
-    if (CheckSpellCosts(classtable.BerserkBear, 'BerserkBear')) and cooldown[classtable.BerserkBear].ready then
-        return classtable.BerserkBear
+    if (CheckSpellCosts(classtable.Berserk, 'Berserk')) and cooldown[classtable.Berserk].ready then
+        return classtable.Berserk
     end
     if (CheckSpellCosts(classtable.Incarnation, 'Incarnation')) and cooldown[classtable.Incarnation].ready then
         MaxDps:GlowCooldown(classtable.Incarnation, cooldown[classtable.Incarnation].ready)
     end
-    if (CheckSpellCosts(classtable.RageoftheSleeper, 'RageoftheSleeper')) and (( ( ( not buff[classtable.IncarnationGuardianofUrsocBuff].up and cooldown[classtable.IncarnationGuardianofUrsoc].remains >60 ) or not buff[classtable.BerserkBearBuff].up ) and Rage >40 and ( not talents[classtable.ConvoketheSpirits] ) or ( buff[classtable.IncarnationGuardianofUrsocBuff].up or buff[classtable.BerserkBearBuff].up ) and Rage >40 and ( not talents[classtable.ConvoketheSpirits] ) or ( talents[classtable.ConvoketheSpirits] ) and Rage >40 )) and cooldown[classtable.RageoftheSleeper].ready then
+    if (CheckSpellCosts(classtable.RageoftheSleeper, 'RageoftheSleeper')) and (( ( ( not buff[classtable.IncarnationGuardianofUrsocBuff].up and cooldown[classtable.IncarnationGuardianofUrsoc].remains >60 ) or not buff[classtable.BerserkBuff].up ) and Rage >40 and ( not talents[classtable.ConvoketheSpirits] ) or ( buff[classtable.IncarnationGuardianofUrsocBuff].up or buff[classtable.BerserkBuff].up ) and Rage >40 and ( not talents[classtable.ConvoketheSpirits] ) or ( talents[classtable.ConvoketheSpirits] ) and Rage >40 )) and cooldown[classtable.RageoftheSleeper].ready then
         return classtable.RageoftheSleeper
     end
     if (CheckSpellCosts(classtable.Maul, 'Maul')) and (buff[classtable.RavageBuff].up and targets <2) and cooldown[classtable.Maul].ready then
@@ -188,16 +188,16 @@ function Guardian:bear()
     if (CheckSpellCosts(classtable.Ironfur, 'Ironfur')) and (not debuff[classtable.ToothandClawDebuffDeBuff].up and not buff[classtable.IronfurBuff].up and Rage >50 and (UnitThreatSituation('player') == 2 or UnitThreatSituation('player') == 3) and if_build == 0 and not buff[classtable.RageoftheSleeperBuff].up or Rage >90 and if_build == 0 or not debuff[classtable.ToothandClawDebuffDeBuff].up and not buff[classtable.IronfurBuff].up and Rage >50 and (UnitThreatSituation('player') == 2 or UnitThreatSituation('player') == 3) and if_build == 0 and not buff[classtable.RageoftheSleeperBuff].up) and cooldown[classtable.Ironfur].ready then
         return classtable.Ironfur
     end
-    if (CheckSpellCosts(classtable.Ironfur, 'Ironfur')) and (not buff[classtable.RavageBuff].up and ( ( Rage >40 and if_build == 1 and cooldown[classtable.RageoftheSleeper].remains >3 and talents[classtable.RageoftheSleeper] or ( buff[classtable.IncarnationBuff].up or buff[classtable.BerserkBearBuff].up ) and Rage >20 and if_build == 1 and cooldown[classtable.RageoftheSleeper].remains >3 and talents[classtable.RageoftheSleeper] or Rage >90 and if_build == 1 and not talents[classtable.FountofStrength] or Rage >110 and if_build == 1 and talents[classtable.FountofStrength] or ( buff[classtable.IncarnationBuff].up or buff[classtable.BerserkBearBuff].up ) and Rage >20 and if_build == 1 and buff[classtable.RageoftheSleeperBuff].up and talents[classtable.RageoftheSleeper] ) )) and cooldown[classtable.Ironfur].ready then
+    if (CheckSpellCosts(classtable.Ironfur, 'Ironfur')) and (not buff[classtable.RavageBuff].up and ( ( Rage >40 and if_build == 1 and cooldown[classtable.RageoftheSleeper].remains >3 and talents[classtable.RageoftheSleeper] or ( buff[classtable.IncarnationBuff].up or buff[classtable.BerserkBuff].up ) and Rage >20 and if_build == 1 and cooldown[classtable.RageoftheSleeper].remains >3 and talents[classtable.RageoftheSleeper] or Rage >90 and if_build == 1 and not talents[classtable.FountofStrength] or Rage >110 and if_build == 1 and talents[classtable.FountofStrength] or ( buff[classtable.IncarnationBuff].up or buff[classtable.BerserkBuff].up ) and Rage >20 and if_build == 1 and buff[classtable.RageoftheSleeperBuff].up and talents[classtable.RageoftheSleeper] ) )) and cooldown[classtable.Ironfur].ready then
         return classtable.Ironfur
     end
-    if (CheckSpellCosts(classtable.Ironfur, 'Ironfur')) and (not buff[classtable.RavageBuff].up and ( ( Rage >40 and if_build == 1 and not talents[classtable.RageoftheSleeper] or ( buff[classtable.IncarnationBuff].up or buff[classtable.BerserkBearBuff].up ) and Rage >20 and if_build == 1 and not talents[classtable.RageoftheSleeper] or ( buff[classtable.IncarnationBuff].up or buff[classtable.BerserkBearBuff].up ) and Rage >20 and if_build == 1 and not talents[classtable.RageoftheSleeper] ) )) and cooldown[classtable.Ironfur].ready then
+    if (CheckSpellCosts(classtable.Ironfur, 'Ironfur')) and (not buff[classtable.RavageBuff].up and ( ( Rage >40 and if_build == 1 and not talents[classtable.RageoftheSleeper] or ( buff[classtable.IncarnationBuff].up or buff[classtable.BerserkBuff].up ) and Rage >20 and if_build == 1 and not talents[classtable.RageoftheSleeper] or ( buff[classtable.IncarnationBuff].up or buff[classtable.BerserkBuff].up ) and Rage >20 and if_build == 1 and not talents[classtable.RageoftheSleeper] ) )) and cooldown[classtable.Ironfur].ready then
         return classtable.Ironfur
     end
-    if (CheckSpellCosts(classtable.FerociousBite, 'FerociousBite')) and (( buff[classtable.CatFormBuff].up and buff[classtable.FelinePotentialBuff].up and targets <3 and ( buff[classtable.IncarnationBuff].up or buff[classtable.BerserkBearBuff].up ) and not debuff[classtable.RipDeBuff].refreshable )) and cooldown[classtable.FerociousBite].ready then
+    if (CheckSpellCosts(classtable.FerociousBite, 'FerociousBite')) and (( buff[classtable.CatFormBuff].up and buff[classtable.FelinePotentialBuff].up and targets <3 and ( buff[classtable.IncarnationBuff].up or buff[classtable.BerserkBuff].up ) and not debuff[classtable.RipDeBuff].refreshable )) and cooldown[classtable.FerociousBite].ready then
         return classtable.FerociousBite
     end
-    if (CheckSpellCosts(classtable.Rip, 'Rip')) and (( buff[classtable.CatFormBuff].up and buff[classtable.FelinePotentialBuff].up and targets <3 and ( not buff[classtable.IncarnationBuff].up or not buff[classtable.BerserkBearBuff].up ) ) or ( buff[classtable.CatFormBuff].up and buff[classtable.FelinePotentialBuff].up and targets <3 and ( buff[classtable.IncarnationBuff].up or buff[classtable.BerserkBearBuff].up ) and debuff[classtable.RipDeBuff].refreshable )) and cooldown[classtable.Rip].ready then
+    if (CheckSpellCosts(classtable.Rip, 'Rip')) and (( buff[classtable.CatFormBuff].up and buff[classtable.FelinePotentialBuff].up and targets <3 and ( not buff[classtable.IncarnationBuff].up or not buff[classtable.BerserkBuff].up ) ) or ( buff[classtable.CatFormBuff].up and buff[classtable.FelinePotentialBuff].up and targets <3 and ( buff[classtable.IncarnationBuff].up or buff[classtable.BerserkBuff].up ) and debuff[classtable.RipDeBuff].refreshable )) and cooldown[classtable.Rip].ready then
         return classtable.Rip
     end
     if (CheckSpellCosts(classtable.Raze, 'Raze')) and (if_build == 1 and buff[classtable.ViciousCycleMaulBuff].count == 3 and targets >1 and not talents[classtable.Ravage]) and cooldown[classtable.Raze].ready then
@@ -330,7 +330,7 @@ function Druid:Guardian()
     classtable.CatFormBuff = 768
     classtable.FelinePotentialBuff = 0
     classtable.IncarnationGuardianofUrsocBuff = 102558
-    classtable.BerserkBearBuff = 50334
+    classtable.BerserkBuff = 50334
     classtable.ToothandClawBuff = 135286
     classtable.ToothandClawDebuffDeBuff = 135601
     classtable.IronfurBuff = 192081
