@@ -78,130 +78,89 @@ local RageDeficit
 
 local Balance = {}
 
-
-local function CheckSpellCosts(spell,spellstring)
-    if not IsSpellKnown(spell) then return false end
-    if not C_Spell.IsSpellUsable(spell) then return false end
-    local costs = C_Spell.GetSpellPowerCost(spell)
-    if type(costs) ~= 'table' and spellstring then return true end
-    for i,costtable in pairs(costs) do
-        if UnitPower('player', costtable.type) < costtable.cost then
-            return false
-        end
-    end
-    return true
-end
-local function MaxGetSpellCost(spell,power)
-    local costs = C_Spell.GetSpellPowerCost(spell)
-    if type(costs) ~= 'table' then return 0 end
-    for i,costtable in pairs(costs) do
-        if costtable.name == power then
-            return costtable.cost
-        end
-    end
-    return 0
-end
-
-
-
-local function CheckPrevSpell(spell)
-    if MaxDps and MaxDps.spellHistory then
-        if MaxDps.spellHistory[1] then
-            if MaxDps.spellHistory[1] == spell then
-                return true
-            end
-            if MaxDps.spellHistory[1] ~= spell then
-                return false
-            end
-        end
-    end
-    return true
-end
-
-
 function Balance:precombat()
-    if (CheckSpellCosts(classtable.MoonkinForm, 'MoonkinForm')) and not buff[classtable.MoonkinForm].up and cooldown[classtable.MoonkinForm].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MoonkinForm, 'MoonkinForm')) and not buff[classtable.MoonkinForm].up and cooldown[classtable.MoonkinForm].ready then
         return classtable.MoonkinForm
     end
-    --if (CheckSpellCosts(classtable.Wrath, 'Wrath')) and cooldown[classtable.Wrath].ready then
+    --if (MaxDps:CheckSpellUsable(classtable.Wrath, 'Wrath')) and cooldown[classtable.Wrath].ready then
     --    return classtable.Wrath
     --end
-    --if (CheckSpellCosts(classtable.Wrath, 'Wrath')) and cooldown[classtable.Wrath].ready then
+    --if (MaxDps:CheckSpellUsable(classtable.Wrath, 'Wrath')) and cooldown[classtable.Wrath].ready then
     --    return classtable.Wrath
     --end
-    --if (CheckSpellCosts(classtable.Starfire, 'Starfire')) and (not talents[classtable.StellarFlare]) and cooldown[classtable.Starfire].ready then
+    --if (MaxDps:CheckSpellUsable(classtable.Starfire, 'Starfire')) and (not talents[classtable.StellarFlare]) and cooldown[classtable.Starfire].ready then
     --    return classtable.Starfire
     --end
-    --if (CheckSpellCosts(classtable.StellarFlare, 'StellarFlare')) and cooldown[classtable.StellarFlare].ready then
+    --if (MaxDps:CheckSpellUsable(classtable.StellarFlare, 'StellarFlare')) and cooldown[classtable.StellarFlare].ready then
     --    return classtable.StellarFlare
     --end
 end
 
 function Balance:callaction()
-    if (CheckSpellCosts(classtable.SolarBeam, 'SolarBeam')) and cooldown[classtable.SolarBeam].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SolarBeam, 'SolarBeam')) and cooldown[classtable.SolarBeam].ready then
         MaxDps:GlowCooldown(classtable.SolarBeam, ( select(8,UnitCastingInfo('target')) ~= nil and not select(8,UnitCastingInfo('target')) or select(7,UnitChannelInfo('target')) ~= nil and not select(7,UnitChannelInfo('target'))) )
     end
-    if (CheckSpellCosts(classtable.Moonfire, 'Moonfire')) and (debuff[classtable.MoonfireDeBuff].refreshable) and cooldown[classtable.Moonfire].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Moonfire, 'Moonfire')) and (debuff[classtable.MoonfireDeBuff].refreshable) and cooldown[classtable.Moonfire].ready then
         return classtable.Moonfire
     end
-    if (CheckSpellCosts(classtable.Sunfire, 'Sunfire')) and (debuff[classtable.SunfireDeBuff].refreshable) and cooldown[classtable.Sunfire].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Sunfire, 'Sunfire')) and (debuff[classtable.SunfireDeBuff].refreshable) and cooldown[classtable.Sunfire].ready then
         return classtable.Sunfire
     end
-    if (CheckSpellCosts(classtable.StellarFlare, 'StellarFlare')) and (debuff[classtable.StellarFlareDeBuff].refreshable) and cooldown[classtable.StellarFlare].ready then
+    if (MaxDps:CheckSpellUsable(classtable.StellarFlare, 'StellarFlare')) and (debuff[classtable.StellarFlareDeBuff].refreshable) and cooldown[classtable.StellarFlare].ready then
         return classtable.StellarFlare
     end
-    if (CheckSpellCosts(classtable.ForceofNature, 'ForceofNature')) and cooldown[classtable.ForceofNature].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ForceofNature, 'ForceofNature')) and cooldown[classtable.ForceofNature].ready then
         return classtable.ForceofNature
     end
-    if (CheckSpellCosts(classtable.FuryofElune, 'FuryofElune')) and cooldown[classtable.FuryofElune].ready then
+    if (MaxDps:CheckSpellUsable(classtable.FuryofElune, 'FuryofElune')) and cooldown[classtable.FuryofElune].ready then
         return classtable.FuryofElune
     end
-    if (CheckSpellCosts(classtable.Incarnation, 'Incarnation')) and cooldown[classtable.Incarnation].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Incarnation, 'Incarnation')) and cooldown[classtable.Incarnation].ready then
         MaxDps:GlowCooldown(classtable.Incarnation, cooldown[classtable.Incarnation].ready)
     end
-    if (CheckSpellCosts(classtable.CelestialAlignment, 'CelestialAlignment')) and cooldown[classtable.CelestialAlignment].ready then
+    if (MaxDps:CheckSpellUsable(classtable.CelestialAlignment, 'CelestialAlignment')) and cooldown[classtable.CelestialAlignment].ready then
         return classtable.CelestialAlignment
     end
-    if (CheckSpellCosts(classtable.WarriorofElune, 'WarriorofElune')) and (not talents[classtable.LunarCalling] and buff[classtable.EclipseSolarBuff].remains <7 or talents[classtable.LunarCalling]) and cooldown[classtable.WarriorofElune].ready then
+    if (MaxDps:CheckSpellUsable(classtable.WarriorofElune, 'WarriorofElune')) and (not talents[classtable.LunarCalling] and buff[classtable.EclipseSolarBuff].remains <7 or talents[classtable.LunarCalling]) and cooldown[classtable.WarriorofElune].ready then
         return classtable.WarriorofElune
     end
-    if (CheckSpellCosts(classtable.Starfire, 'Starfire')) and (( not talents[classtable.LunarCalling] and targets == 1 ) and ( buff[classtable.EclipseSolarBuff].up and buff[classtable.EclipseSolarBuff].remains <( classtable and classtable.Starfire and GetSpellInfo(classtable.Starfire).castTime / 1000 ) )) and cooldown[classtable.Starfire].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Starfire, 'Starfire')) and (( not talents[classtable.LunarCalling] and targets == 1 ) and ( buff[classtable.EclipseSolarBuff].up and buff[classtable.EclipseSolarBuff].remains <( classtable and classtable.Starfire and GetSpellInfo(classtable.Starfire).castTime / 1000 ) )) and cooldown[classtable.Starfire].ready then
         return classtable.Starfire
     end
-    if (CheckSpellCosts(classtable.Wrath, 'Wrath')) and (( talents[classtable.LunarCalling] or targets >1 ) and ( buff[classtable.EclipseLunarBuff].up and ( buff[classtable.EclipseLunarBuff].remains <( classtable and classtable.Wrath and GetSpellInfo(classtable.Wrath).castTime / 1000 ) ) )) and cooldown[classtable.Wrath].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Wrath, 'Wrath')) and (( talents[classtable.LunarCalling] or targets >1 ) and ( buff[classtable.EclipseLunarBuff].up and ( buff[classtable.EclipseLunarBuff].remains <( classtable and classtable.Wrath and GetSpellInfo(classtable.Wrath).castTime / 1000 ) ) )) and cooldown[classtable.Wrath].ready then
         return classtable.Wrath
     end
-    if (CheckSpellCosts(classtable.Starfall, 'Starfall')) and (buff[classtable.StarweaversWarpBuff].up) and cooldown[classtable.Starfall].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Starfall, 'Starfall')) and (buff[classtable.StarweaversWarpBuff].up) and cooldown[classtable.Starfall].ready then
         return classtable.Starfall
     end
-    if (CheckSpellCosts(classtable.Starsurge, 'Starsurge')) and (targets <2) and cooldown[classtable.Starsurge].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Starsurge, 'Starsurge')) and (targets <2) and cooldown[classtable.Starsurge].ready then
         return classtable.Starsurge
     end
-    if (CheckSpellCosts(classtable.Starfall, 'Starfall')) and (targets >1) and cooldown[classtable.Starfall].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Starfall, 'Starfall')) and (targets >1) and cooldown[classtable.Starfall].ready then
         return classtable.Starfall
     end
-    if (CheckSpellCosts(classtable.ConvoketheSpirits, 'ConvoketheSpirits')) and cooldown[classtable.ConvoketheSpirits].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ConvoketheSpirits, 'ConvoketheSpirits')) and cooldown[classtable.ConvoketheSpirits].ready then
         MaxDps:GlowCooldown(classtable.ConvoketheSpirits, cooldown[classtable.ConvoketheSpirits].ready)
     end
-    if (CheckSpellCosts(classtable.NewMoon, 'NewMoon')) and cooldown[classtable.NewMoon].ready then
+    if (MaxDps:CheckSpellUsable(classtable.NewMoon, 'NewMoon')) and cooldown[classtable.NewMoon].ready then
         return classtable.NewMoon
     end
-    if (CheckSpellCosts(classtable.HalfMoon, 'HalfMoon')) and cooldown[classtable.HalfMoon].ready then
+    if (MaxDps:CheckSpellUsable(classtable.HalfMoon, 'HalfMoon')) and cooldown[classtable.HalfMoon].ready then
         return classtable.HalfMoon
     end
-    if (CheckSpellCosts(classtable.FullMoon, 'FullMoon')) and cooldown[classtable.FullMoon].ready then
+    if (MaxDps:CheckSpellUsable(classtable.FullMoon, 'FullMoon')) and cooldown[classtable.FullMoon].ready then
         return classtable.FullMoon
     end
-    if (CheckSpellCosts(classtable.WarriorofElune, 'WarriorofElune')) and cooldown[classtable.WarriorofElune].ready then
+    if (MaxDps:CheckSpellUsable(classtable.WarriorofElune, 'WarriorofElune')) and cooldown[classtable.WarriorofElune].ready then
         return classtable.WarriorofElune
     end
-    if (CheckSpellCosts(classtable.WildMushroom, 'WildMushroom')) and cooldown[classtable.WildMushroom].ready then
+    if (MaxDps:CheckSpellUsable(classtable.WildMushroom, 'WildMushroom')) and cooldown[classtable.WildMushroom].ready then
         return classtable.WildMushroom
     end
-    if (CheckSpellCosts(classtable.Starfire, 'Starfire')) and (talents[classtable.LunarCalling] or buff[classtable.EclipseLunarBuff].up and targets >1) and cooldown[classtable.Starfire].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Starfire, 'Starfire')) and (talents[classtable.LunarCalling] or buff[classtable.EclipseLunarBuff].up and targets >1) and cooldown[classtable.Starfire].ready then
         return classtable.Starfire
     end
-    if (CheckSpellCosts(classtable.Wrath, 'Wrath')) and cooldown[classtable.Wrath].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Wrath, 'Wrath')) and cooldown[classtable.Wrath].ready then
         return classtable.Wrath
     end
 end

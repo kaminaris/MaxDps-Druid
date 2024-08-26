@@ -78,117 +78,76 @@ local RageDeficit
 
 local Restoration = {}
 
-
-local function CheckSpellCosts(spell,spellstring)
-    if not IsSpellKnown(spell) then return false end
-    if not C_Spell.IsSpellUsable(spell) then return false end
-    local costs = C_Spell.GetSpellPowerCost(spell)
-    if type(costs) ~= 'table' and spellstring then return true end
-    for i,costtable in pairs(costs) do
-        if UnitPower('player', costtable.type) < costtable.cost then
-            return false
-        end
-    end
-    return true
-end
-local function MaxGetSpellCost(spell,power)
-    local costs = C_Spell.GetSpellPowerCost(spell)
-    if type(costs) ~= 'table' then return 0 end
-    for i,costtable in pairs(costs) do
-        if costtable.name == power then
-            return costtable.cost
-        end
-    end
-    return 0
-end
-
-
-
-local function CheckPrevSpell(spell)
-    if MaxDps and MaxDps.spellHistory then
-        if MaxDps.spellHistory[1] then
-            if MaxDps.spellHistory[1] == spell then
-                return true
-            end
-            if MaxDps.spellHistory[1] ~= spell then
-                return false
-            end
-        end
-    end
-    return true
-end
-
-
 function Restoration:precombat()
-    if (CheckSpellCosts(classtable.HeartoftheWild, 'HeartoftheWild')) and cooldown[classtable.HeartoftheWild].ready then
+    if (MaxDps:CheckSpellUsable(classtable.HeartoftheWild, 'HeartoftheWild')) and cooldown[classtable.HeartoftheWild].ready then
         return classtable.HeartoftheWild
     end
-    if (CheckSpellCosts(classtable.CatForm, 'CatForm')) and (talents[classtable.Rake]) and cooldown[classtable.CatForm].ready and not buff[classtable.CatForm].up then
+    if (MaxDps:CheckSpellUsable(classtable.CatForm, 'CatForm')) and (talents[classtable.Rake]) and cooldown[classtable.CatForm].ready and not buff[classtable.CatForm].up then
         return classtable.CatForm
     end
-    --if (CheckSpellCosts(classtable.Prowl, 'Prowl')) and (talents[classtable.Rake]) and cooldown[classtable.Prowl].ready then
+    --if (MaxDps:CheckSpellUsable(classtable.Prowl, 'Prowl')) and (talents[classtable.Rake]) and cooldown[classtable.Prowl].ready then
     --    return classtable.Prowl
     --end
 end
 function Restoration:cat()
-    if (CheckSpellCosts(classtable.Rake, 'Rake')) and (buff[classtable.ShadowmeldBuff].up or buff[classtable.ProwlBuff].up or buff[classtable.SuddenAmbushBuff].up) and cooldown[classtable.Rake].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (buff[classtable.ShadowmeldBuff].up or buff[classtable.ProwlBuff].up or buff[classtable.SuddenAmbushBuff].up) and cooldown[classtable.Rake].ready then
         return classtable.Rake
     end
-    if (CheckSpellCosts(classtable.HeartoftheWild, 'HeartoftheWild')) and (( cooldown[classtable.ConvoketheSpirits].remains <40 or not talents[classtable.ConvoketheSpirits] ) or ttd <46) and cooldown[classtable.HeartoftheWild].ready then
+    if (MaxDps:CheckSpellUsable(classtable.HeartoftheWild, 'HeartoftheWild')) and (( cooldown[classtable.ConvoketheSpirits].remains <40 or not talents[classtable.ConvoketheSpirits] ) or ttd <46) and cooldown[classtable.HeartoftheWild].ready then
         return classtable.HeartoftheWild
     end
-    if (CheckSpellCosts(classtable.Rip, 'Rip')) and (( ( debuff[classtable.RipDeBuff].refreshable or Energy >90 and debuff[classtable.RipDeBuff].remains <= 10 ) and ( ComboPoints == 5 and ttd >debuff[classtable.RipDeBuff].remains + 24 or ( debuff[classtable.RipDeBuff].remains + ComboPoints * 4 <ttd and debuff[classtable.RipDeBuff].remains + 4 + ComboPoints * 4 >ttd ) ) or not debuff[classtable.RipDeBuff].up and ComboPoints >2 + targets * 2 )) and cooldown[classtable.Rip].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Rip, 'Rip')) and (( ( debuff[classtable.RipDeBuff].refreshable or Energy >90 and debuff[classtable.RipDeBuff].remains <= 10 ) and ( ComboPoints == 5 and ttd >debuff[classtable.RipDeBuff].remains + 24 or ( debuff[classtable.RipDeBuff].remains + ComboPoints * 4 <ttd and debuff[classtable.RipDeBuff].remains + 4 + ComboPoints * 4 >ttd ) ) or not debuff[classtable.RipDeBuff].up and ComboPoints >2 + targets * 2 )) and cooldown[classtable.Rip].ready then
         return classtable.Rip
     end
-    if (CheckSpellCosts(classtable.ThrashCat, 'ThrashCat')) and (debuff[classtable.ThrashCatDeBuff].refreshable and ttd >7 and targets >2) and cooldown[classtable.ThrashCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ThrashCat, 'ThrashCat')) and (debuff[classtable.ThrashCatDeBuff].refreshable and ttd >7 and targets >2) and cooldown[classtable.ThrashCat].ready then
         return classtable.ThrashCat
     end
-    if (CheckSpellCosts(classtable.Sunfire, 'Sunfire')) and (( debuff[classtable.SunfireDeBuff].refreshable and ttd >5 ) and not (MaxDps.spellHistory[1] == classtable.CatForm) and ( targets == 1 or talents[classtable.ImprovedSunfire] )) and cooldown[classtable.Sunfire].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Sunfire, 'Sunfire')) and (( debuff[classtable.SunfireDeBuff].refreshable and ttd >5 ) and not (MaxDps.spellHistory[1] == classtable.CatForm) and ( targets == 1 or talents[classtable.ImprovedSunfire] )) and cooldown[classtable.Sunfire].ready then
         return classtable.Sunfire
     end
-    if (CheckSpellCosts(classtable.Rake, 'Rake')) and (debuff[classtable.RakeDeBuff].refreshable and ttd >10 and targets <10) and cooldown[classtable.Rake].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (debuff[classtable.RakeDeBuff].refreshable and ttd >10 and targets <10) and cooldown[classtable.Rake].ready then
         return classtable.Rake
     end
-    if (CheckSpellCosts(classtable.CatForm, 'CatForm')) and (not buff[classtable.CatFormBuff].up and Energy >50 and ( debuff[classtable.RakeDeBuff].refreshable and targets >3 and targets <7 and talents[classtable.Thrash] )) and cooldown[classtable.CatForm].ready and not buff[classtable.CatForm].up then
+    if (MaxDps:CheckSpellUsable(classtable.CatForm, 'CatForm')) and (not buff[classtable.CatFormBuff].up and Energy >50 and ( debuff[classtable.RakeDeBuff].refreshable and targets >3 and targets <7 and talents[classtable.Thrash] )) and cooldown[classtable.CatForm].ready and not buff[classtable.CatForm].up then
         return classtable.CatForm
     end
-    if (CheckSpellCosts(classtable.Moonfire, 'Moonfire')) and (( debuff[classtable.MoonfireDeBuff].refreshable and ttd >12 and not debuff[classtable.MoonfireDeBuff].up or ( (MaxDps.spellHistory[1] == classtable.Sunfire) and debuff[classtable.MoonfireDeBuff].remains <( classtable and classtable.Moonfire and GetSpellInfo(classtable.Moonfire).castTime /1000 ) * 0.8 and targets == 1 ) ) and not (MaxDps.spellHistory[1] == classtable.CatForm) and targets <6) and cooldown[classtable.Moonfire].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Moonfire, 'Moonfire')) and (( debuff[classtable.MoonfireDeBuff].refreshable and ttd >12 and not debuff[classtable.MoonfireDeBuff].up or ( (MaxDps.spellHistory[1] == classtable.Sunfire) and debuff[classtable.MoonfireDeBuff].remains <( classtable and classtable.Moonfire and GetSpellInfo(classtable.Moonfire).castTime /1000 ) * 0.8 and targets == 1 ) ) and not (MaxDps.spellHistory[1] == classtable.CatForm) and targets <6) and cooldown[classtable.Moonfire].ready then
         return classtable.Moonfire
     end
-    if (CheckSpellCosts(classtable.Sunfire, 'Sunfire')) and ((MaxDps.spellHistory[1] == classtable.Moonfire) and debuff[classtable.SunfireDeBuff].remains <( classtable and classtable.Sunfire and GetSpellInfo(classtable.Sunfire).castTime /1000 ) * 0.8) and cooldown[classtable.Sunfire].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Sunfire, 'Sunfire')) and ((MaxDps.spellHistory[1] == classtable.Moonfire) and debuff[classtable.SunfireDeBuff].remains <( classtable and classtable.Sunfire and GetSpellInfo(classtable.Sunfire).castTime /1000 ) * 0.8) and cooldown[classtable.Sunfire].ready then
         return classtable.Sunfire
     end
-    if (CheckSpellCosts(classtable.Starsurge, 'Starsurge')) and (targets == 1 or ( targets <8 and not buff[classtable.CatFormBuff].up )) and cooldown[classtable.Starsurge].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Starsurge, 'Starsurge')) and (targets == 1 or ( targets <8 and not buff[classtable.CatFormBuff].up )) and cooldown[classtable.Starsurge].ready then
         return classtable.Starsurge
     end
-    if (CheckSpellCosts(classtable.CatForm, 'CatForm')) and (not buff[classtable.CatFormBuff].up and Energy >50) and cooldown[classtable.CatForm].ready then
+    if (MaxDps:CheckSpellUsable(classtable.CatForm, 'CatForm')) and (not buff[classtable.CatFormBuff].up and Energy >50) and cooldown[classtable.CatForm].ready then
         return classtable.CatForm
     end
-    if (CheckSpellCosts(classtable.FerociousBite, 'FerociousBite')) and (( ComboPoints >3 and ttd <3 ) or ( ComboPoints == 5 and Energy >= 50 and debuff[classtable.RipDeBuff].remains >10 ) and targets <4) and cooldown[classtable.FerociousBite].ready then
+    if (MaxDps:CheckSpellUsable(classtable.FerociousBite, 'FerociousBite')) and (( ComboPoints >3 and ttd <3 ) or ( ComboPoints == 5 and Energy >= 50 and debuff[classtable.RipDeBuff].remains >10 ) and targets <4) and cooldown[classtable.FerociousBite].ready then
         return classtable.FerociousBite
     end
-    if (CheckSpellCosts(classtable.ThrashCat, 'ThrashCat')) and (debuff[classtable.ThrashCatDeBuff].refreshable and ttd >6 and ( targets >1 or talents[classtable.Liveliness] )) and cooldown[classtable.ThrashCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ThrashCat, 'ThrashCat')) and (debuff[classtable.ThrashCatDeBuff].refreshable and ttd >6 and ( targets >1 or talents[classtable.Liveliness] )) and cooldown[classtable.ThrashCat].ready then
         return classtable.ThrashCat
     end
-    if (CheckSpellCosts(classtable.SwipeCat, 'SwipeCat')) and (targets >3 and ComboPoints <5 and talents[classtable.ImprovedSwipe]) and cooldown[classtable.SwipeCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SwipeCat, 'SwipeCat')) and (targets >3 and ComboPoints <5 and talents[classtable.ImprovedSwipe]) and cooldown[classtable.SwipeCat].ready then
         return classtable.SwipeCat
     end
-    if (CheckSpellCosts(classtable.Sunfire, 'Sunfire')) and (debuff[classtable.SunfireDeBuff].refreshable and ttd >5 and targets <7 and not talents[classtable.ImprovedSunfire]) and cooldown[classtable.Sunfire].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Sunfire, 'Sunfire')) and (debuff[classtable.SunfireDeBuff].refreshable and ttd >5 and targets <7 and not talents[classtable.ImprovedSunfire]) and cooldown[classtable.Sunfire].ready then
         return classtable.Sunfire
     end
-    if (CheckSpellCosts(classtable.Shred, 'Shred')) and (Energy >60 and ComboPoints <5) and cooldown[classtable.Shred].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and (Energy >60 and ComboPoints <5) and cooldown[classtable.Shred].ready then
         return classtable.Shred
     end
 end
 
 function Restoration:callaction()
-    if (CheckSpellCosts(classtable.SkullBash, 'SkullBash')) and cooldown[classtable.SkullBash].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SkullBash, 'SkullBash')) and cooldown[classtable.SkullBash].ready then
         MaxDps:GlowCooldown(classtable.SkullBash, ( select(8,UnitCastingInfo('target')) ~= nil and not select(8,UnitCastingInfo('target')) or select(7,UnitChannelInfo('target')) ~= nil and not select(7,UnitChannelInfo('target'))) )
     end
-    if (CheckSpellCosts(classtable.NaturesVigil, 'NaturesVigil')) and (not buff[classtable.ProwlBuff].up and not buff[classtable.ShadowmeldBuff].up) and cooldown[classtable.NaturesVigil].ready then
+    if (MaxDps:CheckSpellUsable(classtable.NaturesVigil, 'NaturesVigil')) and (not buff[classtable.ProwlBuff].up and not buff[classtable.ShadowmeldBuff].up) and cooldown[classtable.NaturesVigil].ready then
         return classtable.NaturesVigil
     end
-    if (CheckSpellCosts(classtable.HeartoftheWild, 'HeartoftheWild')) and (not buff[classtable.ProwlBuff].up and not buff[classtable.ShadowmeldBuff].up) and cooldown[classtable.HeartoftheWild].ready then
+    if (MaxDps:CheckSpellUsable(classtable.HeartoftheWild, 'HeartoftheWild')) and (not buff[classtable.ProwlBuff].up and not buff[classtable.ShadowmeldBuff].up) and cooldown[classtable.HeartoftheWild].ready then
         return classtable.HeartoftheWild
     end
     if (talents[classtable.Rake]) then
@@ -197,28 +156,28 @@ function Restoration:callaction()
             return Restoration:cat()
         end
     end
-    if (CheckSpellCosts(classtable.CatForm, 'CatForm')) and (talents[classtable.Rake]) and cooldown[classtable.CatForm].ready and not buff[classtable.CatForm].up then
+    if (MaxDps:CheckSpellUsable(classtable.CatForm, 'CatForm')) and (talents[classtable.Rake]) and cooldown[classtable.CatForm].ready and not buff[classtable.CatForm].up then
         return classtable.CatForm
     end
-    if (CheckSpellCosts(classtable.ConvoketheSpirits, 'ConvoketheSpirits')) and (( buff[classtable.HeartoftheWildBuff].up or cooldown[classtable.HeartoftheWild].remains >60 - 30 * (talents[classtable.CenariusGuidance] and talents[classtable.CenariusGuidance] or 0) or not talents[classtable.HeartoftheWild] )) and cooldown[classtable.ConvoketheSpirits].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ConvoketheSpirits, 'ConvoketheSpirits')) and (( buff[classtable.HeartoftheWildBuff].up or cooldown[classtable.HeartoftheWild].remains >60 - 30 * (talents[classtable.CenariusGuidance] and talents[classtable.CenariusGuidance] or 0) or not talents[classtable.HeartoftheWild] )) and cooldown[classtable.ConvoketheSpirits].ready then
         MaxDps:GlowCooldown(classtable.ConvoketheSpirits, cooldown[classtable.ConvoketheSpirits].ready)
     end
-    if (CheckSpellCosts(classtable.Sunfire, 'Sunfire')) and (debuff[classtable.SunfireDeBuff].refreshable and ttd >5 and talents[classtable.ImprovedSunfire]) and cooldown[classtable.Sunfire].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Sunfire, 'Sunfire')) and (debuff[classtable.SunfireDeBuff].refreshable and ttd >5 and talents[classtable.ImprovedSunfire]) and cooldown[classtable.Sunfire].ready then
         return classtable.Sunfire
     end
-    if (CheckSpellCosts(classtable.Moonfire, 'Moonfire')) and (debuff[classtable.MoonfireDeBuff].refreshable and ttd >12) and cooldown[classtable.Moonfire].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Moonfire, 'Moonfire')) and (debuff[classtable.MoonfireDeBuff].refreshable and ttd >12) and cooldown[classtable.Moonfire].ready then
         return classtable.Moonfire
     end
-    if (CheckSpellCosts(classtable.Starsurge, 'Starsurge')) and (targets <8) and cooldown[classtable.Starsurge].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Starsurge, 'Starsurge')) and (targets <8) and cooldown[classtable.Starsurge].ready then
         return classtable.Starsurge
     end
-    if (CheckSpellCosts(classtable.Sunfire, 'Sunfire')) and (debuff[classtable.SunfireDeBuff].refreshable and ttd >7 and targets <7) and cooldown[classtable.Sunfire].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Sunfire, 'Sunfire')) and (debuff[classtable.SunfireDeBuff].refreshable and ttd >7 and targets <7) and cooldown[classtable.Sunfire].ready then
         return classtable.Sunfire
     end
-    if (CheckSpellCosts(classtable.Starfire, 'Starfire')) and (targets >1 or buff[classtable.HeartoftheWildBuff].up) and cooldown[classtable.Starfire].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Starfire, 'Starfire')) and (targets >1 or buff[classtable.HeartoftheWildBuff].up) and cooldown[classtable.Starfire].ready then
         return classtable.Starfire
     end
-    if (CheckSpellCosts(classtable.Wrath, 'Wrath')) and cooldown[classtable.Wrath].ready and not buff[classtable.CatForm].up then
+    if (MaxDps:CheckSpellUsable(classtable.Wrath, 'Wrath')) and cooldown[classtable.Wrath].ready and not buff[classtable.CatForm].up then
         return classtable.Wrath
     end
 end

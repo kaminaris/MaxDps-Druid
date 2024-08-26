@@ -94,171 +94,65 @@ local regrowth
 local easy_swipe
 local proccing_bt
 
-local function CheckSpellCosts(spell,spellstring)
-    if not IsSpellKnown(spell) then return false end
-    if not C_Spell.IsSpellUsable(spell) then return false end
-    local costs = C_Spell.GetSpellPowerCost(spell)
-    if type(costs) ~= 'table' and spellstring then return true end
-    for i,costtable in pairs(costs) do
-        if UnitPower('player', costtable.type) < costtable.cost then
-            return false
-        end
-    end
-    return true
-end
-local function MaxGetSpellCost(spell,power)
-    local costs = C_Spell.GetSpellPowerCost(spell)
-    if type(costs) ~= 'table' then return 0 end
-    for i,costtable in pairs(costs) do
-        if costtable.name == power then
-            return costtable.cost
-        end
-    end
-    return 0
-end
-
-
-
-local function CheckTrinketNames(checkName)
-    --if slot == 1 then
-    --    slot = 13
-    --end
-    --if slot == 2 then
-    --    slot = 14
-    --end
-    for i=13,14 do
-        local itemID = GetInventoryItemID('player', i)
-        local itemName = C_Item.GetItemInfo(itemID)
-        if checkName == itemName then
-            return true
-        end
-    end
-    return false
-end
-
-
-local function CheckTrinketCooldown(slot)
-    if slot == 1 then
-        slot = 13
-    end
-    if slot == 2 then
-        slot = 14
-    end
-    if slot == 13 or slot == 14 then
-        local itemID = GetInventoryItemID('player', slot)
-        local _, duration, _ = C_Item.GetItemCooldown(itemID)
-        if duration == 0 then return true else return false end
-    else
-        local tOneitemID = GetInventoryItemID('player', 13)
-        local tTwoitemID = GetInventoryItemID('player', 14)
-        local tOneitemName = C_Item.GetItemInfo(tOneitemID)
-        local tTwoitemName = C_Item.GetItemInfo(tTwoitemID)
-        if tOneitemName == slot then
-            local _, duration, _ = C_Item.GetItemCooldown(tOneitemID)
-            if duration == 0 then return true else return false end
-        end
-        if tTwoitemName == slot then
-            local _, duration, _ = C_Item.GetItemCooldown(tTwoitemID)
-            if duration == 0 then return true else return false end
-        end
-    end
-end
-
-
-
-
 local function active_bt_triggers()
     return 2
 end
 
-
-local function CheckPrevSpell(spell)
-    if MaxDps and MaxDps.spellHistory then
-        if MaxDps.spellHistory[1] then
-            if MaxDps.spellHistory[1] == spell then
-                return true
-            end
-            if MaxDps.spellHistory[1] ~= spell then
-                return false
-            end
-        end
-    end
-    return true
-end
-
-
-local function boss()
-    if UnitExists('boss1')
-    or UnitExists('boss2')
-    or UnitExists('boss3')
-    or UnitExists('boss4')
-    or UnitExists('boss5')
-    or UnitExists('boss6')
-    or UnitExists('boss7')
-    or UnitExists('boss8')
-    or UnitExists('boss9')
-    or UnitExists('boss10') then
-        return true
-    end
-    return false
-end
-
-
 function Feral:precombat()
-    --if (CheckSpellCosts(classtable.Prowl, 'Prowl')) and (not buff[classtable.ProwlBuff].up) and cooldown[classtable.Prowl].ready then
+    --if (MaxDps:CheckSpellUsable(classtable.Prowl, 'Prowl')) and (not buff[classtable.ProwlBuff].up) and cooldown[classtable.Prowl].ready then
     --    return classtable.Prowl
     --end
-    if (CheckSpellCosts(classtable.CatForm, 'CatForm')) and (not buff[classtable.CatFormBuff].up) and cooldown[classtable.CatForm].ready then
+    if (MaxDps:CheckSpellUsable(classtable.CatForm, 'CatForm')) and (not buff[classtable.CatFormBuff].up) and cooldown[classtable.CatForm].ready then
         return classtable.CatForm
     end
 end
 function Feral:aoe_builder()
-    if (CheckSpellCosts(classtable.Rake, 'Rake')) and (not debuff[classtable.RakeDeBuff].up and buff[classtable.SuddenAmbushBuff].up and not ( need_bt and buff[classtable.BtRakeBuff].up )) and cooldown[classtable.Rake].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (not debuff[classtable.RakeDeBuff].up and buff[classtable.SuddenAmbushBuff].up and not ( need_bt and buff[classtable.BtRakeBuff].up )) and cooldown[classtable.Rake].ready then
         return classtable.Rake
     end
-    if (CheckSpellCosts(classtable.BrutalSlash, 'BrutalSlash')) and (not ( need_bt and buff[classtable.BtSwipeBuff].up ) and ( cooldown[classtable.BrutalSlash].fullRecharge <4 or ttd <4 or targets <4 )) and cooldown[classtable.BrutalSlash].ready then
+    if (MaxDps:CheckSpellUsable(classtable.BrutalSlash, 'BrutalSlash')) and (not ( need_bt and buff[classtable.BtSwipeBuff].up ) and ( cooldown[classtable.BrutalSlash].fullRecharge <4 or ttd <4 or targets <4 )) and cooldown[classtable.BrutalSlash].ready then
         return classtable.BrutalSlash
     end
-    if (CheckSpellCosts(classtable.ThrashCat, 'ThrashCat')) and (debuff[classtable.ThrashCatDeBuff].refreshable and not talents[classtable.ThrashingClaws]) and cooldown[classtable.ThrashCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ThrashCat, 'ThrashCat')) and (debuff[classtable.ThrashCatDeBuff].refreshable and not talents[classtable.ThrashingClaws]) and cooldown[classtable.ThrashCat].ready then
         return classtable.ThrashCat
     end
-    --if (CheckSpellCosts(classtable.Prowl, 'Prowl')) and (not ( buff[classtable.BtRakeBuff].up and active_bt_triggers == 2 ) and cooldown[classtable.Rake].ready and gcd == 0 and not buff[classtable.SuddenAmbushBuff].up and ( debuff[classtable.RakeDeBuff].refreshable or debuff[classtable.RakeDeBuff].remains <1.4 )) and cooldown[classtable.Prowl].ready then
+    --if (MaxDps:CheckSpellUsable(classtable.Prowl, 'Prowl')) and (not ( buff[classtable.BtRakeBuff].up and active_bt_triggers == 2 ) and cooldown[classtable.Rake].ready and gcd == 0 and not buff[classtable.SuddenAmbushBuff].up and ( debuff[classtable.RakeDeBuff].refreshable or debuff[classtable.RakeDeBuff].remains <1.4 )) and cooldown[classtable.Prowl].ready then
     --    return classtable.Prowl
     --end
-    if (CheckSpellCosts(classtable.Shadowmeld, 'Shadowmeld')) and (not ( buff[classtable.BtRakeBuff].up and active_bt_triggers == 2 ) and cooldown[classtable.Rake].ready and gcd == 0 and not buff[classtable.SuddenAmbushBuff].up and ( debuff[classtable.RakeDeBuff].refreshable or debuff[classtable.RakeDeBuff].remains <1.4 )) and cooldown[classtable.Shadowmeld].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Shadowmeld, 'Shadowmeld')) and (not ( buff[classtable.BtRakeBuff].up and active_bt_triggers == 2 ) and cooldown[classtable.Rake].ready and gcd == 0 and not buff[classtable.SuddenAmbushBuff].up and ( debuff[classtable.RakeDeBuff].refreshable or debuff[classtable.RakeDeBuff].remains <1.4 )) and cooldown[classtable.Shadowmeld].ready then
         MaxDps:GlowCooldown(classtable.Shadowmeld, cooldown[classtable.Shadowmeld].ready)
     end
-    if (CheckSpellCosts(classtable.Rake, 'Rake')) and (( debuff[classtable.RakeDeBuff].refreshable or ( debuff[classtable.RakeDeBuff].remains <1 ) ) and not ( buff[classtable.BtRakeBuff].up and active_bt_triggers == 2 )) and cooldown[classtable.Rake].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (( debuff[classtable.RakeDeBuff].refreshable or ( debuff[classtable.RakeDeBuff].remains <1 ) ) and not ( buff[classtable.BtRakeBuff].up and active_bt_triggers == 2 )) and cooldown[classtable.Rake].ready then
         return classtable.Rake
     end
-    if (CheckSpellCosts(classtable.BrutalSlash, 'BrutalSlash')) and (not ( buff[classtable.BtSwipeBuff].up and active_bt_triggers == 2 )) and cooldown[classtable.BrutalSlash].ready then
+    if (MaxDps:CheckSpellUsable(classtable.BrutalSlash, 'BrutalSlash')) and (not ( buff[classtable.BtSwipeBuff].up and active_bt_triggers == 2 )) and cooldown[classtable.BrutalSlash].ready then
         return classtable.BrutalSlash
     end
-    if (CheckSpellCosts(classtable.MoonfireCat, 'MoonfireCat')) and (debuff[classtable.MoonfireCatDeBuff].refreshable and ( targets <4 or talents[classtable.BrutalSlash] ) and not ( buff[classtable.BtMoonfireBuff].up and active_bt_triggers == 2 )) and cooldown[classtable.MoonfireCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MoonfireCat, 'MoonfireCat')) and (debuff[classtable.MoonfireCatDeBuff].refreshable and ( targets <4 or talents[classtable.BrutalSlash] ) and not ( buff[classtable.BtMoonfireBuff].up and active_bt_triggers == 2 )) and cooldown[classtable.MoonfireCat].ready then
         return classtable.MoonfireCat
     end
-    if (CheckSpellCosts(classtable.SwipeCat, 'SwipeCat')) and (not ( buff[classtable.BtSwipeBuff].up and active_bt_triggers == 2 )) and cooldown[classtable.SwipeCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SwipeCat, 'SwipeCat')) and (not ( buff[classtable.BtSwipeBuff].up and active_bt_triggers == 2 )) and cooldown[classtable.SwipeCat].ready then
         return classtable.SwipeCat
     end
-    if (CheckSpellCosts(classtable.MoonfireCat, 'MoonfireCat')) and (debuff[classtable.MoonfireCatDeBuff].refreshable and not ( buff[classtable.BtMoonfireBuff].up and active_bt_triggers == 2 )) and cooldown[classtable.MoonfireCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MoonfireCat, 'MoonfireCat')) and (debuff[classtable.MoonfireCatDeBuff].refreshable and not ( buff[classtable.BtMoonfireBuff].up and active_bt_triggers == 2 )) and cooldown[classtable.MoonfireCat].ready then
         return classtable.MoonfireCat
     end
-    if (CheckSpellCosts(classtable.Rake, 'Rake')) and (( debuff[classtable.RakeDeBuff].refreshable or ( debuff[classtable.RakeDeBuff].remains <1 ) ) and not ( buff[classtable.BtRakeBuff].up and active_bt_triggers == 2 )) and cooldown[classtable.Rake].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (( debuff[classtable.RakeDeBuff].refreshable or ( debuff[classtable.RakeDeBuff].remains <1 ) ) and not ( buff[classtable.BtRakeBuff].up and active_bt_triggers == 2 )) and cooldown[classtable.Rake].ready then
         return classtable.Rake
     end
-    if (CheckSpellCosts(classtable.Shred, 'Shred')) and (not ( buff[classtable.BtShredBuff].up and active_bt_triggers == 2 ) and not easy_swipe and not buff[classtable.SuddenAmbushBuff].up) and cooldown[classtable.Shred].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and (not ( buff[classtable.BtShredBuff].up and active_bt_triggers == 2 ) and not easy_swipe and not buff[classtable.SuddenAmbushBuff].up) and cooldown[classtable.Shred].ready then
         return classtable.Shred
     end
-    if (CheckSpellCosts(classtable.ThrashCat, 'ThrashCat')) and (not ( buff[classtable.BtThrashBuff].up and active_bt_triggers == 2 ) and not talents[classtable.ThrashingClaws]) and cooldown[classtable.ThrashCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ThrashCat, 'ThrashCat')) and (not ( buff[classtable.BtThrashBuff].up and active_bt_triggers == 2 ) and not talents[classtable.ThrashingClaws]) and cooldown[classtable.ThrashCat].ready then
         return classtable.ThrashCat
     end
-    if (CheckSpellCosts(classtable.MoonfireCat, 'MoonfireCat')) and (need_bt and not buff[classtable.BtMoonfireBuff].up) and cooldown[classtable.MoonfireCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MoonfireCat, 'MoonfireCat')) and (need_bt and not buff[classtable.BtMoonfireBuff].up) and cooldown[classtable.MoonfireCat].ready then
         return classtable.MoonfireCat
     end
-    if (CheckSpellCosts(classtable.Shred, 'Shred')) and (need_bt and not buff[classtable.BtShredBuff].up and not easy_swipe) and cooldown[classtable.Shred].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and (need_bt and not buff[classtable.BtShredBuff].up and not easy_swipe) and cooldown[classtable.Shred].ready then
         return classtable.Shred
     end
-    if (CheckSpellCosts(classtable.Rake, 'Rake')) and (debuff[classtable.RakeDeBuff].remains <1.6 and need_bt and not buff[classtable.BtRakeBuff].up) and cooldown[classtable.Rake].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (debuff[classtable.RakeDeBuff].remains <1.6 and need_bt and not buff[classtable.BtRakeBuff].up) and cooldown[classtable.Rake].ready then
         return classtable.Rake
     end
 end
@@ -275,112 +169,112 @@ function Feral:berserk()
             return Feral:aoe_builder()
         end
     end
-    --if (CheckSpellCosts(classtable.Prowl, 'Prowl')) and (not ( buff[classtable.BtRakeBuff].up and active_bt_triggers == 2 ) and cooldown[classtable.Rake].ready and gcd == 0 and not buff[classtable.SuddenAmbushBuff].up and ( debuff[classtable.RakeDeBuff].refreshable or debuff[classtable.RakeDeBuff].remains <1.4 ) and not buff[classtable.ShadowmeldBuff].up) and cooldown[classtable.Prowl].ready then
+    --if (MaxDps:CheckSpellUsable(classtable.Prowl, 'Prowl')) and (not ( buff[classtable.BtRakeBuff].up and active_bt_triggers == 2 ) and cooldown[classtable.Rake].ready and gcd == 0 and not buff[classtable.SuddenAmbushBuff].up and ( debuff[classtable.RakeDeBuff].refreshable or debuff[classtable.RakeDeBuff].remains <1.4 ) and not buff[classtable.ShadowmeldBuff].up) and cooldown[classtable.Prowl].ready then
     --    return classtable.Prowl
     --end
-    if (CheckSpellCosts(classtable.Shadowmeld, 'Shadowmeld')) and (not ( buff[classtable.BtRakeBuff].up and active_bt_triggers == 2 ) and cooldown[classtable.Rake].ready and not buff[classtable.SuddenAmbushBuff].up and ( debuff[classtable.RakeDeBuff].refreshable or debuff[classtable.RakeDeBuff].remains <1.4 ) and not buff[classtable.ProwlBuff].up) and cooldown[classtable.Shadowmeld].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Shadowmeld, 'Shadowmeld')) and (not ( buff[classtable.BtRakeBuff].up and active_bt_triggers == 2 ) and cooldown[classtable.Rake].ready and not buff[classtable.SuddenAmbushBuff].up and ( debuff[classtable.RakeDeBuff].refreshable or debuff[classtable.RakeDeBuff].remains <1.4 ) and not buff[classtable.ProwlBuff].up) and cooldown[classtable.Shadowmeld].ready then
         MaxDps:GlowCooldown(classtable.Shadowmeld, cooldown[classtable.Shadowmeld].ready)
     end
-    if (CheckSpellCosts(classtable.Rake, 'Rake')) and (not ( buff[classtable.BtRakeBuff].up and active_bt_triggers == 2 ) and ( debuff[classtable.RakeDeBuff].remains <3 or buff[classtable.SuddenAmbushBuff].up and 1 >debuff[classtable.RakeDeBuff].remains )) and cooldown[classtable.Rake].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (not ( buff[classtable.BtRakeBuff].up and active_bt_triggers == 2 ) and ( debuff[classtable.RakeDeBuff].remains <3 or buff[classtable.SuddenAmbushBuff].up and 1 >debuff[classtable.RakeDeBuff].remains )) and cooldown[classtable.Rake].ready then
         return classtable.Rake
     end
-    if (CheckSpellCosts(classtable.MoonfireCat, 'MoonfireCat')) and (debuff[classtable.MoonfireCatDeBuff].refreshable) and cooldown[classtable.MoonfireCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MoonfireCat, 'MoonfireCat')) and (debuff[classtable.MoonfireCatDeBuff].refreshable) and cooldown[classtable.MoonfireCat].ready then
         return classtable.MoonfireCat
     end
-    if (CheckSpellCosts(classtable.ThrashCat, 'ThrashCat')) and (not talents[classtable.ThrashingClaws] and debuff[classtable.ThrashCatDeBuff].refreshable) and cooldown[classtable.ThrashCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ThrashCat, 'ThrashCat')) and (not talents[classtable.ThrashingClaws] and debuff[classtable.ThrashCatDeBuff].refreshable) and cooldown[classtable.ThrashCat].ready then
         return classtable.ThrashCat
     end
-    if (CheckSpellCosts(classtable.Shred, 'Shred')) and (active_bt_triggers == 2 and not buff[classtable.BtShredBuff].up) and cooldown[classtable.Shred].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and (active_bt_triggers == 2 and not buff[classtable.BtShredBuff].up) and cooldown[classtable.Shred].ready then
         return classtable.Shred
     end
-    if (CheckSpellCosts(classtable.BrutalSlash, 'BrutalSlash')) and (active_bt_triggers == 2 and not buff[classtable.BtSwipeBuff].up) and cooldown[classtable.BrutalSlash].ready then
+    if (MaxDps:CheckSpellUsable(classtable.BrutalSlash, 'BrutalSlash')) and (active_bt_triggers == 2 and not buff[classtable.BtSwipeBuff].up) and cooldown[classtable.BrutalSlash].ready then
         return classtable.BrutalSlash
     end
-    if (CheckSpellCosts(classtable.SwipeCat, 'SwipeCat')) and (active_bt_triggers == 2 and not buff[classtable.BtSwipeBuff].up and talents[classtable.WildSlashes]) and cooldown[classtable.SwipeCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SwipeCat, 'SwipeCat')) and (active_bt_triggers == 2 and not buff[classtable.BtSwipeBuff].up and talents[classtable.WildSlashes]) and cooldown[classtable.SwipeCat].ready then
         return classtable.SwipeCat
     end
-    if (CheckSpellCosts(classtable.BrutalSlash, 'BrutalSlash')) and (cooldown[classtable.BrutalSlash].charges >1 and not buff[classtable.BtSwipeBuff].up) and cooldown[classtable.BrutalSlash].ready then
+    if (MaxDps:CheckSpellUsable(classtable.BrutalSlash, 'BrutalSlash')) and (cooldown[classtable.BrutalSlash].charges >1 and not buff[classtable.BtSwipeBuff].up) and cooldown[classtable.BrutalSlash].ready then
         return classtable.BrutalSlash
     end
-    if (CheckSpellCosts(classtable.Shred, 'Shred')) and (not buff[classtable.BtShredBuff].up) and cooldown[classtable.Shred].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and (not buff[classtable.BtShredBuff].up) and cooldown[classtable.Shred].ready then
         return classtable.Shred
     end
-    if (CheckSpellCosts(classtable.BrutalSlash, 'BrutalSlash')) and (cooldown[classtable.BrutalSlash].charges >1) and cooldown[classtable.BrutalSlash].ready then
+    if (MaxDps:CheckSpellUsable(classtable.BrutalSlash, 'BrutalSlash')) and (cooldown[classtable.BrutalSlash].charges >1) and cooldown[classtable.BrutalSlash].ready then
         return classtable.BrutalSlash
     end
-    if (CheckSpellCosts(classtable.SwipeCat, 'SwipeCat')) and (not buff[classtable.BtSwipeBuff].up and talents[classtable.WildSlashes]) and cooldown[classtable.SwipeCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SwipeCat, 'SwipeCat')) and (not buff[classtable.BtSwipeBuff].up and talents[classtable.WildSlashes]) and cooldown[classtable.SwipeCat].ready then
         return classtable.SwipeCat
     end
-    if (CheckSpellCosts(classtable.Shred, 'Shred')) and cooldown[classtable.Shred].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and cooldown[classtable.Shred].ready then
         return classtable.Shred
     end
 end
 function Feral:builder()
-    if (CheckSpellCosts(classtable.Shadowmeld, 'Shadowmeld')) and (gcd == 0 and Energy >= 35 and not buff[classtable.SuddenAmbushBuff].up and ( debuff[classtable.RakeDeBuff].refreshable or debuff[classtable.RakeDeBuff].remains <1.4 ) * not ( need_bt and buff[classtable.BtRakeBuff].up ) and buff[classtable.TigersFuryBuff].up) and cooldown[classtable.Shadowmeld].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Shadowmeld, 'Shadowmeld')) and (gcd == 0 and Energy >= 35 and not buff[classtable.SuddenAmbushBuff].up and ( debuff[classtable.RakeDeBuff].refreshable or debuff[classtable.RakeDeBuff].remains <1.4 ) * not ( need_bt and buff[classtable.BtRakeBuff].up ) and buff[classtable.TigersFuryBuff].up) and cooldown[classtable.Shadowmeld].ready then
         MaxDps:GlowCooldown(classtable.Shadowmeld, cooldown[classtable.Shadowmeld].ready)
     end
-    if (CheckSpellCosts(classtable.Rake, 'Rake')) and (( ( debuff[classtable.RakeDeBuff].refreshable and 1 >= debuff[classtable.RakeDeBuff].remains or debuff[classtable.RakeDeBuff].remains <3 ) or buff[classtable.SuddenAmbushBuff].up and 1 >debuff[classtable.RakeDeBuff].remains ) and not ( need_bt and buff[classtable.BtRakeBuff].up )) and cooldown[classtable.Rake].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (( ( debuff[classtable.RakeDeBuff].refreshable and 1 >= debuff[classtable.RakeDeBuff].remains or debuff[classtable.RakeDeBuff].remains <3 ) or buff[classtable.SuddenAmbushBuff].up and 1 >debuff[classtable.RakeDeBuff].remains ) and not ( need_bt and buff[classtable.BtRakeBuff].up )) and cooldown[classtable.Rake].ready then
         return classtable.Rake
     end
-    if (CheckSpellCosts(classtable.BrutalSlash, 'BrutalSlash')) and (cooldown[classtable.BrutalSlash].fullRecharge <4 and not ( need_bt and buff[classtable.BtSwipeBuff].up )) and cooldown[classtable.BrutalSlash].ready then
+    if (MaxDps:CheckSpellUsable(classtable.BrutalSlash, 'BrutalSlash')) and (cooldown[classtable.BrutalSlash].fullRecharge <4 and not ( need_bt and buff[classtable.BtSwipeBuff].up )) and cooldown[classtable.BrutalSlash].ready then
         return classtable.BrutalSlash
     end
-    if (CheckSpellCosts(classtable.ThrashCat, 'ThrashCat')) and (debuff[classtable.ThrashCatDeBuff].refreshable) and cooldown[classtable.ThrashCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ThrashCat, 'ThrashCat')) and (debuff[classtable.ThrashCatDeBuff].refreshable) and cooldown[classtable.ThrashCat].ready then
         return classtable.ThrashCat
     end
-    if (CheckSpellCosts(classtable.Shred, 'Shred')) and (buff[classtable.ClearcastingBuff].up) and cooldown[classtable.Shred].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and (buff[classtable.ClearcastingBuff].up) and cooldown[classtable.Shred].ready then
         return classtable.Shred
     end
-    if (CheckSpellCosts(classtable.MoonfireCat, 'MoonfireCat')) and (debuff[classtable.MoonfireCatDeBuff].refreshable) and cooldown[classtable.MoonfireCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MoonfireCat, 'MoonfireCat')) and (debuff[classtable.MoonfireCatDeBuff].refreshable) and cooldown[classtable.MoonfireCat].ready then
         return classtable.MoonfireCat
     end
-    if (CheckSpellCosts(classtable.BrutalSlash, 'BrutalSlash')) and (not ( need_bt and buff[classtable.BtSwipeBuff].up )) and cooldown[classtable.BrutalSlash].ready then
+    if (MaxDps:CheckSpellUsable(classtable.BrutalSlash, 'BrutalSlash')) and (not ( need_bt and buff[classtable.BtSwipeBuff].up )) and cooldown[classtable.BrutalSlash].ready then
         return classtable.BrutalSlash
     end
-    if (CheckSpellCosts(classtable.SwipeCat, 'SwipeCat')) and (talents[classtable.WildSlashes] and not ( need_bt and buff[classtable.BtSwipeBuff].up )) and cooldown[classtable.SwipeCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SwipeCat, 'SwipeCat')) and (talents[classtable.WildSlashes] and not ( need_bt and buff[classtable.BtSwipeBuff].up )) and cooldown[classtable.SwipeCat].ready then
         return classtable.SwipeCat
     end
-    if (CheckSpellCosts(classtable.Shred, 'Shred')) and (not ( need_bt and buff[classtable.BtShredBuff].up )) and cooldown[classtable.Shred].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and (not ( need_bt and buff[classtable.BtShredBuff].up )) and cooldown[classtable.Shred].ready then
         return classtable.Shred
     end
-    if (CheckSpellCosts(classtable.SwipeCat, 'SwipeCat')) and (need_bt and not buff[classtable.BtSwipeBuff].up) and cooldown[classtable.SwipeCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SwipeCat, 'SwipeCat')) and (need_bt and not buff[classtable.BtSwipeBuff].up) and cooldown[classtable.SwipeCat].ready then
         return classtable.SwipeCat
     end
-    if (CheckSpellCosts(classtable.Rake, 'Rake')) and (need_bt and not buff[classtable.BtRakeBuff].up and 1 >= debuff[classtable.RakeDeBuff].remains) and cooldown[classtable.Rake].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (need_bt and not buff[classtable.BtRakeBuff].up and 1 >= debuff[classtable.RakeDeBuff].remains) and cooldown[classtable.Rake].ready then
         return classtable.Rake
     end
-    if (CheckSpellCosts(classtable.MoonfireCat, 'MoonfireCat')) and (need_bt and not buff[classtable.BtMoonfireBuff].up) and cooldown[classtable.MoonfireCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MoonfireCat, 'MoonfireCat')) and (need_bt and not buff[classtable.BtMoonfireBuff].up) and cooldown[classtable.MoonfireCat].ready then
         return classtable.MoonfireCat
     end
-    if (CheckSpellCosts(classtable.ThrashCat, 'ThrashCat')) and (need_bt and not buff[classtable.BtThrashBuff].up) and cooldown[classtable.ThrashCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ThrashCat, 'ThrashCat')) and (need_bt and not buff[classtable.BtThrashBuff].up) and cooldown[classtable.ThrashCat].ready then
         return classtable.ThrashCat
     end
 end
 function Feral:cooldown()
-    if (CheckSpellCosts(classtable.Incarnation, 'Incarnation')) and cooldown[classtable.Incarnation].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Incarnation, 'Incarnation')) and cooldown[classtable.Incarnation].ready then
         MaxDps:GlowCooldown(classtable.Incarnation, cooldown[classtable.Incarnation].ready)
     end
-    if (CheckSpellCosts(classtable.Berserk, 'Berserk')) and cooldown[classtable.Berserk].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Berserk, 'Berserk')) and cooldown[classtable.Berserk].ready then
         return classtable.Berserk
     end
-    if (CheckSpellCosts(classtable.FeralFrenzy, 'FeralFrenzy')) and (ComboPoints <= 1 or buff[classtable.BsIncBuff].up and ComboPoints <= 2) and cooldown[classtable.FeralFrenzy].ready then
+    if (MaxDps:CheckSpellUsable(classtable.FeralFrenzy, 'FeralFrenzy')) and (ComboPoints <= 1 or buff[classtable.BsIncBuff].up and ComboPoints <= 2) and cooldown[classtable.FeralFrenzy].ready then
         return classtable.FeralFrenzy
     end
-    if (CheckSpellCosts(classtable.ConvoketheSpirits, 'ConvoketheSpirits')) and (boss and ttd <5 or ( buff[classtable.TigersFuryBuff].up and ( ComboPoints <= 2 or buff[classtable.BsIncBuff].up and ComboPoints <= 3 ) and ( ttd >5 - (talents[classtable.AshamanesGuidance] and talents[classtable.AshamanesGuidance] or 0) or ttd == ttd ) )) and cooldown[classtable.ConvoketheSpirits].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ConvoketheSpirits, 'ConvoketheSpirits')) and (MaxDps:boss() and ttd <5 or ( buff[classtable.TigersFuryBuff].up and ( ComboPoints <= 2 or buff[classtable.BsIncBuff].up and ComboPoints <= 3 ) and ( ttd >5 - (talents[classtable.AshamanesGuidance] and talents[classtable.AshamanesGuidance] or 0) or ttd == ttd ) )) and cooldown[classtable.ConvoketheSpirits].ready then
         MaxDps:GlowCooldown(classtable.ConvoketheSpirits, cooldown[classtable.ConvoketheSpirits].ready)
     end
 end
 function Feral:finisher()
-    if (CheckSpellCosts(classtable.PrimalWrath, 'PrimalWrath')) and (targets >1 and ( ( debuff[classtable.PrimalWrathDeBuff].remains <6.5 and not buff[classtable.BsIncBuff].up or debuff[classtable.PrimalWrathDeBuff].refreshable ) or ( not talents[classtable.RampantFerocity] and ( targets >1 and not debuff[classtable.BloodseekerVinesDeBuff].up and not buff[classtable.RavageBuff].up or targets >6 + (talents[classtable.Ravage] and talents[classtable.Ravage] or 0) ) ) or debuff[classtable.PrimalWrathDeBuff].remains <1 )) and cooldown[classtable.PrimalWrath].ready then
+    if (MaxDps:CheckSpellUsable(classtable.PrimalWrath, 'PrimalWrath')) and (targets >1 and ( ( debuff[classtable.PrimalWrathDeBuff].remains <6.5 and not buff[classtable.BsIncBuff].up or debuff[classtable.PrimalWrathDeBuff].refreshable ) or ( not talents[classtable.RampantFerocity] and ( targets >1 and not debuff[classtable.BloodseekerVinesDeBuff].up and not buff[classtable.RavageBuff].up or targets >6 + (talents[classtable.Ravage] and talents[classtable.Ravage] or 0) ) ) or debuff[classtable.PrimalWrathDeBuff].remains <1 )) and cooldown[classtable.PrimalWrath].ready then
         return classtable.PrimalWrath
     end
-    if (CheckSpellCosts(classtable.Rip, 'Rip')) and (debuff[classtable.RipDeBuff].refreshable and ( not talents[classtable.PrimalWrath] or targets == 1 ) and ( buff[classtable.BloodtalonsBuff].up or not talents[classtable.Bloodtalons] ) and ( buff[classtable.TigersFuryBuff].up or debuff[classtable.RipDeBuff].remains <cooldown[classtable.TigersFury].remains )) and cooldown[classtable.Rip].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Rip, 'Rip')) and (debuff[classtable.RipDeBuff].refreshable and ( not talents[classtable.PrimalWrath] or targets == 1 ) and ( buff[classtable.BloodtalonsBuff].up or not talents[classtable.Bloodtalons] ) and ( buff[classtable.TigersFuryBuff].up or debuff[classtable.RipDeBuff].remains <cooldown[classtable.TigersFury].remains )) and cooldown[classtable.Rip].ready then
         return classtable.Rip
     end
-    if (CheckSpellCosts(classtable.FerociousBite, 'FerociousBite')) and (not buff[classtable.BsIncBuff].up or not talents[classtable.SouloftheForest]) and cooldown[classtable.FerociousBite].ready then
+    if (MaxDps:CheckSpellUsable(classtable.FerociousBite, 'FerociousBite')) and (not buff[classtable.BsIncBuff].up or not talents[classtable.SouloftheForest]) and cooldown[classtable.FerociousBite].ready then
         return classtable.FerociousBite
     end
-    if (CheckSpellCosts(classtable.FerociousBite, 'FerociousBite')) and cooldown[classtable.FerociousBite].ready then
+    if (MaxDps:CheckSpellUsable(classtable.FerociousBite, 'FerociousBite')) and cooldown[classtable.FerociousBite].ready then
         return classtable.FerociousBite
     end
 end
@@ -395,38 +289,38 @@ function Feral:variable()
 end
 
 function Feral:callaction()
-    --if (CheckSpellCosts(classtable.Prowl, 'Prowl')) and (not buff[classtable.BsIncBuff].up and not buff[classtable.ProwlBuff].up) and cooldown[classtable.Prowl].ready then
+    --if (MaxDps:CheckSpellUsable(classtable.Prowl, 'Prowl')) and (not buff[classtable.BsIncBuff].up and not buff[classtable.ProwlBuff].up) and cooldown[classtable.Prowl].ready then
     --    return classtable.Prowl
     --end
-    if (CheckSpellCosts(classtable.CatForm, 'CatForm')) and (not buff[classtable.CatFormBuff].up and not talents[classtable.FluidForm]) and cooldown[classtable.CatForm].ready then
+    if (MaxDps:CheckSpellUsable(classtable.CatForm, 'CatForm')) and (not buff[classtable.CatFormBuff].up and not talents[classtable.FluidForm]) and cooldown[classtable.CatForm].ready then
         return classtable.CatForm
     end
-    if (CheckSpellCosts(classtable.SkullBash, 'SkullBash')) and cooldown[classtable.SkullBash].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SkullBash, 'SkullBash')) and cooldown[classtable.SkullBash].ready then
         MaxDps:GlowCooldown(classtable.SkullBash, ( select(8,UnitCastingInfo('target')) ~= nil and not select(8,UnitCastingInfo('target')) or select(7,UnitChannelInfo('target')) ~= nil and not select(7,UnitChannelInfo('target'))) )
     end
     local variableCheck = Feral:variable()
     if variableCheck then
         return variableCheck
     end
-    if (CheckSpellCosts(classtable.TigersFury, 'TigersFury')) and (EnergyDeficit >35 or ComboPoints == 5) and cooldown[classtable.TigersFury].ready then
+    if (MaxDps:CheckSpellUsable(classtable.TigersFury, 'TigersFury')) and (EnergyDeficit >35 or ComboPoints == 5) and cooldown[classtable.TigersFury].ready then
         MaxDps:GlowCooldown(classtable.TigersFury, cooldown[classtable.TigersFury].ready)
     end
-    if (CheckSpellCosts(classtable.Rake, 'Rake')) and (buff[classtable.ShadowmeldBuff].up or buff[classtable.ProwlBuff].up) and cooldown[classtable.Rake].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (buff[classtable.ShadowmeldBuff].up or buff[classtable.ProwlBuff].up) and cooldown[classtable.Rake].ready then
         return classtable.Rake
     end
-    if (CheckSpellCosts(classtable.NaturesVigil, 'NaturesVigil')) and (targets >0) and cooldown[classtable.NaturesVigil].ready then
+    if (MaxDps:CheckSpellUsable(classtable.NaturesVigil, 'NaturesVigil')) and (targets >0) and cooldown[classtable.NaturesVigil].ready then
         return classtable.NaturesVigil
     end
-    if (CheckSpellCosts(classtable.Renewal, 'Renewal')) and (curentHP <60 and regrowth) and cooldown[classtable.Renewal].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Renewal, 'Renewal')) and (curentHP <60 and regrowth) and cooldown[classtable.Renewal].ready then
         return classtable.Renewal
     end
-    if (CheckSpellCosts(classtable.FerociousBite, 'FerociousBite')) and (buff[classtable.ApexPredatorsCravingBuff].up and not ( need_bt and active_bt_triggers == 2 )) and cooldown[classtable.FerociousBite].ready then
+    if (MaxDps:CheckSpellUsable(classtable.FerociousBite, 'FerociousBite')) and (buff[classtable.ApexPredatorsCravingBuff].up and not ( need_bt and active_bt_triggers == 2 )) and cooldown[classtable.FerociousBite].ready then
         return classtable.FerociousBite
     end
-    if (CheckSpellCosts(classtable.AdaptiveSwarm, 'AdaptiveSwarm')) and (( not debuff[classtable.AdaptiveSwarmDamageDeBuff].up or debuff[classtable.AdaptiveSwarmDamageDeBuff].remains <2 ) and debuff[classtable.AdaptiveSwarmDamageDeBuff].count <3 and not (classtable and classtable.AdaptiveSwarmDamage and GetSpellCooldown(classtable.AdaptiveSwarmDamage).duration >=5 ) and not (classtable and classtable.AdaptiveSwarm and GetSpellCooldown(classtable.AdaptiveSwarm).duration >=5 ) and ttd >5 and ( buff[classtable.CatFormBuff].up and not talents[classtable.UnbridledSwarm] or targets == 1 )) and cooldown[classtable.AdaptiveSwarm].ready then
+    if (MaxDps:CheckSpellUsable(classtable.AdaptiveSwarm, 'AdaptiveSwarm')) and (( not debuff[classtable.AdaptiveSwarmDamageDeBuff].up or debuff[classtable.AdaptiveSwarmDamageDeBuff].remains <2 ) and debuff[classtable.AdaptiveSwarmDamageDeBuff].count <3 and not (classtable and classtable.AdaptiveSwarmDamage and GetSpellCooldown(classtable.AdaptiveSwarmDamage).duration >=5 ) and not (classtable and classtable.AdaptiveSwarm and GetSpellCooldown(classtable.AdaptiveSwarm).duration >=5 ) and ttd >5 and ( buff[classtable.CatFormBuff].up and not talents[classtable.UnbridledSwarm] or targets == 1 )) and cooldown[classtable.AdaptiveSwarm].ready then
         return classtable.AdaptiveSwarm
     end
-    if (CheckSpellCosts(classtable.AdaptiveSwarm, 'AdaptiveSwarm')) and (buff[classtable.CatFormBuff].up and debuff[classtable.AdaptiveSwarmDamageDeBuff].count <3 and talents[classtable.UnbridledSwarm] and targets >1) and cooldown[classtable.AdaptiveSwarm].ready then
+    if (MaxDps:CheckSpellUsable(classtable.AdaptiveSwarm, 'AdaptiveSwarm')) and (buff[classtable.CatFormBuff].up and debuff[classtable.AdaptiveSwarmDamageDeBuff].count <3 and talents[classtable.UnbridledSwarm] and targets >1) and cooldown[classtable.AdaptiveSwarm].ready then
         return classtable.AdaptiveSwarm
     end
     if (debuff[classtable.RipDeBuff].up) then
@@ -459,7 +353,7 @@ function Feral:callaction()
             return Feral:aoe_builder()
         end
     end
-    if (CheckSpellCosts(classtable.Regrowth, 'Regrowth')) and (buff[classtable.PredatorySwiftnessBuff].up and regrowth) and cooldown[classtable.Regrowth].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Regrowth, 'Regrowth')) and (buff[classtable.PredatorySwiftnessBuff].up and regrowth) and cooldown[classtable.Regrowth].ready then
         return classtable.Regrowth
     end
     if (ComboPoints == 5) then
