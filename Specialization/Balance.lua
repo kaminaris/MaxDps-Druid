@@ -238,6 +238,8 @@ function Druid:Balance()
     ComboPoints = UnitPower('player', ComboPointsPT)
     ComboPointsMax = UnitPowerMax('player', ComboPointsPT)
     ComboPointsDeficit = ComboPointsMax - ComboPoints
+    classtable.HalfMoon = 274282
+    classtable.FullMoon = 274283
     for spellId in pairs(MaxDps.Flags) do
         self.Flags[spellId] = false
         self:ClearGlowIndependent(spellId, spellId)
