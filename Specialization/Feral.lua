@@ -256,18 +256,10 @@ function Feral:builder()
     --end
 end
 function Feral:cooldown()
-    if (MaxDps:CheckSpellUsable(classtable.Incarnation, 'Incarnation')) and (ttd >17 or MaxDps:boss()) and cooldown[classtable.Incarnation].ready then
-        MaxDps:GlowCooldown(classtable.Incarnation, cooldown[classtable.Incarnation].ready)
-    end
-    if (MaxDps:CheckSpellUsable(classtable.Berserk, 'Berserk')) and (not talents[classtable.Incarnation] and ttd >12 or MaxDps:boss()) and cooldown[classtable.Berserk].ready then
-        return classtable.Berserk
-    end
-    if (MaxDps:CheckSpellUsable(classtable.FeralFrenzy, 'FeralFrenzy')) and (ComboPoints <= 1 or buff[classtable.BsIncBuff].up and ComboPoints <= 2) and cooldown[classtable.FeralFrenzy].ready then
-        return classtable.FeralFrenzy
-    end
-    if (MaxDps:CheckSpellUsable(classtable.ConvoketheSpirits, 'ConvoketheSpirits')) and (MaxDps:boss() and ttd <5 or ( buff[classtable.TigersFuryBuff].up and ( ComboPoints <= 2 or buff[classtable.BsIncBuff].up and ComboPoints <= 3 ) and ( ttd >5 - (talents[classtable.AshamanesGuidance] and talents[classtable.AshamanesGuidance] or 0) or ttd == ttd ) )) and cooldown[classtable.ConvoketheSpirits].ready then
-        MaxDps:GlowCooldown(classtable.ConvoketheSpirits, cooldown[classtable.ConvoketheSpirits].ready)
-    end
+    MaxDps:GlowCooldown(classtable.Incarnation, talents[classtable.Incarnation] and (ttd >17 or MaxDps:boss()) and cooldown[classtable.Incarnation].ready)
+    MaxDps:GlowCooldown(classtable.Berserk, not talents[classtable.Incarnation] and ttd >12 or MaxDps:boss() and cooldown[classtable.Berserk].ready)
+    MaxDps:GlowCooldown(classtable.FeralFrenzy, ComboPoints <= 1 or buff[classtable.BsIncBuff].up and ComboPoints <= 2 and cooldown[classtable.FeralFrenzy].ready)
+    MaxDps:GlowCooldown(classtable.ConvoketheSpirits, MaxDps:boss() and ttd <5 or ( buff[classtable.TigersFuryBuff].up and ( ComboPoints <= 2 or buff[classtable.BsIncBuff].up and ComboPoints <= 3 ) and ( ttd >5 - (talents[classtable.AshamanesGuidance] and talents[classtable.AshamanesGuidance] or 0) or ttd == ttd ) ) and cooldown[classtable.ConvoketheSpirits].ready)
 end
 function Feral:finisher()
     if (MaxDps:CheckSpellUsable(classtable.PrimalWrath, 'PrimalWrath')) and (targets >1 and ( ( debuff[classtable.PrimalWrathDeBuff].remains <6.5 and not buff[classtable.BsIncBuff].up or debuff[classtable.PrimalWrathDeBuff].refreshable ) or ( not talents[classtable.RampantFerocity] and ( targets >1 and not debuff[classtable.BloodseekerVinesDeBuff].up and not buff[classtable.RavageBuff].up or targets >6 + (talents[classtable.Ravage] and talents[classtable.Ravage] or 0) ) ) or debuff[classtable.PrimalWrathDeBuff].remains <1 )) and cooldown[classtable.PrimalWrath].ready then
