@@ -115,12 +115,12 @@ function Balance:callaction()
     if (MaxDps:CheckSpellUsable(classtable.FuryofElune, 'FuryofElune')) and cooldown[classtable.FuryofElune].ready then
         return classtable.FuryofElune
     end
-    if (MaxDps:CheckSpellUsable(classtable.Incarnation, 'Incarnation')) and cooldown[classtable.Incarnation].ready then
-        MaxDps:GlowCooldown(classtable.Incarnation, cooldown[classtable.Incarnation].ready)
-    end
-    if (MaxDps:CheckSpellUsable(classtable.CelestialAlignment, 'CelestialAlignment')) and cooldown[classtable.CelestialAlignment].ready then
-        return classtable.CelestialAlignment
-    end
+
+    MaxDps:GlowCooldown(classtable.Incarnation, talents[classtable.Incarnation] and cooldown[classtable.Incarnation].ready)
+
+
+    MaxDps:GlowCooldown(classtable.CelestialAlignment,not talents[classtable.Incarnation] and cooldown[classtable.CelestialAlignment].ready)
+
     if (MaxDps:CheckSpellUsable(classtable.WarriorofElune, 'WarriorofElune')) and (not talents[classtable.LunarCalling] and buff[classtable.EclipseSolarBuff].remains <7 or talents[classtable.LunarCalling]) and cooldown[classtable.WarriorofElune].ready then
         return classtable.WarriorofElune
     end
