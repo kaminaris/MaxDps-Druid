@@ -126,12 +126,8 @@ function Guardian:bear()
     if (MaxDps:CheckSpellUsable(classtable.ConvoketheSpirits, 'ConvoketheSpirits')) and (( talents[classtable.WildpowerSurge] and buff[classtable.CatFormBuff].up and buff[classtable.FelinePotentialBuff].up ) or not talents[classtable.WildpowerSurge]) and cooldown[classtable.ConvoketheSpirits].ready then
         MaxDps:GlowCooldown(classtable.ConvoketheSpirits, cooldown[classtable.ConvoketheSpirits].ready)
     end
-    if (MaxDps:CheckSpellUsable(classtable.Berserk, 'Berserk')) and cooldown[classtable.Berserk].ready then
-        MaxDps:GlowCooldown(classtable.Berserk, cooldown[classtable.Berserk].ready)
-    end
-    if (MaxDps:CheckSpellUsable(classtable.Incarnation, 'Incarnation')) and cooldown[classtable.Incarnation].ready then
-        MaxDps:GlowCooldown(classtable.Incarnation, cooldown[classtable.Incarnation].ready)
-    end
+    MaxDps:GlowCooldown(classtable.Berserk, not talents[classtable.Incarnation] and cooldown[classtable.Berserk].ready)
+    MaxDps:GlowCooldown(classtable.Incarnation, talents[classtable.Incarnation] and cooldown[classtable.Incarnation].ready)
     if (MaxDps:CheckSpellUsable(classtable.RageoftheSleeper, 'RageoftheSleeper')) and (( ( ( not buff[classtable.IncarnationGuardianofUrsocBuff].up and cooldown[classtable.IncarnationGuardianofUrsoc].remains >60 ) or not buff[classtable.BerserkBearBuff].up ) and Rage >40 and ( not talents[classtable.ConvoketheSpirits] ) or ( buff[classtable.IncarnationGuardianofUrsocBuff].up or buff[classtable.BerserkBearBuff].up ) and Rage >40 and ( not talents[classtable.ConvoketheSpirits] ) or ( talents[classtable.ConvoketheSpirits] ) and Rage >40 )) and cooldown[classtable.RageoftheSleeper].ready then
         return classtable.RageoftheSleeper
     end
