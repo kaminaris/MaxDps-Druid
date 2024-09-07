@@ -124,7 +124,7 @@ function Feral:aoe_builder()
     if (MaxDps:CheckSpellUsable(classtable.Shadowmeld, 'Shadowmeld')) and (( debuff[classtable.RakeDeBuff].refreshable or debuff[classtable.RakeDeBuff].remains <1.4 ) and not ( buff[classtable.BtRakeBuff].up and need_bt ) and cooldown[classtable.Rake].ready and not buff[classtable.SuddenAmbushBuff].up and not buff[classtable.ProwlBuff].up) and cooldown[classtable.Shadowmeld].ready then
         MaxDps:GlowCooldown(classtable.Shadowmeld, cooldown[classtable.Shadowmeld].ready)
     end
-    if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (debuff[classtable.RakeDeBuff].refreshable and not ( buff[classtable.BtRakeBuff].up and need_bt ) and not buff[classtable.ClearcastingBuff].up == 1 + talents[classtable.MomentofClarity]) and cooldown[classtable.Rake].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (debuff[classtable.RakeDeBuff].refreshable and not ( buff[classtable.BtRakeBuff].up and need_bt ) and not buff[classtable.ClearcastingBuff].up == 1 + (talents[classtable.MomentofClarity] and talents[classtable.MomentofClarity] or 0 )) and cooldown[classtable.Rake].ready then
         return classtable.Rake
     end
     if (MaxDps:CheckSpellUsable(classtable.BrutalSlash, 'BrutalSlash')) and (talents[classtable.BrutalSlash] and not ( buff[classtable.BtSwipeBuff].up and need_bt )) and cooldown[classtable.BrutalSlash].ready then
