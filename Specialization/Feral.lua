@@ -98,8 +98,10 @@ local easy_swipe
 local moonfire_snapshotted
 
 
-local function active_bt_triggers()
-    return 2
+--Check if spell was cast within 4 seconds to count for Bloodtalens
+local function need_bt_trigger(spell)
+    local spellName = C_Spell.GetSpellInfo(spell)
+    return GetTime - MaxDps.spellHistoryTime[spellName] <= 4
 end
 
 
@@ -116,75 +118,75 @@ function Feral:precombat()
 end
 function Feral:aoe_builder()
     proccing_bt = need_bt
-    if (MaxDps:CheckSpellUsable(classtable.ThrashCat, 'ThrashCat')) and (debuff[classtable.ThrashCatDeBuff].refreshable and not talents[classtable.ThrashingClaws] and not ( need_bt and buff[classtable.BtThrashBuff].up )) and cooldown[classtable.ThrashCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ThrashCat, 'ThrashCat')) and (debuff[classtable.ThrashCatDeBuff].refreshable and not talents[classtable.ThrashingClaws] and not ( need_bt and need_bt_trigger('Thrash') )) and cooldown[classtable.ThrashCat].ready then
         if not setSpell then setSpell = classtable.ThrashCat end
     end
-    if (MaxDps:CheckSpellUsable(classtable.BrutalSlash, 'BrutalSlash')) and talents[classtable.BrutalSlash] and (( cooldown[classtable.BrutalSlash].fullRecharge <4 or ttd <4 or targets <4 or ( buff[classtable.BsIncBuff].up and targets >= 3 - (MaxDps.ActiveHeroTree == 'druidoftheclaw') ) ) and not ( need_bt and buff[classtable.BtSwipeBuff].up and ( not buff[classtable.BsIncBuff].up or targets <3 - (MaxDps.ActiveHeroTree == 'druidoftheclaw') ) )) and cooldown[classtable.BrutalSlash].ready then
+    if (MaxDps:CheckSpellUsable(classtable.BrutalSlash, 'BrutalSlash')) and talents[classtable.BrutalSlash] and (( cooldown[classtable.BrutalSlash].fullRecharge <4 or ttd <4 or targets <4 or ( buff[classtable.BsIncBuff].up and targets >= 3 - (MaxDps.ActiveHeroTree == 'druidoftheclaw') ) ) and not ( need_bt and need_bt_trigger('Swipe') and ( not buff[classtable.BsIncBuff].up or targets <3 - (MaxDps.ActiveHeroTree == 'druidoftheclaw') ) )) and cooldown[classtable.BrutalSlash].ready then
         if not setSpell then setSpell = classtable.BrutalSlash end
     end
-    if (MaxDps:CheckSpellUsable(classtable.SwipeCat, 'SwipeCat')) and (ttd <4 or ( talents[classtable.WildSlashes] and targets >4 and not ( need_bt and buff[classtable.BtSwipeBuff].up ) )) and cooldown[classtable.SwipeCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SwipeCat, 'SwipeCat')) and (ttd <4 or ( talents[classtable.WildSlashes] and targets >4 and not ( need_bt and need_bt_trigger('Swipe') ) )) and cooldown[classtable.SwipeCat].ready then
         if not setSpell then setSpell = classtable.SwipeCat end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Prowl, 'Prowl')) and (debuff[classtable.RakeDeBuff].refreshable or debuff[classtable.RakeDeBuff].remains <1.4 and not ( need_bt and buff[classtable.BtRakeBuff].up ) and cooldown[classtable.Rake].ready and gcd == 0 and not buff[classtable.SuddenAmbushBuff].up and not cc_capped) and cooldown[classtable.Prowl].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Prowl, 'Prowl')) and (debuff[classtable.RakeDeBuff].refreshable or debuff[classtable.RakeDeBuff].remains <1.4 and not ( need_bt and need_bt_trigger('Rake') ) and cooldown[classtable.Rake].ready and gcd == 0 and not buff[classtable.SuddenAmbushBuff].up and not cc_capped) and cooldown[classtable.Prowl].ready then
         if not setSpell then setSpell = classtable.Prowl end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Shadowmeld, 'Shadowmeld')) and (debuff[classtable.RakeDeBuff].refreshable or debuff[classtable.RakeDeBuff].remains <1.4 and not ( need_bt and buff[classtable.BtRakeBuff].up ) and cooldown[classtable.Rake].ready and not buff[classtable.SuddenAmbushBuff].up and not buff[classtable.ProwlBuff].up and not cc_capped) and cooldown[classtable.Shadowmeld].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Shadowmeld, 'Shadowmeld')) and (debuff[classtable.RakeDeBuff].refreshable or debuff[classtable.RakeDeBuff].remains <1.4 and not ( need_bt and need_bt_trigger('Rake') ) and cooldown[classtable.Rake].ready and not buff[classtable.SuddenAmbushBuff].up and not buff[classtable.ProwlBuff].up and not cc_capped) and cooldown[classtable.Shadowmeld].ready then
         MaxDps:GlowCooldown(classtable.Shadowmeld, cooldown[classtable.Shadowmeld].ready)
     end
-    if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (debuff[classtable.RakeDeBuff].refreshable and talents[classtable.DoubleclawedRake] and not ( need_bt and buff[classtable.BtRakeBuff].up ) and not cc_capped) and cooldown[classtable.Rake].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (debuff[classtable.RakeDeBuff].refreshable and talents[classtable.DoubleclawedRake] and not ( need_bt and need_bt_trigger('Rake') ) and not cc_capped) and cooldown[classtable.Rake].ready then
         if not setSpell then setSpell = classtable.Rake end
     end
-    if (MaxDps:CheckSpellUsable(classtable.SwipeCat, 'SwipeCat')) and (talents[classtable.WildSlashes] and targets >3 and not ( need_bt and buff[classtable.BtSwipeBuff].up )) and cooldown[classtable.SwipeCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SwipeCat, 'SwipeCat')) and (talents[classtable.WildSlashes] and targets >3 and not ( need_bt and need_bt_trigger('Swipe') )) and cooldown[classtable.SwipeCat].ready then
         if not setSpell then setSpell = classtable.SwipeCat end
     end
-    if (MaxDps:CheckSpellUsable(classtable.MoonfireCat, 'MoonfireCat')) and talents[classtable.LunarInspiration] and (debuff[classtable.MoonfireCatDeBuff].refreshable and not ( need_bt and buff[classtable.BtMoonfireBuff].up ) and not cc_capped) and cooldown[classtable.MoonfireCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MoonfireCat, 'MoonfireCat')) and talents[classtable.LunarInspiration] and (debuff[classtable.MoonfireCatDeBuff].refreshable and not ( need_bt and need_bt_trigger('Moonfire') ) and not cc_capped) and cooldown[classtable.MoonfireCat].ready then
         if not setSpell then setSpell = classtable.MoonfireCat end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (debuff[classtable.RakeDeBuff].refreshable and not ( need_bt and buff[classtable.BtRakeBuff].up ) and not cc_capped) and cooldown[classtable.Rake].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (debuff[classtable.RakeDeBuff].refreshable and not ( need_bt and need_bt_trigger('Rake') ) and not cc_capped) and cooldown[classtable.Rake].ready then
         if not setSpell then setSpell = classtable.Rake end
     end
-    if (MaxDps:CheckSpellUsable(classtable.BrutalSlash, 'BrutalSlash')) and talents[classtable.BrutalSlash] and (not ( need_bt and buff[classtable.BtSwipeBuff].up )) and cooldown[classtable.BrutalSlash].ready then
+    if (MaxDps:CheckSpellUsable(classtable.BrutalSlash, 'BrutalSlash')) and talents[classtable.BrutalSlash] and (not ( need_bt and need_bt_trigger('Swipe') )) and cooldown[classtable.BrutalSlash].ready then
         if not setSpell then setSpell = classtable.BrutalSlash end
     end
-    if (MaxDps:CheckSpellUsable(classtable.SwipeCat, 'SwipeCat')) and (not ( need_bt and buff[classtable.BtSwipeBuff].up )) and cooldown[classtable.SwipeCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SwipeCat, 'SwipeCat')) and (not ( need_bt and need_bt_trigger('Swipe') )) and cooldown[classtable.SwipeCat].ready then
         if not setSpell then setSpell = classtable.SwipeCat end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and (not buff[classtable.SuddenAmbushBuff].up and not easy_swipe and not ( need_bt and buff[classtable.BtShredBuff].up )) and cooldown[classtable.Shred].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and (not buff[classtable.SuddenAmbushBuff].up and not easy_swipe and not ( need_bt and need_bt_trigger('Shred') )) and cooldown[classtable.Shred].ready then
         if not setSpell then setSpell = classtable.Shred end
     end
-    if (MaxDps:CheckSpellUsable(classtable.ThrashCat, 'ThrashCat')) and (not talents[classtable.ThrashingClaws] and not ( need_bt and buff[classtable.BtThrashBuff].up )) and cooldown[classtable.ThrashCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ThrashCat, 'ThrashCat')) and (not talents[classtable.ThrashingClaws] and not ( need_bt and need_bt_trigger('Thrash') )) and cooldown[classtable.ThrashCat].ready then
         if not setSpell then setSpell = classtable.ThrashCat end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (talents[classtable.DoubleclawedRake] and buff[classtable.SuddenAmbushBuff].up and need_bt and not buff[classtable.BtRakeBuff].up) and cooldown[classtable.Rake].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (talents[classtable.DoubleclawedRake] and buff[classtable.SuddenAmbushBuff].up and need_bt and need_bt_trigger('Rake')) and cooldown[classtable.Rake].ready then
         if not setSpell then setSpell = classtable.Rake end
     end
-    if (MaxDps:CheckSpellUsable(classtable.MoonfireCat, 'MoonfireCat')) and talents[classtable.LunarInspiration] and (need_bt and not buff[classtable.BtMoonfireBuff].up) and cooldown[classtable.MoonfireCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MoonfireCat, 'MoonfireCat')) and talents[classtable.LunarInspiration] and (need_bt and need_bt_trigger('Moonfire')) and cooldown[classtable.MoonfireCat].ready then
         if not setSpell then setSpell = classtable.MoonfireCat end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (buff[classtable.SuddenAmbushBuff].up and need_bt and not buff[classtable.BtRakeBuff].up) and cooldown[classtable.Rake].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (buff[classtable.SuddenAmbushBuff].up and need_bt and need_bt_trigger('Rake')) and cooldown[classtable.Rake].ready then
         if not setSpell then setSpell = classtable.Rake end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and (need_bt and not buff[classtable.BtShredBuff].up and not easy_swipe) and cooldown[classtable.Shred].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and (need_bt and need_bt_trigger('Shred') and not easy_swipe) and cooldown[classtable.Shred].ready then
         if not setSpell then setSpell = classtable.Shred end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (debuff[classtable.RakeDeBuff].remains <1.6 and need_bt and not buff[classtable.BtRakeBuff].up) and cooldown[classtable.Rake].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (debuff[classtable.RakeDeBuff].remains <1.6 and need_bt and need_bt_trigger('Rake')) and cooldown[classtable.Rake].ready then
         if not setSpell then setSpell = classtable.Rake end
     end
-    if (MaxDps:CheckSpellUsable(classtable.ThrashCat, 'ThrashCat')) and (need_bt and not buff[classtable.BtShredBuff].up) and cooldown[classtable.ThrashCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ThrashCat, 'ThrashCat')) and (need_bt and need_bt_trigger('Shred')) and cooldown[classtable.ThrashCat].ready then
         if not setSpell then setSpell = classtable.ThrashCat end
     end
 end
 function Feral:builder()
-    if (MaxDps:CheckSpellUsable(classtable.Prowl, 'Prowl')) and (gcd == 0 and Energy >= 35 and not buff[classtable.SuddenAmbushBuff].up and ( debuff[classtable.RakeDeBuff].refreshable or debuff[classtable.RakeDeBuff].remains <1.4 ) * not ( need_bt and buff[classtable.BtRakeBuff].up ) and buff[classtable.TigersFuryBuff].up and not buff[classtable.ShadowmeldBuff].up) and cooldown[classtable.Prowl].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Prowl, 'Prowl')) and (gcd == 0 and Energy >= 35 and not buff[classtable.SuddenAmbushBuff].up and ( debuff[classtable.RakeDeBuff].refreshable or debuff[classtable.RakeDeBuff].remains <1.4 ) * not ( need_bt and need_bt_trigger('Rake') ) and buff[classtable.TigersFuryBuff].up and not buff[classtable.ShadowmeldBuff].up) and cooldown[classtable.Prowl].ready then
         if not setSpell then setSpell = classtable.Prowl end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Shadowmeld, 'Shadowmeld')) and (gcd == 0 and Energy >= 35 and not buff[classtable.SuddenAmbushBuff].up and ( debuff[classtable.RakeDeBuff].refreshable or debuff[classtable.RakeDeBuff].remains <1.4 ) * not ( need_bt and buff[classtable.BtRakeBuff].up ) and buff[classtable.TigersFuryBuff].up and not buff[classtable.ProwlBuff].up) and cooldown[classtable.Shadowmeld].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Shadowmeld, 'Shadowmeld')) and (gcd == 0 and Energy >= 35 and not buff[classtable.SuddenAmbushBuff].up and ( debuff[classtable.RakeDeBuff].refreshable or debuff[classtable.RakeDeBuff].remains <1.4 ) * not ( need_bt and need_bt_trigger('Rake') ) and buff[classtable.TigersFuryBuff].up and not buff[classtable.ProwlBuff].up) and cooldown[classtable.Shadowmeld].ready then
         MaxDps:GlowCooldown(classtable.Shadowmeld, cooldown[classtable.Shadowmeld].ready)
     end
-    if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (( ( debuff[classtable.RakeDeBuff].refreshable and 1 >= debuff[classtable.RakeDeBuff].remains or debuff[classtable.RakeDeBuff].remains <3.5 ) or buff[classtable.SuddenAmbushBuff].up and 1 >debuff[classtable.RakeDeBuff].remains ) and not ( need_bt and buff[classtable.BtRakeBuff].up )) and cooldown[classtable.Rake].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (( ( debuff[classtable.RakeDeBuff].refreshable and 1 >= debuff[classtable.RakeDeBuff].remains or debuff[classtable.RakeDeBuff].remains <3.5 ) or buff[classtable.SuddenAmbushBuff].up and 1 >debuff[classtable.RakeDeBuff].remains ) and not ( need_bt and need_bt_trigger('Rake') )) and cooldown[classtable.Rake].ready then
         if not setSpell then setSpell = classtable.Rake end
     end
-    if (MaxDps:CheckSpellUsable(classtable.BrutalSlash, 'BrutalSlash')) and talents[classtable.BrutalSlash] and (cooldown[classtable.BrutalSlash].fullRecharge <4 and not ( need_bt and buff[classtable.BtSwipeBuff].up )) and cooldown[classtable.BrutalSlash].ready then
+    if (MaxDps:CheckSpellUsable(classtable.BrutalSlash, 'BrutalSlash')) and talents[classtable.BrutalSlash] and (cooldown[classtable.BrutalSlash].fullRecharge <4 and not ( need_bt and need_bt_trigger('Swipe') )) and cooldown[classtable.BrutalSlash].ready then
         if not setSpell then setSpell = classtable.BrutalSlash end
     end
     if (MaxDps:CheckSpellUsable(classtable.MoonfireCat, 'MoonfireCat')) and talents[classtable.LunarInspiration] and (debuff[classtable.MoonfireCatDeBuff].refreshable) and cooldown[classtable.MoonfireCat].ready then
@@ -193,31 +195,31 @@ function Feral:builder()
     if (MaxDps:CheckSpellUsable(classtable.ThrashCat, 'ThrashCat')) and (debuff[classtable.ThrashCatDeBuff].refreshable and not talents[classtable.ThrashingClaws]) and cooldown[classtable.ThrashCat].ready then
         if not setSpell then setSpell = classtable.ThrashCat end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and (buff[classtable.ClearcastingBuff].up and not ( need_bt and buff[classtable.BtShredBuff].up )) and cooldown[classtable.Shred].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and (buff[classtable.ClearcastingBuff].up and not ( need_bt and need_bt_trigger('Shred') )) and cooldown[classtable.Shred].ready then
         if not setSpell then setSpell = classtable.Shred end
     end
-    if (MaxDps:CheckSpellUsable(classtable.BrutalSlash, 'BrutalSlash')) and talents[classtable.BrutalSlash] and (not ( need_bt and buff[classtable.BtSwipeBuff].up )) and cooldown[classtable.BrutalSlash].ready then
+    if (MaxDps:CheckSpellUsable(classtable.BrutalSlash, 'BrutalSlash')) and talents[classtable.BrutalSlash] and (not ( need_bt and need_bt_trigger('Swipe') )) and cooldown[classtable.BrutalSlash].ready then
         if not setSpell then setSpell = classtable.BrutalSlash end
     end
-    if (MaxDps:CheckSpellUsable(classtable.SwipeCat, 'SwipeCat')) and (talents[classtable.WildSlashes] and not ( need_bt and buff[classtable.BtSwipeBuff].up )) and cooldown[classtable.SwipeCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SwipeCat, 'SwipeCat')) and (talents[classtable.WildSlashes] and not ( need_bt and need_bt_trigger('Swipe') )) and cooldown[classtable.SwipeCat].ready then
         if not setSpell then setSpell = classtable.SwipeCat end
     end
-    if (MaxDps:CheckSpellUsable(classtable.MoonfireCat, 'MoonfireCat')) and talents[classtable.LunarInspiration] and (not ( need_bt and buff[classtable.BtMoonfireBuff].up ) and not ( moonfire_snapshotted and not buff[classtable.TigersFuryBuff].up )) and cooldown[classtable.MoonfireCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MoonfireCat, 'MoonfireCat')) and talents[classtable.LunarInspiration] and (not ( need_bt and need_bt_trigger('Moonfire') ) and not ( moonfire_snapshotted and not buff[classtable.TigersFuryBuff].up )) and cooldown[classtable.MoonfireCat].ready then
         if not setSpell then setSpell = classtable.MoonfireCat end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and (not ( need_bt and buff[classtable.BtShredBuff].up )) and cooldown[classtable.Shred].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and (not ( need_bt and need_bt_trigger('Shred') )) and cooldown[classtable.Shred].ready then
         if not setSpell then setSpell = classtable.Shred end
     end
-    if (MaxDps:CheckSpellUsable(classtable.SwipeCat, 'SwipeCat')) and (need_bt and not buff[classtable.BtSwipeBuff].up) and cooldown[classtable.SwipeCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SwipeCat, 'SwipeCat')) and (need_bt and need_bt_trigger('Swipe')) and cooldown[classtable.SwipeCat].ready then
         if not setSpell then setSpell = classtable.SwipeCat end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (need_bt and not buff[classtable.BtRakeBuff].up and 1 >= debuff[classtable.RakeDeBuff].remains) and cooldown[classtable.Rake].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (need_bt and need_bt_trigger('Rake') and 1 >= debuff[classtable.RakeDeBuff].remains) and cooldown[classtable.Rake].ready then
         if not setSpell then setSpell = classtable.Rake end
     end
-    if (MaxDps:CheckSpellUsable(classtable.MoonfireCat, 'MoonfireCat')) and talents[classtable.LunarInspiration] and (need_bt and not buff[classtable.BtMoonfireBuff].up) and cooldown[classtable.MoonfireCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MoonfireCat, 'MoonfireCat')) and talents[classtable.LunarInspiration] and (need_bt and need_bt_trigger('Moonfire')) and cooldown[classtable.MoonfireCat].ready then
         if not setSpell then setSpell = classtable.MoonfireCat end
     end
-    if (MaxDps:CheckSpellUsable(classtable.ThrashCat, 'ThrashCat')) and (need_bt and not buff[classtable.BtThrashBuff].up) and cooldown[classtable.ThrashCat].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ThrashCat, 'ThrashCat')) and (need_bt and need_bt_trigger('Thrash')) and cooldown[classtable.ThrashCat].ready then
         if not setSpell then setSpell = classtable.ThrashCat end
     end
 end
@@ -373,15 +375,10 @@ function Druid:Feral()
     classtable.ProwlBuff = 5215
     classtable.CatFormBuff = 768
     classtable.ThrashCatDeBuff = 405233
-    classtable.BtThrashBuff = 0
     classtable.BsIncBuff = 0
-    classtable.BtSwipeBuff = 0
     classtable.RakeDeBuff = 155722
-    classtable.BtRakeBuff = 0
     classtable.SuddenAmbushBuff = 0
     classtable.MoonfireCatDeBuff = 164812
-    classtable.BtMoonfireBuff = 0
-    classtable.BtShredBuff = 0
     classtable.TigersFuryBuff = 5217
     classtable.ShadowmeldBuff = 58984
     classtable.ClearcastingBuff = 135700
@@ -390,6 +387,7 @@ function Druid:Feral()
     classtable.RavageBuff = 441585
     classtable.RipDeBuff = 1079
     classtable.BloodtalonsBuff = 145152
+    classtable.tigers_furyDeBuff = 0
     classtable.IncarnationBuff = 102543
     classtable.AdaptiveSwarmDamageDeBuff = 391889
     classtable.ApexPredatorsCravingBuff = 0
