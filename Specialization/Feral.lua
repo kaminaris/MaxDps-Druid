@@ -101,7 +101,12 @@ local moonfire_snapshotted
 --Check if spell was cast within 4 seconds to count for Bloodtalens
 local function need_bt_trigger(spell)
     local spellName = C_Spell.GetSpellInfo(spell)
-    return GetTime - MaxDps.spellHistoryTime[spellName] <= 4
+    if MaxDps.spellHistoryTime[spell] then
+        --print(spell, " last casted: ", GetTime() - MaxDps.spellHistoryTime[spell].last_used, " seconds ago")
+        return GetTime() - MaxDps.spellHistoryTime[spell].last_used >= 4
+    else
+        return true
+    end
 end
 
 
@@ -139,9 +144,9 @@ function Feral:aoe_builder()
     if (MaxDps:CheckSpellUsable(classtable.SwipeCat, 'SwipeCat')) and (talents[classtable.WildSlashes] and targets >3 and not ( need_bt and need_bt_trigger('Swipe') )) and cooldown[classtable.SwipeCat].ready then
         if not setSpell then setSpell = classtable.SwipeCat end
     end
-    if (MaxDps:CheckSpellUsable(classtable.MoonfireCat, 'MoonfireCat')) and talents[classtable.LunarInspiration] and (debuff[classtable.MoonfireCatDeBuff].refreshable and not ( need_bt and need_bt_trigger('Moonfire') ) and not cc_capped) and cooldown[classtable.MoonfireCat].ready then
-        if not setSpell then setSpell = classtable.MoonfireCat end
-    end
+    --if (MaxDps:CheckSpellUsable(classtable.MoonfireCat, 'MoonfireCat')) and talents[classtable.LunarInspiration] and (debuff[classtable.MoonfireCatDeBuff].refreshable and not ( need_bt and need_bt_trigger('Moonfire') ) and not cc_capped) and cooldown[classtable.MoonfireCat].ready then
+    --    if not setSpell then setSpell = classtable.MoonfireCat end
+    --end
     if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (debuff[classtable.RakeDeBuff].refreshable and not ( need_bt and need_bt_trigger('Rake') ) and not cc_capped) and cooldown[classtable.Rake].ready then
         if not setSpell then setSpell = classtable.Rake end
     end
@@ -201,12 +206,12 @@ function Feral:builder()
     if (MaxDps:CheckSpellUsable(classtable.BrutalSlash, 'BrutalSlash')) and talents[classtable.BrutalSlash] and (not ( need_bt and need_bt_trigger('Swipe') )) and cooldown[classtable.BrutalSlash].ready then
         if not setSpell then setSpell = classtable.BrutalSlash end
     end
-    if (MaxDps:CheckSpellUsable(classtable.SwipeCat, 'SwipeCat')) and (talents[classtable.WildSlashes] and not ( need_bt and need_bt_trigger('Swipe') )) and cooldown[classtable.SwipeCat].ready then
-        if not setSpell then setSpell = classtable.SwipeCat end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.MoonfireCat, 'MoonfireCat')) and talents[classtable.LunarInspiration] and (not ( need_bt and need_bt_trigger('Moonfire') ) and not ( moonfire_snapshotted and not buff[classtable.TigersFuryBuff].up )) and cooldown[classtable.MoonfireCat].ready then
-        if not setSpell then setSpell = classtable.MoonfireCat end
-    end
+    --if (MaxDps:CheckSpellUsable(classtable.SwipeCat, 'SwipeCat')) and (talents[classtable.WildSlashes] and not ( need_bt and need_bt_trigger('Swipe') )) and cooldown[classtable.SwipeCat].ready then
+    --    if not setSpell then setSpell = classtable.SwipeCat end
+    --end
+    --if (MaxDps:CheckSpellUsable(classtable.MoonfireCat, 'MoonfireCat')) and talents[classtable.LunarInspiration] and (not ( need_bt and need_bt_trigger('Moonfire') ) and not ( moonfire_snapshotted and not buff[classtable.TigersFuryBuff].up )) and cooldown[classtable.MoonfireCat].ready then
+    --    if not setSpell then setSpell = classtable.MoonfireCat end
+    --end
     if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and (not ( need_bt and need_bt_trigger('Shred') )) and cooldown[classtable.Shred].ready then
         if not setSpell then setSpell = classtable.Shred end
     end
@@ -310,7 +315,7 @@ function Feral:callaction()
     if (MaxDps:CheckSpellUsable(classtable.AdaptiveSwarm, 'AdaptiveSwarm')) and (buff[classtable.CatFormBuff].up and debuff[classtable.AdaptiveSwarmDamageDeBuff].count <3 and talents[classtable.UnbridledSwarm] and targets >1 and debuff[classtable.RipDeBuff].up) and cooldown[classtable.AdaptiveSwarm].ready then
         if not setSpell then setSpell = classtable.AdaptiveSwarm end
     end
-    if (MaxDps:CheckSpellUsable(classtable.FerociousBite, 'FerociousBite')) and (buff[classtable.ApexPredatorsCravingBuff].up and not ( need_bt and active_bt_triggers == 2 )) and cooldown[classtable.FerociousBite].ready then
+    if (MaxDps:CheckSpellUsable(classtable.FerociousBite, 'FerociousBite')) and (buff[classtable.ApexPredatorsCravingBuff].up and not ( need_bt and buff[classtable.BloodtalonsBuff].count == 2 )) and cooldown[classtable.FerociousBite].ready then
         if not setSpell then setSpell = classtable.FerociousBite end
     end
     if (debuff[classtable.RipDeBuff].up) then
@@ -356,7 +361,7 @@ function Druid:Feral()
     SpellHaste = UnitSpellHaste('player')
     SpellCrit = GetCritChance()
     classtable.Incarnation =  classtable.IncarnationAvatarofAshamane
-    classtable.MoonfireCat =  classtable.Moonfire
+    --classtable.MoonfireCat =  classtable.Moonfire
     classtable.ThrashCat =  classtable.Thrash
     classtable.SwipeCat =  classtable.Swipe
     Energy = UnitPower('player', EnergyPT)
@@ -368,6 +373,8 @@ function Druid:Feral()
     ComboPoints = UnitPower('player', ComboPointsPT)
     ComboPointsMax = UnitPowerMax('player', ComboPointsPT)
     ComboPointsDeficit = ComboPointsMax - ComboPoints
+    classtable.MoonfireCatDeBuff = talents[classtable.LunarInspiration] and 155625 or not talents[classtable.LunarInspiration] and 8921
+    classtable.MoonfireCat = talents[classtable.LunarInspiration] and 155625 or not talents[classtable.LunarInspiration] and 8921
     --for spellId in pairs(MaxDps.Flags) do
     --    self.Flags[spellId] = false
     --    self:ClearGlowIndependent(spellId, spellId)
@@ -378,7 +385,7 @@ function Druid:Feral()
     classtable.BsIncBuff = 0
     classtable.RakeDeBuff = 155722
     classtable.SuddenAmbushBuff = 0
-    classtable.MoonfireCatDeBuff = 164812
+    --classtable.MoonfireCatDeBuff = 164812
     classtable.TigersFuryBuff = 5217
     classtable.ShadowmeldBuff = 58984
     classtable.ClearcastingBuff = 135700
