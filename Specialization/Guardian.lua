@@ -316,7 +316,7 @@ function Druid:Guardian()
     --    self.Flags[spellId] = false
     --    self:ClearGlowIndependent(spellId, spellId)
     --end
-    classtable.RavageBuff = 0
+    classtable.RavageBuff = 441583
     classtable.FelinePotentialCounterBuff = 0
     classtable.BearFormBuff = 5487
     classtable.MoonfireDeBuff = 164812
@@ -335,7 +335,7 @@ function Druid:Guardian()
     classtable.GoreBuff = 93622
     classtable.RakeDeBuff = 155722
     classtable.GalacticGuardianBuff = 213708
-    classtable.SurvivalInstinctsBuff = 0
+    classtable.SurvivalInstinctsBuff = 61336
     classtable.BarkskinBuff = 0
     setSpell = nil
     ClearCDs()
