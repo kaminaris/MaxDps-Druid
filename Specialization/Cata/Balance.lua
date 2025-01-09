@@ -115,7 +115,7 @@ function Balance:callaction()
     if (MaxDps:CheckSpellUsable(classtable.Starsurge, 'Starsurge')) and (buff[classtable.SolarEclipseBuff].up or buff[classtable.LunarEclipseBuff].up) and cooldown[classtable.Starsurge].ready then
         if not setSpell then setSpell = classtable.Starsurge end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Innervate, 'Innervate')) and (mana_pct <50) and cooldown[classtable.Innervate].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Innervate, 'Innervate')) and (ManaPerc <50) and cooldown[classtable.Innervate].ready then
         if not setSpell then setSpell = classtable.Innervate end
     end
     if (MaxDps:CheckSpellUsable(classtable.Treants, 'Treants')) and cooldown[classtable.Treants].ready then
@@ -178,11 +178,18 @@ function Druid:Balance()
     classtable = MaxDps.SpellTable
     SpellHaste = UnitSpellHaste('player')
     SpellCrit = GetCritChance()
-    classtable.HalfMoon = 274282
-    classtable.FullMoon = 274283
-    LunarPower = UnitPower('player', LunarPowerPT)
-    LunarPowerMax = UnitPowerMax('player', LunarPowerPT)
-    LunarPowerDeficit = LunarPowerMax - LunarPower
+    Energy = UnitPower('player', EnergyPT)
+    EnergyMax = UnitPowerMax('player', EnergyPT)
+    EnergyDeficit = EnergyMax - Energy
+    EnergyRegen = GetPowerRegenForPowerType(Enum.PowerType.Energy)
+    EnergyTimeToMax = EnergyDeficit / EnergyRegen
+    EnergyPerc = (Energy / EnergyMax) * 100
+    ComboPoints = UnitPower('player', ComboPointsPT)
+    ComboPointsMax = UnitPowerMax('player', ComboPointsPT)
+    ComboPointsDeficit = ComboPointsMax - ComboPoints
+    AstralPower = UnitPower('player', LunarPowerPT)
+    AstralPowerMax = UnitPowerMax('player', LunarPowerPT)
+    AstralPowerDeficit = AstralPowerMax - AstralPower
     local currentSpell = fd.currentSpell
     local wrathCount = GetSpellCount(classtable.Wrath)
     local starfireCount = GetSpellCount(classtable.Starfire)
@@ -192,25 +199,25 @@ function Druid:Balance()
     local CaInc = talents[classtable.Incarnation] and classtable.Incarnation or classtable.CelestialAlignment
     local castingMoonSpell = false
     if currentSpell == classtable.Wrath then
-    	LunarPower = LunarPower + 6
+    	AstralPower = AstralPower + 6
     	wrathCount = wrathCount - 1
     elseif currentSpell == classtable.Starfire then
-    	LunarPower = LunarPower + 8
+    	AstralPower = AstralPower + 8
     	starfireCount = starfireCount - 1
     elseif currentSpell == classtable.FuryOfElune then
-    	LunarPower = LunarPower + 40
+    	AstralPower = AstralPower + 40
     elseif currentSpell == classtable.ForceOfNature then
-    	LunarPower = LunarPower + 20
+    	AstralPower = AstralPower + 20
     elseif currentSpell == classtable.StellarFlare then
-    	LunarPower = LunarPower + 8
+    	AstralPower = AstralPower + 8
     elseif currentSpell == classtable.NewMoon then
-    	LunarPower = LunarPower + 10
+    	AstralPower = AstralPower + 10
     	castingMoonSpell = true
     elseif currentSpell == classtable.HalfMoon then
-    	LunarPower = LunarPower + 20
+    	AstralPower = AstralPower + 20
     	castingMoonSpell = true
     elseif currentSpell == classtable.FullMoon then
-    	LunarPower = LunarPower + 40
+    	AstralPower = AstralPower + 40
     	castingMoonSpell = true
     end
     fd.eclipseInLunar = buff[classtable.EclipseLunar].up or (origStarfireCount == 1 and currentSpell == classtable.Starfire)
@@ -222,15 +229,8 @@ function Druid:Balance()
     fd.eclipseAnyNext = wrathCount > 0 and starfireCount > 0
     fd.wrathCount = wrathCount
     fd.starfireCount = starfireCount
-    Energy = UnitPower('player', EnergyPT)
-    EnergyMax = UnitPowerMax('player', EnergyPT)
-    EnergyDeficit = EnergyMax - Energy
-    EnergyRegen = GetPowerRegenForPowerType(Enum.PowerType.Energy)
-    EnergyTimeToMax = EnergyDeficit / EnergyRegen
-    EnergyPerc = (Energy / EnergyMax) * 100
-    ComboPoints = UnitPower('player', ComboPointsPT)
-    ComboPointsMax = UnitPowerMax('player', ComboPointsPT)
-    ComboPointsDeficit = ComboPointsMax - ComboPoints
+    classtable.HalfMoon = 274282
+    classtable.FullMoon = 274283
     --for spellId in pairs(MaxDps.Flags) do
     --    self.Flags[spellId] = false
     --    self:ClearGlowIndependent(spellId, spellId)
@@ -246,6 +246,15 @@ function Druid:Balance()
     classtable.MoonfireDeBuff = 164812
     classtable.SunfireDeBuff = 164815
     classtable.ShootingStarsBuff = 0
+
+    local function debugg()
+    end
+
+
+    if MaxDps.db.global.debugMode then
+        debugg()
+    end
+
     setSpell = nil
     ClearCDs()
 
