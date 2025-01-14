@@ -123,9 +123,9 @@ function Balance:callaction()
     if (MaxDps:CheckSpellUsable(classtable.Innervate, 'Innervate')) and (ManaPerc <50) and cooldown[classtable.Innervate].ready then
         if not setSpell then setSpell = classtable.Innervate end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Treants, 'Treants')) and cooldown[classtable.Treants].ready then
-        if not setSpell then setSpell = classtable.Treants end
-    end
+    --if (MaxDps:CheckSpellUsable(classtable.Treants, 'Treants')) and cooldown[classtable.Treants].ready then
+    --    if not setSpell then setSpell = classtable.Treants end
+    --end
     if (MaxDps:CheckSpellUsable(classtable.Starfire, 'Starfire')) and (eclipse_dir == 1 and eclipse <80) and cooldown[classtable.Starfire].ready then
         if not setSpell then setSpell = classtable.Starfire end
     end
@@ -221,6 +221,8 @@ function Druid:Balance()
     classtable.MoonfireDeBuff = 164812
     classtable.SunfireDeBuff = 164815
     classtable.ShootingStarsBuff = 93400
+    classtable.Starsurge = 78674
+    classtable.Sunfire = 93402
 
     local function debugg()
     end
