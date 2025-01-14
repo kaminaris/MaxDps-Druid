@@ -111,10 +111,10 @@ function Balance:callaction()
     if (MaxDps:CheckSpellUsable(classtable.Starfall, 'Starfall')) and (eclipse < -80) and cooldown[classtable.Starfall].ready then
         if not setSpell then setSpell = classtable.Starfall end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Sunfire, 'Sunfire')) and (( debuff[classtable.SunfireDeBuff].duration <2 and not debuff[classtable.MoonfireDeBuff].duration >0 ) or ( eclipse <15 and debuff[classtable.SunfireDeBuff].remains <10 )) and cooldown[classtable.Sunfire].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Sunfire, 'Sunfire')) and (( debuff[classtable.SunfireDeBuff].refreshable ) or ( eclipse <15 and debuff[classtable.SunfireDeBuff].remains <10 )) and cooldown[classtable.Sunfire].ready then
         if not setSpell then setSpell = classtable.Sunfire end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Moonfire, 'Moonfire')) and (buff[classtable.LunarEclipseBuff].up and ( ( debuff[classtable.MoonfireDeBuff].duration <2 and not debuff[classtable.SunfireDeBuff].duration >0 ) or ( eclipse >- 20 and debuff[classtable.MoonfireDeBuff].remains <10 ) )) and cooldown[classtable.Moonfire].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Moonfire, 'Moonfire')) and (buff[classtable.LunarEclipseBuff].up and ( ( debuff[classtable.MoonfireDeBuff].refreshable ) or ( eclipse >- 20 and debuff[classtable.MoonfireDeBuff].remains <10 ) )) and cooldown[classtable.Moonfire].ready then
         if not setSpell then setSpell = classtable.Moonfire end
     end
     if (MaxDps:CheckSpellUsable(classtable.Starsurge, 'Starsurge')) and (buff[classtable.SolarEclipseBuff].up or buff[classtable.LunarEclipseBuff].up) and cooldown[classtable.Starsurge].ready then
