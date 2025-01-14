@@ -87,10 +87,10 @@ local function ClearCDs()
 end
 
 function Balance:callaction()
-    if (MaxDps:CheckSpellUsable(classtable.MarkoftheWild, 'MarkoftheWild')) and cooldown[classtable.MarkoftheWild].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MarkoftheWild, 'MarkoftheWild')) and not buff[classtable.MarkoftheWildBuff].up and cooldown[classtable.MarkoftheWild].ready then
         if not setSpell then setSpell = classtable.MarkoftheWild end
     end
-    if (MaxDps:CheckSpellUsable(classtable.MoonkinForm, 'MoonkinForm')) and cooldown[classtable.MoonkinForm].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MoonkinForm, 'MoonkinForm')) and not buff[classtable.MoonkinFormBuff].up and cooldown[classtable.MoonkinForm].ready then
         if not setSpell then setSpell = classtable.MoonkinForm end
     end
     if (MaxDps:CheckSpellUsable(classtable.FaerieFire, 'FaerieFire')) and (debuff[classtable.FaerieFireDeBuff].count <3 and not ( debuff[classtable.SunderArmorDeBuff].up or debuff[classtable.ExposeArmorDeBuff].up )) and cooldown[classtable.FaerieFire].ready then
@@ -223,6 +223,8 @@ function Druid:Balance()
     classtable.ShootingStarsBuff = 93400
     classtable.Starsurge = 78674
     classtable.Sunfire = 93402
+    classtable.MarkoftheWildBuff = 79061
+    classtable.MoonkinFormBuff = 24858
 
     local function debugg()
     end
