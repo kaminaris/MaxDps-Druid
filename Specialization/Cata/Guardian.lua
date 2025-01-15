@@ -397,9 +397,9 @@ function Druid:Guardian()
     end
 
 
-    if MaxDps.db.global.debugMode then
-        debugg()
-    end
+    --if MaxDps.db.global.debugMode then
+    --   debugg()
+    --end
 
     setSpell = nil
     ClearCDs()
