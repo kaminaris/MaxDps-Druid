@@ -77,7 +77,7 @@ local RageDeficit
 local Feral = {}
 
 function Feral:precombat()
-    if (MaxDps:CheckSpellUsable(classtable.MarkoftheWild, 'MarkoftheWild')) and (not buff[classtable.MarkoftheWild].up) and cooldown[classtable.MarkoftheWild].ready and not UnitAffectingCombat('player') then
+    if (MaxDps:CheckSpellUsable(classtable.MarkoftheWild, 'MarkoftheWild')) and (not buff[classtable.MarkoftheWildBuff].up) and cooldown[classtable.MarkoftheWild].ready and not UnitAffectingCombat('player') then
         if not setSpell then setSpell = classtable.MarkoftheWild end
     end
     if (MaxDps:CheckSpellUsable(classtable.CatForm, 'CatForm')) and (not buff[classtable.CatFormBuff].up) and cooldown[classtable.CatForm].ready and not UnitAffectingCombat('player') then
@@ -88,6 +88,9 @@ function Feral:precombat()
     end
 end
 function Feral:cat()
+    if (MaxDps:CheckSpellUsable(classtable.Ravage, 'Ravage')) and ( talents[classtable.Stampede] and buff[classtable.StampedeBuff].up and (not UnitThreatSituation("player")) or (UnitThreatSituation("player") and UnitThreatSituation("player") <= 2) ) and cooldown[classtable.Ravage].ready then
+        if not setSpell then setSpell = classtable.Ravage end
+    end
     if (MaxDps:CheckSpellUsable(classtable.TigersFury, 'TigersFury')) and (Energy <= 40) and cooldown[classtable.TigersFury].ready then
         if not setSpell then setSpell = classtable.TigersFury end
     end
@@ -99,16 +102,22 @@ function Feral:cat()
     if (MaxDps:CheckSpellUsable(classtable.MangleCat, 'MangleCat')) and (not debuff[classtable.MangleCat].up or debuff[classtable.MangleCat].refreshable) and cooldown[classtable.MangleCat].ready then
         if not setSpell then setSpell = classtable.MangleCat end
     end
+    if (MaxDps:CheckSpellUsable(classtable.FerociousBite, 'FerociousBite')) and (ComboPoints >= 5 and targethealthPerc <= 25 and debuff[classtable.Rip].up) and cooldown[classtable.FerociousBite].ready then
+        if not setSpell then setSpell = classtable.FerociousBite end
+    end
     if (MaxDps:CheckSpellUsable(classtable.Rip, 'Rip')) and (ComboPoints >= 5 and not debuff[classtable.Rip].up) and cooldown[classtable.Rip].ready then
         if not setSpell then setSpell = classtable.Rip end
     end
-    if (MaxDps:CheckSpellUsable(classtable.SavageRoar, 'SavageRoar')) and (ComboPoints >= 5 and not debuff[classtable.SavageRoar].up) and cooldown[classtable.SavageRoar].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SavageRoar, 'SavageRoar')) and (ComboPoints >= 5 and not buff[classtable.SavageRoar].up) and cooldown[classtable.SavageRoar].ready then
         if not setSpell then setSpell = classtable.SavageRoar end
     end
     if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (not debuff[classtable.Rake].up) and cooldown[classtable.Rake].ready then
         if not setSpell then setSpell = classtable.Rake end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and ( UnitThreatSituation("player") <= 2) and cooldown[classtable.Shred].ready then
+    if (MaxDps:CheckSpellUsable(classtable.FeralChargeCat, 'FeralChargeCat')) and ( talents[classtable.Stampede] and (not UnitThreatSituation("player")) or (UnitThreatSituation("player") and UnitThreatSituation("player") <= 2) ) and cooldown[classtable.FeralChargeCat].ready then
+        if not setSpell then setSpell = classtable.FeralChargeCat end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and ( (not UnitThreatSituation("player")) or (UnitThreatSituation("player") and UnitThreatSituation("player") <= 2) ) and cooldown[classtable.Shred].ready then
         if not setSpell then setSpell = classtable.Shred end
     end
     if (MaxDps:CheckSpellUsable(classtable.MangleCat, 'MangleCat')) and cooldown[classtable.MangleCat].ready then
@@ -194,6 +203,7 @@ function Druid:Feral()
     classtable.LacerateDeBuff = 33745
     classtable.DemoralizingRoarDeBuff = 48560
     classtable.MarkoftheWild = 1126
+    classtable.MarkoftheWildBuff = 79061
     classtable.CatForm = 768
     classtable.TigersFury = 5217
     classtable.Berserk = 50334
@@ -219,6 +229,8 @@ function Druid:Feral()
     classtable.Pulverize = 80313
     classtable.Lacerate = 33745
     classtable.DemoralizingRoar = 99
+    classtable.Stampede = 78893
+    classtable.StampedeBuff = 81022
 
     local function debugg()
     end
