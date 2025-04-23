@@ -96,7 +96,7 @@ function Balance:callaction()
     if (MaxDps:CheckSpellUsable(classtable.FaerieFire, 'FaerieFire')) and (debuff[classtable.FaerieFireDeBuff].count <3 and not ( debuff[classtable.SunderArmorDeBuff].up or debuff[classtable.ExposeArmorDeBuff].up )) and cooldown[classtable.FaerieFire].ready then
         if not setSpell then setSpell = classtable.FaerieFire end
     end
-    if (MaxDps:CheckSpellUsable(classtable.WildMushroomDetonate, 'WildMushroomDetonate')) and (buff[classtable.WildMushroomBuff].count == 3) and cooldown[classtable.WildMushroomDetonate].ready then
+    if (MaxDps:CheckSpellUsable(classtable.WildMushroomDetonate, 'WildMushroomDetonate')) and (buff[classtable.WildMushroomBuff].count >= 3) and cooldown[classtable.WildMushroomDetonate].ready then
         if not setSpell then setSpell = classtable.WildMushroomDetonate end
     end
     if (MaxDps:CheckSpellUsable(classtable.InsectSwarm, 'InsectSwarm')) and (( debuff[classtable.InsectSwarmDeBuff].duration <2 or ( debuff[classtable.InsectSwarmDeBuff].remains <10 and buff[classtable.SolarEclipseBuff].up and eclipse <15 ) ) and ( buff[classtable.SolarEclipseBuff].up or buff[classtable.LunarEclipseBuff].up or timeInCombat <10 )) and cooldown[classtable.InsectSwarm].ready then
@@ -123,28 +123,19 @@ function Balance:callaction()
     if (MaxDps:CheckSpellUsable(classtable.Innervate, 'Innervate')) and (ManaPerc <50) and cooldown[classtable.Innervate].ready then
         if not setSpell then setSpell = classtable.Innervate end
     end
-    --if (MaxDps:CheckSpellUsable(classtable.Treants, 'Treants')) and cooldown[classtable.Treants].ready then
-    --    if not setSpell then setSpell = classtable.Treants end
-    --end
+    if (MaxDps:CheckSpellUsable(classtable.Treants, 'Treants')) and cooldown[classtable.Treants].ready then
+        if not setSpell then setSpell = classtable.Treants end
+    end
     if (MaxDps:CheckSpellUsable(classtable.Starfire, 'Starfire')) and (eclipse_dir == 1 and eclipse <80) and cooldown[classtable.Starfire].ready then
         if not setSpell then setSpell = classtable.Starfire end
     end
     if (MaxDps:CheckSpellUsable(classtable.Starfire, 'Starfire')) and (MaxDps:CheckPrevSpell(classtable.Wrath) == 1 and eclipse_dir == - 1 and eclipse <- 87) and cooldown[classtable.Starfire].ready then
         if not setSpell then setSpell = classtable.Starfire end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Wrath, 'Wrath')) and (eclipse_dir == - 1 and eclipse >= - 87) and cooldown[classtable.Wrath].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Wrath, 'Wrath')) and (eclipse_dir == "moon") and cooldown[classtable.Wrath].ready then
         if not setSpell then setSpell = classtable.Wrath end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Wrath, 'Wrath')) and (MaxDps:CheckPrevSpell(classtable.Starfire) == 1 and eclipse_dir == 1 and eclipse >= 80) and cooldown[classtable.Wrath].ready then
-        if not setSpell then setSpell = classtable.Wrath end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.Starfire, 'Starfire')) and (eclipse_dir == 1) and cooldown[classtable.Starfire].ready then
-        if not setSpell then setSpell = classtable.Starfire end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.Wrath, 'Wrath')) and (eclipse_dir == - 1) and cooldown[classtable.Wrath].ready then
-        if not setSpell then setSpell = classtable.Wrath end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.Starfire, 'Starfire')) and cooldown[classtable.Starfire].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Starfire, 'Starfire')) and (eclipse_dir == "sun") and cooldown[classtable.Starfire].ready then
         if not setSpell then setSpell = classtable.Starfire end
     end
     if (MaxDps:CheckSpellUsable(classtable.WildMushroom, 'WildMushroom')) and (buff[classtable.WildMushroomBuff].count <3) and cooldown[classtable.WildMushroom].ready then
@@ -198,8 +189,7 @@ function Druid:Balance()
     AstralPowerDeficit = AstralPowerMax - AstralPower
     eclipse = UnitPower('player', EclipsePowerPT)
     local currentSpell = fd.currentSpell
-    local last_eclipse = (buff[classtable.EclipseLunar].up and not buff[classtable.EclipseSolar].up and "Lunar") or (buff[classtable.EclipseSolar].up and not buff[classtable.EclipseLunar].up and "Solar") or (buff[classtable.EclipseSolar].up and buff[classtable.EclipseLunar].up and "Both") or "Solar"
-    eclipse_dir = (last_eclipse == "Lunar" and 1) or (last_eclipse == "Solar" and -1) or (last_eclipse == "Both" and 1) or 1
+    eclipse_dir = GetEclipseDirection()
 
     fd.eclipseInLunar = buff[classtable.EclipseLunar].up
     fd.eclipseInSolar = buff[classtable.EclipseSolar].up
@@ -210,16 +200,19 @@ function Druid:Balance()
     --    self.Flags[spellId] = false
     --    self:ClearGlowIndependent(spellId, spellId)
     --end
+
+    classtable.Treants = 33831
+
     classtable.bloodlust = 0
     classtable.FaerieFireDeBuff = 91565
     classtable.SunderArmorDeBuff = 16145
     classtable.ExposeArmorDeBuff = 60842
     classtable.WildMushroomBuff = 0
-    classtable.InsectSwarmDeBuff = 83017
+    classtable.InsectSwarmDeBuff = 5570
     classtable.SolarEclipseBuff = 48517
     classtable.LunarEclipseBuff = 48518
-    classtable.MoonfireDeBuff = 164812
-    classtable.SunfireDeBuff = 164815
+    classtable.MoonfireDeBuff = 8921
+    classtable.SunfireDeBuff = 93402
     classtable.ShootingStarsBuff = 93400
     classtable.Starsurge = 78674
     classtable.Sunfire = 93402
