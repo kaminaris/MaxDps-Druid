@@ -146,7 +146,7 @@ function Balance:aoe()
         if not setSpell then setSpell = classtable.FuryofElune end
     end
     Balance:pre_cd()
-    if (MaxDps:CheckSpellUsable(classtable.CelestialAlignment, 'CelestialAlignment')) and not talents[classtable.Incarnation] and (cd_condition) and cooldown[classtable.CelestialAlignment].ready then
+    if (MaxDps:CheckSpellUsable(classtable.CelestialAlignment, 'CelestialAlignment')) and not talents[102560] and (cd_condition) and cooldown[classtable.CelestialAlignment].ready then
         MaxDps:GlowCooldown(classtable.CelestialAlignment, cooldown[classtable.CelestialAlignment].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.Incarnation, 'Incarnation')) and (cd_condition) and cooldown[classtable.Incarnation].ready then
@@ -211,11 +211,11 @@ function Balance:st()
         if not setSpell then setSpell = classtable.Moonfire end
     end
     Balance:pre_cd()
-    if (MaxDps:CheckSpellUsable(classtable.CelestialAlignment, 'CelestialAlignment')) and not talents[classtable.Incarnation] and (cd_condition) and cooldown[classtable.CelestialAlignment].ready then
+    if (MaxDps:CheckSpellUsable(classtable.CelestialAlignment, 'CelestialAlignment')) and not talents[102560] and (cd_condition) and cooldown[classtable.CelestialAlignment].ready then
         MaxDps:GlowCooldown(classtable.CelestialAlignment, cooldown[classtable.CelestialAlignment].ready)
     end
-    if (MaxDps:CheckSpellUsable(390414, 'Incarnation')) and (cd_condition) and cooldown[390414].ready then
-        MaxDps:GlowCooldown(390414, cooldown[390414].ready)
+    if (MaxDps:CheckSpellUsable(classtable.Incarnation, 'Incarnation')) and (cd_condition) and cooldown[classtable.Incarnation].ready then
+        MaxDps:GlowCooldown(classtable.Incarnation, cooldown[classtable.Incarnation].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.Wrath, 'Wrath')) and (enter_lunar and ( (not fd.eclipseInLunar and not fd.eclipseInSolar) or (buff[classtable.EclipseLunarBuff].up and buff[classtable.EclipseLunarBuff].remains or buff[classtable.EclipseSolarBuff].up and buff[classtable.EclipseSolarBuff].remains or math.huge) <( classtable and classtable.Wrath and GetSpellInfo(classtable.Wrath).castTime /1000 or 0) )) and cooldown[classtable.Wrath].ready then
         if not setSpell then setSpell = classtable.Wrath end
@@ -289,7 +289,7 @@ local function ClearCDs()
     MaxDps:GlowCooldown(classtable.Incarnation, false)
     MaxDps:GlowCooldown(classtable.ConvoketheSpirits, false)
     MaxDps:GlowCooldown(classtable.CelestialAlignment, false)
-    MaxDps:GlowCooldown(390414, false)
+    --MaxDps:GlowCooldown(390414, false)
 end
 
 function Balance:callaction()
@@ -353,8 +353,9 @@ function Druid:Balance()
     local starfireCount = GetSpellCount(classtable.Starfire)
     local origWrathCount = wrathCount
     local origStarfireCount = starfireCount
-    classtable.Incarnation =  classtable.IncarnationChosenofElune
-    local CaInc = talents[classtable.Incarnation] and classtable.Incarnation or classtable.CelestialAlignment
+    --classtable.Incarnation =  classtable.IncarnationChosenofElune
+    classtable.Incarnation = talents[102560] and C_Spell.GetSpellInfo(C_Spell.GetSpellInfo(102560).name).spellID or 102560
+    local CaInc = talents[102560] and classtable.Incarnation or classtable.CelestialAlignment
     local castingMoonSpell = false
     if currentSpell == classtable.Wrath then
     	AstralPower = AstralPower + 6
@@ -395,7 +396,7 @@ function Druid:Balance()
     --end
     classtable.OrbitBreakerBuff = 329970
     classtable.SolsticeBuff = 343648
-    classtable.CaIncBuff = talents[classtable.Incarnation] and 390414 or classtable.CelestialAlignment
+    classtable.CaIncBuff = talents[102560] and classtable.Incarnation or classtable.CelestialAlignment
     classtable.HarmonyoftheGroveBuff = 428735
     classtable.EclipseLunarBuff = 48518
     classtable.EclipseSolarBuff = 48517
@@ -412,10 +413,9 @@ function Druid:Balance()
     classtable.MoonfireDeBuff = 164812
     classtable.SunfireDeBuff = 164815
     classtable.FungalGrowthDeBuff = 81281
-    classtable.Incarnation = 102560
     classtable.HalfMoon = 274282
     classtable.FullMoon = 274283
-    classtable.CaInc = talents[classtable.Incarnation] and 390414 or classtable.CelestialAlignment
+    classtable.CaInc = talents[102560] and classtable.Incarnation or classtable.CelestialAlignment
 
     local function debugg()
         talents[classtable.LycarasMeditation] = 1
