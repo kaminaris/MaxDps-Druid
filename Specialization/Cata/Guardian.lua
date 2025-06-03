@@ -80,24 +80,24 @@ function Guardian:precombat()
     if (MaxDps:CheckSpellUsable(classtable.MarkoftheWild, 'MarkoftheWild')) and (not buff[classtable.StatBuffBuff].up) and cooldown[classtable.MarkoftheWild].ready and not UnitAffectingCombat('player') then
         if not setSpell then setSpell = classtable.MarkoftheWild end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Thorns, 'Thorns')) and (not up) and cooldown[classtable.Thorns].ready and not UnitAffectingCombat('player') then
+    if (MaxDps:CheckSpellUsable(classtable.Thorns, 'Thorns')) and (not buff[classtable.ThornsBuff].up) and cooldown[classtable.Thorns].ready and not UnitAffectingCombat('player') then
         if not setSpell then setSpell = classtable.Thorns end
     end
-    if (MaxDps:CheckSpellUsable(classtable.BearForm, 'BearForm')) and (not up) and cooldown[classtable.BearForm].ready and not UnitAffectingCombat('player') then
+    if (MaxDps:CheckSpellUsable(classtable.BearForm, 'BearForm')) and (not buff[classtable.BearFormBuff].up) and cooldown[classtable.BearForm].ready and not UnitAffectingCombat('player') then
         if not setSpell then setSpell = classtable.BearForm end
     end
 end
 function Guardian:bear_tank()
-    if (MaxDps:CheckSpellUsable(classtable.FrenziedRegeneration, 'FrenziedRegeneration')) and (curentHP <30) and cooldown[classtable.FrenziedRegeneration].ready then
+    if (MaxDps:CheckSpellUsable(classtable.FrenziedRegeneration, 'FrenziedRegeneration')) and (healthPerc <30) and cooldown[classtable.FrenziedRegeneration].ready then
         if not setSpell then setSpell = classtable.FrenziedRegeneration end
     end
-    if (MaxDps:CheckSpellUsable(classtable.SurvivalInstincts, 'SurvivalInstincts')) and (curentHP <40) and cooldown[classtable.SurvivalInstincts].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SurvivalInstincts, 'SurvivalInstincts')) and (healthPerc <40) and cooldown[classtable.SurvivalInstincts].ready then
         if not setSpell then setSpell = classtable.SurvivalInstincts end
     end
-    if (MaxDps:CheckSpellUsable(classtable.FeralChargeBear, 'FeralChargeBear')) and (target.outside7) and cooldown[classtable.FeralChargeBear].ready then
+    if (MaxDps:CheckSpellUsable(classtable.FeralChargeBear, 'FeralChargeBear')) and ((LibRangeCheck and LibRangeCheck:GetRange('target', false, true) >7 or false)) and cooldown[classtable.FeralChargeBear].ready then
         if not setSpell then setSpell = classtable.FeralChargeBear end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Maul, 'Maul')) and (rage.current >= 55) and cooldown[classtable.Maul].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Maul, 'Maul')) and (Rage >= 55) and cooldown[classtable.Maul].ready then
         if not setSpell then setSpell = classtable.Maul end
     end
     if (MaxDps:CheckSpellUsable(classtable.Pulverize, 'Pulverize')) and (debuff[classtable.LacerateDeBuff].up and debuff[classtable.LacerateDeBuff].count == 3 and debuff[classtable.LacerateDeBuff].remains <4) and cooldown[classtable.Pulverize].ready then
@@ -115,11 +115,8 @@ function Guardian:bear_tank()
     if (MaxDps:CheckSpellUsable(classtable.Berserk, 'Berserk')) and cooldown[classtable.Berserk].ready then
         if not setSpell then setSpell = classtable.Berserk end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Enrage, 'Enrage')) and (rage.current <= 80) and cooldown[classtable.Enrage].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Enrage, 'Enrage')) and (Rage <= 80) and cooldown[classtable.Enrage].ready then
         if not setSpell then setSpell = classtable.Enrage end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.SynapseSprings, 'SynapseSprings')) and cooldown[classtable.SynapseSprings].ready then
-        if not setSpell then setSpell = classtable.SynapseSprings end
     end
     if (MaxDps:CheckSpellUsable(classtable.Thrash, 'Thrash')) and cooldown[classtable.Thrash].ready then
         if not setSpell then setSpell = classtable.Thrash end
@@ -144,16 +141,16 @@ function Guardian:bear_tank()
     end
 end
 function Guardian:bear_tank_aoe()
-    if (MaxDps:CheckSpellUsable(classtable.FrenziedRegeneration, 'FrenziedRegeneration')) and (curentHP <30) and cooldown[classtable.FrenziedRegeneration].ready then
+    if (MaxDps:CheckSpellUsable(classtable.FrenziedRegeneration, 'FrenziedRegeneration')) and (healthPerc <30) and cooldown[classtable.FrenziedRegeneration].ready then
         if not setSpell then setSpell = classtable.FrenziedRegeneration end
     end
-    if (MaxDps:CheckSpellUsable(classtable.SurvivalInstincts, 'SurvivalInstincts')) and (curentHP <40) and cooldown[classtable.SurvivalInstincts].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SurvivalInstincts, 'SurvivalInstincts')) and (healthPerc <40) and cooldown[classtable.SurvivalInstincts].ready then
         if not setSpell then setSpell = classtable.SurvivalInstincts end
     end
-    if (MaxDps:CheckSpellUsable(classtable.FeralChargeBear, 'FeralChargeBear')) and (target.outside7) and cooldown[classtable.FeralChargeBear].ready then
+    if (MaxDps:CheckSpellUsable(classtable.FeralChargeBear, 'FeralChargeBear')) and ((LibRangeCheck and LibRangeCheck:GetRange('target', false, true) >7 or false)) and cooldown[classtable.FeralChargeBear].ready then
         if not setSpell then setSpell = classtable.FeralChargeBear end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Maul, 'Maul')) and (rage.current >= 55) and cooldown[classtable.Maul].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Maul, 'Maul')) and (Rage >= 55) and cooldown[classtable.Maul].ready then
         if not setSpell then setSpell = classtable.Maul end
     end
     if (MaxDps:CheckSpellUsable(classtable.Pulverize, 'Pulverize')) and (debuff[classtable.LacerateDeBuff].up and debuff[classtable.LacerateDeBuff].count == 3 and debuff[classtable.LacerateDeBuff].remains <4) and cooldown[classtable.Pulverize].ready then
@@ -174,11 +171,8 @@ function Guardian:bear_tank_aoe()
     if (MaxDps:CheckSpellUsable(classtable.Berserk, 'Berserk')) and cooldown[classtable.Berserk].ready then
         if not setSpell then setSpell = classtable.Berserk end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Enrage, 'Enrage')) and (rage.current <= 80) and cooldown[classtable.Enrage].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Enrage, 'Enrage')) and (Rage <= 80) and cooldown[classtable.Enrage].ready then
         if not setSpell then setSpell = classtable.Enrage end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.SynapseSprings, 'SynapseSprings')) and cooldown[classtable.SynapseSprings].ready then
-        if not setSpell then setSpell = classtable.SynapseSprings end
     end
     if (MaxDps:CheckSpellUsable(classtable.Lacerate, 'Lacerate')) and (not debuff[classtable.LacerateDeBuff].up and not buff[classtable.BerserkBuff].up) and cooldown[classtable.Lacerate].ready then
         if not setSpell then setSpell = classtable.Lacerate end
@@ -199,113 +193,18 @@ function Guardian:bear_tank_aoe()
         if not setSpell then setSpell = classtable.Maul end
     end
 end
-function Guardian:cat()
-    if (MaxDps:CheckSpellUsable(classtable.SynapseSprings, 'SynapseSprings')) and (try_tigers_fury or try_berserk) and cooldown[classtable.SynapseSprings].ready then
-        if not setSpell then setSpell = classtable.SynapseSprings end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.TigersFury, 'TigersFury')) and (try_tigers_fury) and cooldown[classtable.TigersFury].ready then
-        if not setSpell then setSpell = classtable.TigersFury end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.Berserk, 'Berserk')) and (try_berserk) and cooldown[classtable.Berserk].ready then
-        if not setSpell then setSpell = classtable.Berserk end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.FaerieFireFeral, 'FaerieFireFeral')) and (ff_now and target.outside2) and cooldown[classtable.FaerieFireFeral].ready then
-        if not setSpell then setSpell = classtable.FaerieFireFeral end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.FeralChargeCat, 'FeralChargeCat')) and (target.outside7) and cooldown[classtable.FeralChargeCat].ready then
-        if not setSpell then setSpell = classtable.FeralChargeCat end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.MangleCat, 'MangleCat')) and (feral_t11_refresh_now) and cooldown[classtable.MangleCat].ready then
-        if not setSpell then setSpell = classtable.MangleCat end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.Rip, 'Rip')) and (rip_now) and cooldown[classtable.Rip].ready then
-        if not setSpell then setSpell = classtable.Rip end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.SavageRoar, 'SavageRoar')) and (roar_now and not rip_now) and cooldown[classtable.SavageRoar].ready then
-        if not setSpell then setSpell = classtable.SavageRoar end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.FerociousBite, 'FerociousBite')) and (bite_now and ( energy.current >= action.ferocious_bite.spend or not should_bearweave ) and not ( rip_now or roar_now )) and cooldown[classtable.FerociousBite].ready then
-        if not setSpell then setSpell = classtable.FerociousBite end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.MangleCat, 'MangleCat')) and (mangle_now) and cooldown[classtable.MangleCat].ready then
-        if not setSpell then setSpell = classtable.MangleCat end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (rake_now) and cooldown[classtable.Rake].ready then
-        if not setSpell then setSpell = classtable.Rake end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.MangleCat, 'MangleCat')) and (feral_t11_build_now) and cooldown[classtable.MangleCat].ready then
-        if not setSpell then setSpell = classtable.MangleCat end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.BearForm, 'BearForm')) and (should_bearweave and not ( feral_t11_refresh_now or rip_now or roar_now or mangle_now or rake_now or feral_t11_build_now )) and cooldown[classtable.BearForm].ready then
-        if not setSpell then setSpell = classtable.BearForm end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.FeralChargeCat, 'FeralChargeCat')) and (should_leaveweave) and cooldown[classtable.FeralChargeCat].ready then
-        if not setSpell then setSpell = classtable.FeralChargeCat end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.Ravage, 'Ravage')) and (ravage_now) and cooldown[classtable.Ravage].ready then
-        if not setSpell then setSpell = classtable.Ravage end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and (( excess_e >= action.shred.spend or buff[classtable.ClearcastingBuff].up or buff[classtable.BerserkBuff].up or energy.current >= EnergyMax - EnergyRegen * latency )) and cooldown[classtable.Shred].ready then
-        if not setSpell then setSpell = classtable.Shred end
-    end
-end
-function Guardian:cat_aoe()
-    if (MaxDps:CheckSpellUsable(classtable.MangleCat, 'MangleCat')) and (feral_t11_refresh_now and not debuff[classtable.MangleDeBuff].up and target.within2) and cooldown[classtable.MangleCat].ready then
-        if not setSpell then setSpell = classtable.MangleCat end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.MangleCat, 'MangleCat')) and (feral_t11_refresh_now) and cooldown[classtable.MangleCat].ready then
-        if not setSpell then setSpell = classtable.MangleCat end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.SynapseSprings, 'SynapseSprings')) and (try_tigers_fury or try_berserk or buff[classtable.BerserkBuff].up) and cooldown[classtable.SynapseSprings].ready then
-        if not setSpell then setSpell = classtable.SynapseSprings end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.TigersFury, 'TigersFury')) and (try_tigers_fury) and cooldown[classtable.TigersFury].ready then
-        if not setSpell then setSpell = classtable.TigersFury end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.Berserk, 'Berserk')) and (try_berserk) and cooldown[classtable.Berserk].ready then
-        if not setSpell then setSpell = classtable.Berserk end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.SavageRoar, 'SavageRoar')) and (not up and ttd >2 + latency) and cooldown[classtable.SavageRoar].ready then
-        if not setSpell then setSpell = classtable.SavageRoar end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.SwipeCat, 'SwipeCat')) and (targets >6 or targets >3 and buff[classtable.TigersFuryBuff].up) and cooldown[classtable.SwipeCat].ready then
-        if not setSpell then setSpell = classtable.SwipeCat end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.Ravage, 'Ravage')) and (ravage_now) and cooldown[classtable.Ravage].ready then
-        if not setSpell then setSpell = classtable.Ravage end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (targets <7 and target.within3 and ( ( not debuff[classtable.RakeDeBuff].up or ( debuff[classtable.RakeDeBuff].remains <debuff[classtable.RakeDeBuff].tick_time ) ) and ( ttd >debuff[classtable.RakeDeBuff].tick_time ) )) and cooldown[classtable.Rake].ready then
-        if not setSpell then setSpell = classtable.Rake end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.SwipeCat, 'SwipeCat')) and cooldown[classtable.SwipeCat].ready then
-        if not setSpell then setSpell = classtable.SwipeCat end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.BearForm, 'BearForm')) and (should_bearweave) and cooldown[classtable.BearForm].ready then
-        if not setSpell then setSpell = classtable.BearForm end
-    end
-end
-
 
 local function ClearCDs()
 end
 
 function Guardian:callaction()
-    if (MaxDps:CheckSpellUsable(classtable.HyperspeedAcceleration, 'HyperspeedAcceleration')) and cooldown[classtable.HyperspeedAcceleration].ready then
-        if not setSpell then setSpell = classtable.HyperspeedAcceleration end
-    end
     if (buff[classtable.BearFormBuff].up and targets >2) then
         Guardian:bear_tank_aoe()
     end
     if (buff[classtable.BearFormBuff].up) then
         Guardian:bear_tank()
     end
-    if (buff[classtable.CatFormBuff].up and targets >2) then
-        Guardian:cat_aoe()
-    end
-    if (buff[classtable.CatFormBuff].up) then
-        Guardian:cat()
-    end
-    if (MaxDps:CheckSpellUsable(classtable.BearForm, 'BearForm')) and (not up) and cooldown[classtable.BearForm].ready then
+    if (MaxDps:CheckSpellUsable(classtable.BearForm, 'BearForm')) and (not buff[classtable.BearFormBuff].up) and cooldown[classtable.BearForm].ready then
         if not setSpell then setSpell = classtable.BearForm end
     end
 end
@@ -351,20 +250,17 @@ function Druid:Guardian()
     --    self.Flags[spellId] = false
     --    self:ClearGlowIndependent(spellId, spellId)
     --end
-    classtable.StatBuffBuff = 0
-    classtable.LacerateDeBuff = 33745
-    classtable.MajorArmorReductionDeBuff = 0
-    classtable.FaerieFireDeBuff = 0
-    classtable.ApReductionDeBuff = 0
-    classtable.DemoralizingRoarDeBuff = 48560
-    classtable.BerserkBuff = 50334
-    classtable.PulverizeBuff = 80951
-    classtable.ClearcastingBuff = 16870
-    classtable.MangleDeBuff = 0
-    classtable.TigersFuryBuff = 5217
-    classtable.RakeDeBuff = 1822
     classtable.BearFormBuff = 5487
     classtable.CatFormBuff = 768
+    classtable.BerserkBuff = 50334
+    classtable.PulverizeBuff = 80951
+    classtable.PrimalMadnessBuff = 80886
+    classtable.ClearcastingBuff = 16870
+    classtable.TigersFuryBuff = 5217
+    classtable.LacerateDeBuff = 33745
+    classtable.DemoralizingRoarDeBuff = 48560
+    classtable.RakeDeBuff = 1822
+    classtable.MarkoftheWild = 1126
     classtable.Thorns = 467
     classtable.BearForm = 5487
     classtable.FrenziedRegeneration = 22842
@@ -374,7 +270,6 @@ function Druid:Guardian()
     classtable.Pulverize = 80313
     classtable.Lacerate = 33745
     classtable.FaerieFireFeral = 16857
-    classtable.FaerieFire = 770
     classtable.DemoralizingRoar = 99
     classtable.Berserk = 50334
     classtable.Enrage = 5229
@@ -391,7 +286,6 @@ function Druid:Guardian()
     classtable.Ravage = 6785
     classtable.Shred = 5221
     classtable.SwipeCat = 62078
-    classtable.CatForm = 768
 
     local function debugg()
     end

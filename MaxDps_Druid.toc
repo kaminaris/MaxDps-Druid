@@ -24,6 +24,7 @@ Specialization/Restoration.lua
 #@version-cata@
 Specialization/Cata/Balance.lua
 Specialization/Cata/Feral.lua
+Specialization/Cata/Guardian.lua
 #@end-version-cata@
 
 #@version-classic@
