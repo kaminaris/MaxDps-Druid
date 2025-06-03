@@ -1,0 +1,206 @@
+local _, addonTable = ...
+local Druid = addonTable.Druid
+local MaxDps = _G.MaxDps
+if not MaxDps then return end
+local setSpell
+
+local UnitPower = UnitPower
+local UnitHealth = UnitHealth
+local UnitAura = C_UnitAuras.GetAuraDataByIndex
+local UnitAuraByName = C_UnitAuras.GetAuraDataBySpellName
+local UnitHealthMax = UnitHealthMax
+local UnitPowerMax = UnitPowerMax
+local SpellHaste
+local SpellCrit
+local GetSpellInfo = C_Spell.GetSpellInfo
+local GetSpellCooldown = C_Spell.GetSpellCooldown
+local GetSpellCount = C_Spell.GetSpellCastCount
+
+local ManaPT = Enum.PowerType.Mana
+local RagePT = Enum.PowerType.Rage
+local FocusPT = Enum.PowerType.Focus
+local EnergyPT = Enum.PowerType.Energy
+local ComboPointsPT = Enum.PowerType.ComboPoints
+local RunesPT = Enum.PowerType.Runes
+local RunicPowerPT = Enum.PowerType.RunicPower
+local SoulShardsPT = Enum.PowerType.SoulShards
+local LunarPowerPT = Enum.PowerType.LunarPower
+local HolyPowerPT = Enum.PowerType.HolyPower
+local MaelstromPT = Enum.PowerType.Maelstrom
+local ChiPT = Enum.PowerType.Chi
+local InsanityPT = Enum.PowerType.Insanity
+local ArcaneChargesPT = Enum.PowerType.ArcaneCharges
+local FuryPT = Enum.PowerType.Fury
+local PainPT = Enum.PowerType.Pain
+local EssencePT = Enum.PowerType.Essence
+local RuneBloodPT = Enum.PowerType.RuneBlood
+local RuneFrostPT = Enum.PowerType.RuneFrost
+local RuneUnholyPT = Enum.PowerType.RuneUnholy
+
+local fd
+local ttd
+local timeShift
+local gcd
+local cooldown
+local buff
+local debuff
+local talents
+local targets
+local targetHP
+local targetmaxHP
+local targethealthPerc
+local curentHP
+local maxHP
+local healthPerc
+local timeInCombat
+local className, classFilename, classId = UnitClass('player')
+local classtable
+local LibRangeCheck = LibStub('LibRangeCheck-3.0', true)
+
+local LunarPower
+local LunarPowerMax
+local LunarPowerDeficit
+local Energy
+local EnergyMax
+local EnergyDeficit
+local EnergyRegen
+local EnergyTimeToMax
+local ComboPoints
+local ComboPointsMax
+local ComboPointsDeficit
+local Mana
+local ManaMax
+local ManaDeficit
+local Rage
+local RageMax
+local RageDeficit
+
+local Feral = {}
+
+
+
+--Check if spell was cast within 4 seconds to count for Bloodtalens
+local function need_bt_trigger(spell)
+    local spellName = C_Spell.GetSpellInfo(spell)
+    return GetTime - MaxDps.spellHistoryTime[spellName] <= 4
+end
+
+
+function Feral:precombat()
+    if (MaxDps:CheckSpellUsable(classtable.FaerieFire, 'FaerieFire')) and cooldown[classtable.FaerieFire].ready and not UnitAffectingCombat('player') then
+        if not setSpell then setSpell = classtable.FaerieFire end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.TigersFury, 'TigersFury')) and cooldown[classtable.TigersFury].ready and not UnitAffectingCombat('player') then
+        MaxDps:GlowCooldown(classtable.TigersFury, cooldown[classtable.TigersFury].ready)
+    end
+end
+function Feral:priorityList()
+    if (MaxDps:CheckSpellUsable(classtable.FaerieFire, 'FaerieFire')) and (MaxDps:FindBuffAuraData ( 17392 ) .remains <= 1.0 and MaxDps:FindBuffAuraData ( 9907 ) .remains <= 1.0) and cooldown[classtable.FaerieFire].ready then
+        if not setSpell then setSpell = classtable.FaerieFire end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.Haste, 'Haste')) and (MaxDps:FindBuffAuraData ( 768 ) .up and IsSpellKnownOrOverridesKnown ( 13494 ) and not MaxDps:FindBuffAuraData ( 13494 ) .up and timeInCombat <90.0) and cooldown[classtable.Haste].ready then
+        if not setSpell then setSpell = classtable.Haste end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.FerociousBite, 'FerociousBite')) and (ComboPoints == 5.0 and not MaxDps:FindBuffAuraData ( 16870 ) .up and Energy + 20.2 <MaxDps:CheckSpellUsable ( 9830 , "shred" ) + MaxDps:CheckSpellUsable ( 22829 , "ferocious_bite" )) and cooldown[classtable.FerociousBite].ready then
+        if not setSpell then setSpell = classtable.FerociousBite end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and cooldown[classtable.Shred].ready then
+        if not setSpell then setSpell = classtable.Shred end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.Claw, 'Claw')) and (talents ( 17061 ) and MaxDps:CheckSpellUsable ( 768 , "cat_form" ) ) and cooldown[classtable.Claw].ready then
+        if not setSpell then setSpell = classtable.Claw end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.FaerieFire, 'FaerieFire')) and (MaxDps:FindBuffAuraData ( 17392 ) .remains <= 14.0 and MaxDps:FindBuffAuraData ( 9907 ) .remains <= 14.0) and cooldown[classtable.FaerieFire].ready then
+        if not setSpell then setSpell = classtable.FaerieFire end
+    end
+    --if (MaxDps:CheckSpellUsable(classtable.GoblinSapperCharge, 'GoblinSapperCharge')) and (not MaxDps:FindBuffAuraData ( 768 ) .up) and cooldown[classtable.GoblinSapperCharge].ready then
+    --    if not setSpell then setSpell = classtable.GoblinSapperCharge end
+    --end
+    --if (MaxDps:CheckSpellUsable(classtable.DemonicRune, 'DemonicRune')) and (not MaxDps:FindBuffAuraData ( 768 ) .up and Mana + 1500.0 <= Mana/ManaPerc) and cooldown[classtable.DemonicRune].ready then
+    --    if not setSpell then setSpell = classtable.DemonicRune end
+    --end
+    --if (MaxDps:CheckSpellUsable(classtable.MetamorphosisRune, 'MetamorphosisRune')) and (not MaxDps:FindBuffAuraData ( 768 ) .up and ManaPerc <= 80 and not IsSpellKnownOrOverridesKnown ( 12662 ) ) and cooldown[classtable.MetamorphosisRune].ready then
+    --    if not setSpell then setSpell = classtable.MetamorphosisRune end
+    --end
+    if (MaxDps:CheckSpellUsable(classtable.Innervate, 'Innervate')) and (not MaxDps:FindBuffAuraData ( 768 ) .up and ManaPerc <= 40 and ttd >= 20.0 and not IsSpellKnownOrOverridesKnown ( 12662 ) ) and cooldown[classtable.Innervate].ready then
+        if not setSpell then setSpell = classtable.Innervate end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.CatForm, 'CatForm')) and (not MaxDps:FindBuffAuraData ( 768 ) .up) and cooldown[classtable.CatForm].ready then
+        if not setSpell then setSpell = classtable.CatForm end
+    end
+end
+
+
+local function ClearCDs()
+    MaxDps:GlowCooldown(classtable.TigersFury, false)
+end
+
+function Druid:Feral()
+    fd = MaxDps.FrameData
+    ttd = (fd.timeToDie and fd.timeToDie) or 500
+    timeShift = fd.timeShift
+    gcd = fd.gcd
+    cooldown = fd.cooldown
+    buff = fd.buff
+    debuff = fd.debuff
+    talents = fd.talents
+    targets = MaxDps:SmartAoe()
+    Mana = UnitPower('player', ManaPT)
+    ManaMax = UnitPowerMax('player', ManaPT)
+    ManaDeficit = ManaMax - Mana
+    ManaPerc = (Mana / ManaMax) * 100
+    targetHP = UnitHealth('target')
+    targetmaxHP = UnitHealthMax('target')
+    targethealthPerc = (targetHP >0 and targetmaxHP >0 and (targetHP / targetmaxHP) * 100) or 100
+    curentHP = UnitHealth('player')
+    maxHP = UnitHealthMax('player')
+    healthPerc = (curentHP / maxHP) * 100
+    timeInCombat = MaxDps.combatTime or 0
+    classtable = MaxDps.SpellTable
+    SpellHaste = UnitSpellHaste('player')
+    SpellCrit = GetCritChance()
+    Energy = UnitPower('player', EnergyPT)
+    EnergyMax = UnitPowerMax('player', EnergyPT)
+    EnergyDeficit = EnergyMax - Energy
+    EnergyRegen = GetPowerRegenForPowerType(Enum.PowerType.Energy)
+    EnergyTimeToMax = EnergyDeficit / EnergyRegen
+    EnergyPerc = (Energy / EnergyMax) * 100
+    ComboPoints = UnitPower('player', ComboPointsPT)
+    ComboPointsMax = UnitPowerMax('player', ComboPointsPT)
+    ComboPointsDeficit = ComboPointsMax - ComboPoints
+    classtable.Incarnation =  classtable.IncarnationAvatarofAshamane
+    classtable.MoonfireCat =  classtable.Moonfire
+    classtable.ThrashCat =  classtable.Thrash
+    classtable.SwipeCat =  classtable.Swipe
+    --for spellId in pairs(MaxDps.Flags) do
+    --    self.Flags[spellId] = false
+    --    self:ClearGlowIndependent(spellId, spellId)
+    --end
+
+    classtable.FaerieFire=17392
+    classtable.TigersFury=9846
+    classtable.Haste=13494
+    classtable.CatForm=768
+    classtable.Shred=9830
+    classtable.FerociousBite=22829
+    classtable.Claw=9850
+    classtable.GoblinSapperCharge=10646
+    classtable.DemonicRune=12662
+    classtable.MetamorphosisRune=23724
+    classtable.Innervate=29166
+
+    local function debugg()
+    end
+
+
+    --if MaxDps.db.global.debugMode then
+    --   debugg()
+    --end
+
+    setSpell = nil
+    ClearCDs()
+
+    Feral:precombat()
+    Feral:priorityList()
+    if setSpell then return setSpell end
+end

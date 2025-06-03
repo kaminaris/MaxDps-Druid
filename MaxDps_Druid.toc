@@ -25,3 +25,7 @@ Specialization/Restoration.lua
 Specialization/Cata/Balance.lua
 Specialization/Cata/Feral.lua
 #@end-version-cata@
+
+#@version-classic@
+Specialization/Classic/Feral.lua
+#@end-version-classic@
