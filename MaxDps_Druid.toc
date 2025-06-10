@@ -29,4 +29,5 @@ Specialization/Cata/Guardian.lua
 
 #@version-classic@
 Specialization/Classic/Feral.lua
+Specialization/Classic/Guardian.lua
 #@end-version-classic@
