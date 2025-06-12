@@ -140,20 +140,31 @@ function Druid:Guardian()
     ComboPoints = UnitPower('player', ComboPointsPT)
     ComboPointsMax = UnitPowerMax('player', ComboPointsPT)
     ComboPointsDeficit = ComboPointsMax - ComboPoints
-    classtable.Incarnation =  classtable.IncarnationAvatarofAshamane
-    classtable.MoonfireCat =  classtable.Moonfire
-    classtable.ThrashCat =  classtable.Thrash
-    classtable.SwipeCat =  classtable.Swipe
+
     --for spellId in pairs(MaxDps.Flags) do
     --    self.Flags[spellId] = false
     --    self:ClearGlowIndependent(spellId, spellId)
     --end
 
+    -- BearForm
     classtable.Lacerate=414644
     classtable.Mangle=407995
     classtable.Berserk=417141
     classtable.Swipe=9908
     classtable.Maul=9881
+
+    -- CatForm
+    classtable.FaerieFire=17392
+    classtable.TigersFury=9846
+    classtable.Haste=13494
+    classtable.CatForm=768
+    classtable.Shred=9830
+    classtable.FerociousBite=22829
+    classtable.Claw=9850
+    classtable.GoblinSapperCharge=10646
+    classtable.DemonicRune=12662
+    classtable.MetamorphosisRune=23724
+    classtable.Innervate=29166
 
     local function debugg()
     end

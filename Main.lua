@@ -20,12 +20,9 @@ function Druid:Enable()
 		if MaxDps.Spec == 1 then
 			MaxDps.NextSpell = Druid.Balance
 			MaxDps:Print(MaxDps.Colors.Info .. 'Druid Balance', "info")
-		elseif (not MaxDps.FrameData.talents[16947] and not MaxDps.FrameData.talents[16929]) then
+		elseif MaxDps.Spec == 2 or MaxDps.Spec == 3 then
 			MaxDps.NextSpell = Druid.Feral
 			MaxDps:Print(MaxDps.Colors.Info .. 'Druid Feral', "info")
-		elseif (MaxDps.FrameData.talents[16947] or MaxDps.FrameData.talents[16929]) then
-			MaxDps.NextSpell = Druid.Guardian
-			MaxDps:Print(MaxDps.Colors.Info .. 'Druid Guardian', "info")
 		elseif MaxDps.Spec == 4 then
 			MaxDps.NextSpell = Druid.Restoration
 			MaxDps:Print(MaxDps.Colors.Info .. 'Druid Restoration', "info")
