@@ -81,7 +81,25 @@ local eclipse
 
 local Balance = {}
 
-
+local function GetTotemInfoByName(name)
+    local info = {
+        duration = 0,
+        remains = 0,
+        up = false,
+        count = 0,
+    }
+    for index=1,MAX_TOTEMS do
+        local arg1, totemName, startTime, duration, icon = GetTotemInfo(index)
+        local remains = math.floor(startTime+duration-GetTime())
+        if (totemName == name ) then
+            info.duration = duration
+            info.up = true
+            info.remains = remains
+            info.count = info.count + 1
+        end
+    end
+    return info
+end
 
 local function ClearCDs()
 end
@@ -96,7 +114,8 @@ function Balance:callaction()
     --if (MaxDps:CheckSpellUsable(classtable.FaerieFire, 'FaerieFire')) and (debuff[classtable.FaerieFireDeBuff].count <3 and not ( debuff[classtable.SunderArmorDeBuff].up or debuff[classtable.ExposeArmorDeBuff].up )) and cooldown[classtable.FaerieFire].ready then
     --    if not setSpell then setSpell = classtable.FaerieFire end
     --end
-    if (MaxDps:CheckSpellUsable(classtable.WildMushroomDetonate, 'WildMushroomDetonate')) and (buff[classtable.WildMushroomBuff].count >= 3) and cooldown[classtable.WildMushroomDetonate].ready then
+    print(GetTotemInfoByName("Wild Mushroom").count)
+    if (MaxDps:CheckSpellUsable(classtable.WildMushroomDetonate, 'WildMushroomDetonate')) and (GetTotemInfoByName("Wild Mushroom").count >= 3) and cooldown[classtable.WildMushroomDetonate].ready then
         if not setSpell then setSpell = classtable.WildMushroomDetonate end
     end
     if (MaxDps:CheckSpellUsable(classtable.InsectSwarm, 'InsectSwarm')) and (( debuff[classtable.InsectSwarmDeBuff].duration <2 or ( debuff[classtable.InsectSwarmDeBuff].remains <10 and buff[classtable.SolarEclipseBuff].up and eclipse <15 ) ) and ( buff[classtable.SolarEclipseBuff].up or buff[classtable.LunarEclipseBuff].up or timeInCombat <10 )) and cooldown[classtable.InsectSwarm].ready then
