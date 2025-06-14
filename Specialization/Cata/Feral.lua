@@ -145,9 +145,9 @@ function Feral:bear_tank()
     if (MaxDps:CheckSpellUsable(classtable.SurvivalInstincts, 'SurvivalInstincts')) and (healthPerc <40) and cooldown[classtable.SurvivalInstincts].ready then
         if not setSpell then setSpell = classtable.SurvivalInstincts end
     end
-    if (MaxDps:CheckSpellUsable(classtable.FeralChargeBear, 'FeralChargeBear')) and ((LibRangeCheck and LibRangeCheck:GetRange('target', false, true) >7 or false)) and cooldown[classtable.FeralChargeBear].ready then
-        if not setSpell then setSpell = classtable.FeralChargeBear end
-    end
+    --if (MaxDps:CheckSpellUsable(classtable.FeralChargeBear, 'FeralChargeBear')) and ((LibRangeCheck and LibRangeCheck:GetRange('target', false, true) >7 or false)) and cooldown[classtable.FeralChargeBear].ready then
+    --    if not setSpell then setSpell = classtable.FeralChargeBear end
+    --end
     if (MaxDps:CheckSpellUsable(classtable.Maul, 'Maul')) and (Rage >= 55) and cooldown[classtable.Maul].ready then
         if not setSpell then setSpell = classtable.Maul end
     end
@@ -297,6 +297,9 @@ function Druid:Feral()
     ComboPoints = UnitPower('player', ComboPointsPT)
     ComboPointsMax = UnitPowerMax('player', ComboPointsPT)
     ComboPointsDeficit = ComboPointsMax - ComboPoints
+    Rage = UnitPower('player', RagePT)
+    RageMax = UnitPowerMax('player', RagePT)
+    RageDeficit = RageMax - Rage
     classtable.Incarnation =  classtable.IncarnationAvatarofAshamane
     classtable.MoonfireCat =  classtable.Moonfire
     classtable.ThrashCat =  classtable.Thrash
