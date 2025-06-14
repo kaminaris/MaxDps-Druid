@@ -145,9 +145,10 @@ function Feral:bear_tank()
     if (MaxDps:CheckSpellUsable(classtable.SurvivalInstincts, 'SurvivalInstincts')) and (healthPerc <40) and cooldown[classtable.SurvivalInstincts].ready then
         if not setSpell then setSpell = classtable.SurvivalInstincts end
     end
-    --if (MaxDps:CheckSpellUsable(classtable.FeralChargeBear, 'FeralChargeBear')) and ((LibRangeCheck and LibRangeCheck:GetRange('target', false, true) >7 or false)) and cooldown[classtable.FeralChargeBear].ready then
-    --    if not setSpell then setSpell = classtable.FeralChargeBear end
-    --end
+    if (MaxDps:CheckSpellUsable(classtable.FeralChargeBear, 'FeralChargeBear')) and ( ( (LibRangeCheck and LibRangeCheck:GetRange('target', false, true) or 0) >7 or false ) ) and cooldown[classtable.FeralChargeBear].ready then
+        --if not setSpell then setSpell = classtable.FeralChargeBear end
+        MaxDps:GlowCooldown(classtable.FeralChargeBear, true)
+    end
     if (MaxDps:CheckSpellUsable(classtable.Maul, 'Maul')) and (Rage >= 55) and cooldown[classtable.Maul].ready then
         if not setSpell then setSpell = classtable.Maul end
     end
@@ -198,9 +199,10 @@ function Feral:bear_tank_aoe()
     if (MaxDps:CheckSpellUsable(classtable.SurvivalInstincts, 'SurvivalInstincts')) and (healthPerc <40) and cooldown[classtable.SurvivalInstincts].ready then
         if not setSpell then setSpell = classtable.SurvivalInstincts end
     end
-    --if (MaxDps:CheckSpellUsable(classtable.FeralChargeBear, 'FeralChargeBear')) and ((LibRangeCheck and LibRangeCheck:GetRange('target', false, true) >7 or false)) and cooldown[classtable.FeralChargeBear].ready then
-    --    if not setSpell then setSpell = classtable.FeralChargeBear end
-    --end
+    if (MaxDps:CheckSpellUsable(classtable.FeralChargeBear, 'FeralChargeBear')) and ( ( (LibRangeCheck and LibRangeCheck:GetRange('target', false, true) or 0) >7 or false ) ) and cooldown[classtable.FeralChargeBear].ready then
+        --if not setSpell then setSpell = classtable.FeralChargeBear end
+        MaxDps:GlowCooldown(classtable.FeralChargeBear, true)
+    end
     if (MaxDps:CheckSpellUsable(classtable.Maul, 'Maul')) and (Rage >= 55) and cooldown[classtable.Maul].ready then
         if not setSpell then setSpell = classtable.Maul end
     end
@@ -246,6 +248,7 @@ function Feral:bear_tank_aoe()
 end
 
 local function ClearCDs()
+    MaxDps:GlowCooldown(classtable.FeralChargeBear, false)
 end
 
 function Feral:callaction()
