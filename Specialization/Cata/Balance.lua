@@ -93,9 +93,9 @@ function Balance:callaction()
     if (MaxDps:CheckSpellUsable(classtable.MoonkinForm, 'MoonkinForm')) and not buff[classtable.MoonkinFormBuff].up and cooldown[classtable.MoonkinForm].ready then
         if not setSpell then setSpell = classtable.MoonkinForm end
     end
-    if (MaxDps:CheckSpellUsable(classtable.FaerieFire, 'FaerieFire')) and (debuff[classtable.FaerieFireDeBuff].count <3 and not ( debuff[classtable.SunderArmorDeBuff].up or debuff[classtable.ExposeArmorDeBuff].up )) and cooldown[classtable.FaerieFire].ready then
-        if not setSpell then setSpell = classtable.FaerieFire end
-    end
+    --if (MaxDps:CheckSpellUsable(classtable.FaerieFire, 'FaerieFire')) and (debuff[classtable.FaerieFireDeBuff].count <3 and not ( debuff[classtable.SunderArmorDeBuff].up or debuff[classtable.ExposeArmorDeBuff].up )) and cooldown[classtable.FaerieFire].ready then
+    --    if not setSpell then setSpell = classtable.FaerieFire end
+    --end
     if (MaxDps:CheckSpellUsable(classtable.WildMushroomDetonate, 'WildMushroomDetonate')) and (buff[classtable.WildMushroomBuff].count >= 3) and cooldown[classtable.WildMushroomDetonate].ready then
         if not setSpell then setSpell = classtable.WildMushroomDetonate end
     end
