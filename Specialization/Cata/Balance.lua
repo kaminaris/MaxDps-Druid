@@ -121,7 +121,7 @@ function Balance:callaction()
     if (MaxDps:CheckSpellUsable(classtable.InsectSwarm, 'InsectSwarm')) and (( debuff[classtable.InsectSwarmDeBuff].duration <2 or ( debuff[classtable.InsectSwarmDeBuff].remains <10 and buff[classtable.SolarEclipseBuff].up and eclipse <15 ) ) and ( buff[classtable.SolarEclipseBuff].up or buff[classtable.LunarEclipseBuff].up or timeInCombat <10 )) and cooldown[classtable.InsectSwarm].ready then
         if not setSpell then setSpell = classtable.InsectSwarm end
     end
-    if (MaxDps:CheckSpellUsable(classtable.WildMushroomDetonate, 'WildMushroomDetonate')) and (buff[classtable.WildMushroomBuff].count >0 and buff[classtable.SolarEclipseBuff].up) and cooldown[classtable.WildMushroomDetonate].ready then
+    if (MaxDps:CheckSpellUsable(classtable.WildMushroomDetonate, 'WildMushroomDetonate')) and (GetTotemInfoByName("Wild Mushroom").count >0 and buff[classtable.SolarEclipseBuff].up) and cooldown[classtable.WildMushroomDetonate].ready then
         if not setSpell then setSpell = classtable.WildMushroomDetonate end
     end
     if (MaxDps:CheckSpellUsable(classtable.Typhoon, 'Typhoon')) and cooldown[classtable.Typhoon].ready then
@@ -157,7 +157,7 @@ function Balance:callaction()
     if (MaxDps:CheckSpellUsable(classtable.Starfire, 'Starfire')) and (eclipse_dir == "sun") and cooldown[classtable.Starfire].ready then
         if not setSpell then setSpell = classtable.Starfire end
     end
-    if (MaxDps:CheckSpellUsable(classtable.WildMushroom, 'WildMushroom')) and (buff[classtable.WildMushroomBuff].count <3) and cooldown[classtable.WildMushroom].ready then
+    if (MaxDps:CheckSpellUsable(classtable.WildMushroom, 'WildMushroom')) and (GetTotemInfoByName("Wild Mushroom").count <3) and cooldown[classtable.WildMushroom].ready then
         if not setSpell then setSpell = classtable.WildMushroom end
     end
     if (MaxDps:CheckSpellUsable(classtable.Starsurge, 'Starsurge')) and (buff[classtable.ShootingStarsBuff].up) and cooldown[classtable.Starsurge].ready then
