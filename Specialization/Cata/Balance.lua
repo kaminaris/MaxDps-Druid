@@ -91,6 +91,7 @@ local function GetTotemInfoByName(name)
     for index=1,MAX_TOTEMS do
         local arg1, totemName, startTime, duration, icon = GetTotemInfo(index)
         local remains = math.floor(startTime+duration-GetTime())
+        print("Totem: "..totemName.." remains: "..remains)
         if (totemName == name ) then
             info.duration = duration
             info.up = true
@@ -114,7 +115,7 @@ function Balance:callaction()
     --if (MaxDps:CheckSpellUsable(classtable.FaerieFire, 'FaerieFire')) and (debuff[classtable.FaerieFireDeBuff].count <3 and not ( debuff[classtable.SunderArmorDeBuff].up or debuff[classtable.ExposeArmorDeBuff].up )) and cooldown[classtable.FaerieFire].ready then
     --    if not setSpell then setSpell = classtable.FaerieFire end
     --end
-    print(GetTotemInfoByName("Wild Mushroom").count)
+    --print(GetTotemInfoByName("Wild Mushroom").count)
     if (MaxDps:CheckSpellUsable(classtable.WildMushroomDetonate, 'WildMushroomDetonate')) and (GetTotemInfoByName("Wild Mushroom").count >= 3) and cooldown[classtable.WildMushroomDetonate].ready then
         if not setSpell then setSpell = classtable.WildMushroomDetonate end
     end
