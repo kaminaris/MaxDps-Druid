@@ -31,3 +31,8 @@ Specialization/Cata/Guardian.lua
 Specialization/Classic/Feral.lua
 Specialization/Classic/Guardian.lua
 #@end-version-classic@
+
+#@version-mists@
+Specialization/Mop/Balance.lua
+Specialization/Mop/Feral.lua
+#@end-version-mists@
