@@ -101,7 +101,7 @@ function Feral:priorityList()
         if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and cooldown[classtable.Shred].ready then
             if not setSpell then setSpell = classtable.Shred end
         end
-        if (MaxDps:CheckSpellUsable(classtable.Claw, 'Claw')) and (talents ( 17061 ) and MaxDps:CheckSpellUsable ( 768 , "cat_form" ) ) and cooldown[classtable.Claw].ready then
+        if (MaxDps:CheckSpellUsable(classtable.Claw, 'Claw')) and (talents[17061] and MaxDps:CheckSpellUsable ( 768 , "cat_form" ) ) and cooldown[classtable.Claw].ready then
             if not setSpell then setSpell = classtable.Claw end
         end
         if (MaxDps:CheckSpellUsable(classtable.FaerieFire, 'FaerieFire')) and (MaxDps:FindBuffAuraData ( 17392 ) .remains <= 14.0 and MaxDps:FindBuffAuraData ( 9907 ) .remains <= 14.0) and cooldown[classtable.FaerieFire].ready then
