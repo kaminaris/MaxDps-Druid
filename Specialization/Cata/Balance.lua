@@ -91,7 +91,6 @@ local function GetTotemInfoByName(name)
     for index=1,MAX_TOTEMS do
         local arg1, totemName, startTime, duration, icon = GetTotemInfo(index)
         local remains = math.floor(startTime+duration-GetTime())
-        print("Totem: "..totemName.." remains: "..remains)
         if (totemName == name ) then
             info.duration = duration
             info.up = true
