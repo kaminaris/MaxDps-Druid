@@ -95,7 +95,7 @@ function Feral:priorityList()
         if (MaxDps:CheckSpellUsable(classtable.Haste, 'Haste')) and (MaxDps:FindBuffAuraData ( 768 ) .up and IsSpellKnownOrOverridesKnown ( 13494 ) and not MaxDps:FindBuffAuraData ( 13494 ) .up and timeInCombat <90.0) and cooldown[classtable.Haste].ready then
             if not setSpell then setSpell = classtable.Haste end
         end
-        if (MaxDps:CheckSpellUsable(classtable.FerociousBite, 'FerociousBite')) and (ComboPoints == 5.0 and not MaxDps:FindBuffAuraData ( 16870 ) .up and Energy + 20.2 <MaxDps:CheckSpellUsable ( 9830 , "shred" ) + MaxDps:CheckSpellUsable ( 22829 , "ferocious_bite" )) and cooldown[classtable.FerociousBite].ready then
+        if (MaxDps:CheckSpellUsable(classtable.FerociousBite, 'FerociousBite')) and (ComboPoints == 5.0 and not MaxDps:FindBuffAuraData ( 16870 ) .up and Energy + 20.2 <95) and cooldown[classtable.FerociousBite].ready then
             if not setSpell then setSpell = classtable.FerociousBite end
         end
         if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and cooldown[classtable.Shred].ready then
