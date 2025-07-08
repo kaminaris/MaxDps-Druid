@@ -76,19 +76,41 @@ local ManaDeficit
 local Rage
 local RageMax
 local RageDeficit
+local eclipse = UnitPower("player", Enum.PowerType.Balance) or 0
+local eclipse_dir = (GetEclipseDirection() == "sun" and 1 or GetEclipseDirection() == "moon" and -1 or 0)
 
 local Balance = {}
 
+local function GetTotemInfoByName(name)
+    local info = {
+        duration = 0,
+        remains = 0,
+        up = false,
+        count = 0,
+    }
+    for index=1,MAX_TOTEMS do
+        local arg1, totemName, startTime, duration, icon = GetTotemInfo(index)
+        local remains = math.floor(startTime+duration-GetTime())
+        if (totemName == name ) then
+            info.duration = duration
+            info.up = true
+            info.remains = remains
+            info.count = info.count + 1
+        end
+    end
+    return info
+end
+
 function Balance:precombat()
-    if (MaxDps:CheckSpellUsable(classtable.MarkoftheWild, 'MarkoftheWild')) and (not aura.str_agi_int.up) and cooldown[classtable.MarkoftheWild].ready and not UnitAffectingCombat('player') then
+    if (MaxDps:CheckSpellUsable(classtable.MarkoftheWild, 'MarkoftheWild')) and (not buff[classtable.MarkoftheWildBuff].up) and cooldown[classtable.MarkoftheWild].ready and not UnitAffectingCombat('player') then
         if not setSpell then setSpell = classtable.MarkoftheWild end
     end
-    if (MaxDps:CheckSpellUsable(classtable.MoonkinForm, 'MoonkinForm')) and cooldown[classtable.MoonkinForm].ready and not UnitAffectingCombat('player') then
+    if (MaxDps:CheckSpellUsable(classtable.MoonkinForm, 'MoonkinForm')) and (not buff[classtable.MoonkinFormBuff].up) and cooldown[classtable.MoonkinForm].ready and not UnitAffectingCombat('player') then
         if not setSpell then setSpell = classtable.MoonkinForm end
     end
-    if (MaxDps:CheckSpellUsable(classtable.VolcanicPotion, 'VolcanicPotion')) and cooldown[classtable.VolcanicPotion].ready and not UnitAffectingCombat('player') then
-        if not setSpell then setSpell = classtable.VolcanicPotion end
-    end
+    --if (MaxDps:CheckSpellUsable(classtable.VolcanicPotion, 'VolcanicPotion')) and cooldown[classtable.VolcanicPotion].ready and not UnitAffectingCombat('player') then
+    --    if not setSpell then setSpell = classtable.VolcanicPotion end
+    --end
 end
 
 
@@ -104,15 +126,15 @@ function Balance:callaction()
     if (MaxDps:CheckSpellUsable(classtable.Treants, 'Treants')) and ((talents[classtable.ForceofNature] and true or false)) and cooldown[classtable.Treants].ready then
         if not setSpell then setSpell = classtable.Treants end
     end
-    if (MaxDps:CheckSpellUsable(classtable.WildMushroomDetonate, 'WildMushroomDetonate')) and (buff[classtable.WildMushroomBuff].count >0 and buff[classtable.SolarEclipseBuff].up) and cooldown[classtable.WildMushroomDetonate].ready then
+    if (MaxDps:CheckSpellUsable(classtable.WildMushroomDetonate, 'WildMushroomDetonate')) and (GetTotemInfoByName("Wild Mushroom").count >0 and buff[classtable.SolarEclipseBuff].up) and cooldown[classtable.WildMushroomDetonate].ready then
         if not setSpell then setSpell = classtable.WildMushroomDetonate end
     end
     if (MaxDps:CheckSpellUsable(classtable.NaturesSwiftness, 'NaturesSwiftness') and talents[classtable.NaturesSwiftness]) and ((talents[classtable.DreamofCenarius] and true or false) and (talents[classtable.NaturesSwiftness] and true or false)) and cooldown[classtable.NaturesSwiftness].ready then
         MaxDps:GlowCooldown(classtable.NaturesSwiftness, cooldown[classtable.NaturesSwiftness].ready)
     end
-    if (MaxDps:CheckSpellUsable(classtable.HealingTouch, 'HealingTouch')) and (not buff[classtable.DreamofCenariusDamageBuff].up and (talents[classtable.DreamofCenarius] and true or false)) and cooldown[classtable.HealingTouch].ready then
-        if not setSpell then setSpell = classtable.HealingTouch end
-    end
+    --if (MaxDps:CheckSpellUsable(classtable.HealingTouch, 'HealingTouch')) and (not buff[classtable.DreamofCenariusDamageBuff].up and (talents[classtable.DreamofCenarius] and true or false)) and cooldown[classtable.HealingTouch].ready then
+    --    if not setSpell then setSpell = classtable.HealingTouch end
+    --end
     if (MaxDps:CheckSpellUsable(classtable.Incarnation, 'Incarnation') and talents[classtable.Incarnation]) and ((talents[classtable.Incarnation] and true or false) and ( buff[classtable.LunarEclipseBuff].up or buff[classtable.SolarEclipseBuff].up )) and cooldown[classtable.Incarnation].ready then
         MaxDps:GlowCooldown(classtable.Incarnation, cooldown[classtable.Incarnation].ready)
     end
@@ -161,7 +183,7 @@ function Balance:callaction()
     if (MaxDps:CheckSpellUsable(classtable.Sunfire, 'Sunfire')) and (not debuff[classtable.MoonfireDeBuff].up) and cooldown[classtable.Sunfire].ready then
         if not setSpell then setSpell = classtable.Sunfire end
     end
-    if (MaxDps:CheckSpellUsable(classtable.WildMushroom, 'WildMushroom')) and (buff[classtable.WildMushroomBuff].count <5) and cooldown[classtable.WildMushroom].ready then
+    if (MaxDps:CheckSpellUsable(classtable.WildMushroom, 'WildMushroom')) and (GetTotemInfoByName("Wild Mushroom").count <5) and cooldown[classtable.WildMushroom].ready then
         if not setSpell then setSpell = classtable.WildMushroom end
     end
     if (MaxDps:CheckSpellUsable(classtable.Starsurge, 'Starsurge')) and (buff[classtable.ShootingStarsBuff].up) and cooldown[classtable.Starsurge].ready then
@@ -209,47 +231,14 @@ function Druid:Balance()
     AstralPower = UnitPower('player', LunarPowerPT)
     AstralPowerMax = UnitPowerMax('player', LunarPowerPT)
     AstralPowerDeficit = AstralPowerMax - AstralPower
-    local currentSpell = fd.currentSpell
-    local wrathCount = GetSpellCount(classtable.Wrath)
-    local starfireCount = GetSpellCount(classtable.Starfire)
-    local origWrathCount = wrathCount
-    local origStarfireCount = starfireCount
-    classtable.Incarnation =  classtable.IncarnationChosenofElune
-    local CaInc = talents[classtable.Incarnation] and classtable.Incarnation or classtable.CelestialAlignment
-    local castingMoonSpell = false
-    if currentSpell == classtable.Wrath then
-    	AstralPower = AstralPower + 6
-    	wrathCount = wrathCount - 1
-    elseif currentSpell == classtable.Starfire then
-    	AstralPower = AstralPower + 8
-    	starfireCount = starfireCount - 1
-    elseif currentSpell == classtable.FuryOfElune then
-    	AstralPower = AstralPower + 40
-    elseif currentSpell == classtable.ForceOfNature then
-    	AstralPower = AstralPower + 20
-    elseif currentSpell == classtable.StellarFlare then
-    	AstralPower = AstralPower + 8
-    elseif currentSpell == classtable.NewMoon then
-    	AstralPower = AstralPower + 10
-    	castingMoonSpell = true
-    elseif currentSpell == classtable.HalfMoon then
-    	AstralPower = AstralPower + 20
-    	castingMoonSpell = true
-    elseif currentSpell == classtable.FullMoon then
-    	AstralPower = AstralPower + 40
-    	castingMoonSpell = true
-    end
+    eclipse = UnitPower("player", Enum.PowerType.Balance) or 0
+
+    eclipse_dir = (GetEclipseDirection() == "sun" and 1 or GetEclipseDirection() == "moon" and -1 or 0)
     fd.eclipseInLunar = buff[classtable.EclipseLunar].up
     fd.eclipseInSolar = buff[classtable.EclipseSolar].up
     fd.eclipseInAny = fd.eclipseInSolar or fd.eclipseInLunar
     fd.eclipseInBoth = fd.eclipseInSolar and fd.eclipseInLunar
-    fd.eclipseSolarNext = wrathCount > 0 and starfireCount <= 0
-    fd.eclipseLunarNext = wrathCount <= 0 and starfireCount > 0
-    fd.eclipseAnyNext = wrathCount > 0 and starfireCount > 0
-    fd.wrathCount = wrathCount
-    fd.starfireCount = starfireCount
-    classtable.HalfMoon = 274282
-    classtable.FullMoon = 274283
+
     --for spellId in pairs(MaxDps.Flags) do
     --    self.Flags[spellId] = false
     --    self:ClearGlowIndependent(spellId, spellId)
@@ -262,6 +251,24 @@ function Druid:Balance()
         talents[classtable.Incarnation] = 1
         talents[classtable.NaturesVigil] = 1
     end
+
+    classtable.Treants = 1006737
+
+    classtable.MarkoftheWildBuff = 1126
+    classtable.MoonkinFormBuff = 24858
+
+    classtable.StarfallBuff = 48505
+    --classtable.WildMushroomBuff
+    classtable.SolarEclipseBuff = 48517
+    classtable.LunarEclipseBuff = 48518
+    classtable.CelestialAlignmentBuff = 112071
+    classtable.ChosenofEluneBuff = 102560
+    classtable.NaturesGraceBuff = 16886
+    classtable.DreamofCenariusDamageBuff = 155625
+    classtable.ShootingStarsBuff = 93400
+
+    classtable.MoonfireDeBuff = 8921
+    classtable.SunfireDeBuff = 93402
 
 
     --if MaxDps.db.global.debugMode then
