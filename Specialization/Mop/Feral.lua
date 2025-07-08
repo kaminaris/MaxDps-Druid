@@ -79,28 +79,19 @@ local RageDeficit
 
 local Feral = {}
 
-
-
---Check if spell was cast within 4 seconds to count for Bloodtalens
-local function need_bt_trigger(spell)
-    local spellName = C_Spell.GetSpellInfo(spell)
-    return GetTime - MaxDps.spellHistoryTime[spellName] <= 4
-end
-
-
 function Feral:precombat()
-    if (MaxDps:CheckSpellUsable(classtable.MarkoftheWild, 'MarkoftheWild')) and (not aura.str_agi_int.up) and cooldown[classtable.MarkoftheWild].ready and not UnitAffectingCombat('player') then
+    if (MaxDps:CheckSpellUsable(classtable.MarkoftheWild, 'MarkoftheWild')) and (not buff[classtable.MarkoftheWildBuff].up) and cooldown[classtable.MarkoftheWild].ready and not UnitAffectingCombat('player') then
         if not setSpell then setSpell = classtable.MarkoftheWild end
     end
-    if (MaxDps:CheckSpellUsable(classtable.CatForm, 'CatForm')) and cooldown[classtable.CatForm].ready and not UnitAffectingCombat('player') then
+    if (MaxDps:CheckSpellUsable(classtable.CatForm, 'CatForm')) and (not buff[classtable.CatFormBuff].up) and cooldown[classtable.CatForm].ready and not UnitAffectingCombat('player') then
         if not setSpell then setSpell = classtable.CatForm end
     end
     if (MaxDps:CheckSpellUsable(classtable.SavageRoar, 'SavageRoar')) and cooldown[classtable.SavageRoar].ready and not UnitAffectingCombat('player') then
         if not setSpell then setSpell = classtable.SavageRoar end
     end
-    if (MaxDps:CheckSpellUsable(classtable.TolvirPotion, 'TolvirPotion')) and cooldown[classtable.TolvirPotion].ready and not UnitAffectingCombat('player') then
-        if not setSpell then setSpell = classtable.TolvirPotion end
-    end
+    --if (MaxDps:CheckSpellUsable(classtable.TolvirPotion, 'TolvirPotion')) and cooldown[classtable.TolvirPotion].ready and not UnitAffectingCombat('player') then
+    --    if not setSpell then setSpell = classtable.TolvirPotion end
+    --end
     if (MaxDps:CheckSpellUsable(classtable.Treants, 'Treants')) and ((talents[classtable.ForceofNature] and true or false)) and cooldown[classtable.Treants].ready and not UnitAffectingCombat('player') then
         if not setSpell then setSpell = classtable.Treants end
     end
@@ -119,9 +110,9 @@ function Feral:callaction()
     if (MaxDps:CheckSpellUsable(classtable.SavageRoar, 'SavageRoar')) and (buff[classtable.SavageRoarBuff].remains <= 1 or not buff[classtable.SavageRoarBuff].up) and cooldown[classtable.SavageRoar].ready then
         if not setSpell then setSpell = classtable.SavageRoar end
     end
-    if (MaxDps:CheckSpellUsable(classtable.TolvirPotion, 'TolvirPotion')) and (MaxDps:Bloodlust(1) or ( targethealthPerc <= 25 and buff[classtable.BerserkBuff].up ) or ttd <= 40) and cooldown[classtable.TolvirPotion].ready then
-        if not setSpell then setSpell = classtable.TolvirPotion end
-    end
+    --if (MaxDps:CheckSpellUsable(classtable.TolvirPotion, 'TolvirPotion')) and (MaxDps:Bloodlust(1) or ( targethealthPerc <= 25 and buff[classtable.BerserkBuff].up ) or ttd <= 40) and cooldown[classtable.TolvirPotion].ready then
+    --    if not setSpell then setSpell = classtable.TolvirPotion end
+    --end
     if (MaxDps:CheckSpellUsable(classtable.TigersFury, 'TigersFury')) and (Energy <= 35 and ( not buff[classtable.OmenofClarityBuff].up )) and cooldown[classtable.TigersFury].ready then
         MaxDps:GlowCooldown(classtable.TigersFury, cooldown[classtable.TigersFury].ready)
     end
@@ -143,10 +134,10 @@ function Feral:callaction()
     if (MaxDps:CheckSpellUsable(classtable.Rip, 'Rip')) and (ComboPoints >= 5 and ttd >= 6 and debuff[classtable.RipDeBuff].remains <2.0 and ( buff[classtable.BerserkBuff].up or ( debuff[classtable.RipDeBuff].remains + 1.9 ) <= cooldown[classtable.TigersFury].remains )) and cooldown[classtable.Rip].ready then
         if not setSpell then setSpell = classtable.Rip end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Ravage, 'Ravage')) and (position_back and debuff[classtable.RipDeBuff].up and debuff[classtable.RipDeBuff].remains <= 4 and ComboPoints <5) and cooldown[classtable.Ravage].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Ravage, 'Ravage')) and ((not UnitThreatSituation("player", "target") or UnitThreatSituation("player", "target") <= 1) and debuff[classtable.RipDeBuff].up and debuff[classtable.RipDeBuff].remains <= 4 and ComboPoints <5) and cooldown[classtable.Ravage].ready then
         if not setSpell then setSpell = classtable.Ravage end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and (position_back and debuff[classtable.RipDeBuff].up and debuff[classtable.RipDeBuff].remains <= 4 and ComboPoints <5) and cooldown[classtable.Shred].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and ((not UnitThreatSituation("player", "target") or UnitThreatSituation("player", "target") <= 1) and debuff[classtable.RipDeBuff].up and debuff[classtable.RipDeBuff].remains <= 4 and ComboPoints <5) and cooldown[classtable.Shred].ready then
         if not setSpell then setSpell = classtable.Shred end
     end
     if (MaxDps:CheckSpellUsable(classtable.FerociousBite, 'FerociousBite')) and (ComboPoints >= 5 and debuff[classtable.RipDeBuff].remains >5.0 and buff[classtable.SavageRoarBuff].remains >= 3.0 and buff[classtable.BerserkBuff].up) and cooldown[classtable.FerociousBite].ready then
@@ -161,10 +152,10 @@ function Feral:callaction()
     if (MaxDps:CheckSpellUsable(classtable.ThrashCat, 'ThrashCat')) and (buff[classtable.OmenofClarityBuff].up and debuff[classtable.ThrashCatDeBuff].remains <3) and cooldown[classtable.ThrashCat].ready then
         if not setSpell then setSpell = classtable.ThrashCat end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Ravage, 'Ravage')) and (buff[classtable.OmenofClarityBuff].up and debuff[classtable.RakeDeBuff].multiplier >tick_multiplier and targethealthPerc >60) and cooldown[classtable.Ravage].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Ravage, 'Ravage')) and (buff[classtable.OmenofClarityBuff].up and math.huge > 0 and targethealthPerc >60) and cooldown[classtable.Ravage].ready then
         if not setSpell then setSpell = classtable.Ravage end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and (buff[classtable.OmenofClarityBuff].up and debuff[classtable.RakeDeBuff].multiplier >tick_multiplier and targethealthPerc >60) and cooldown[classtable.Shred].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and (buff[classtable.OmenofClarityBuff].up and math.huge > 0 and targethealthPerc >60) and cooldown[classtable.Shred].ready then
         if not setSpell then setSpell = classtable.Shred end
     end
     if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (buff[classtable.OmenofClarityBuff].up) and cooldown[classtable.Rake].ready then
@@ -256,6 +247,20 @@ function Druid:Feral()
         talents[classtable.Incarnation] = 1
     end
 
+    classtable.CatFormBuff = 768
+    classtable.MarkoftheWildBuff = 1126
+    classtable.Treants = 1006737
+    classtable.SkullBashCat = 80965
+    classtable.Incarnation = 106731
+
+    classtable.SavageRoarBuff = 52610
+    classtable.OmenofClarityBuff = 135700
+    classtable.TigersFuryBuff = 5217
+    classtable.BerserkBuff = 106951
+    classtable.WeakenedArmorDeBuff = 113746
+    classtable.RipDeBuff = 1079
+    classtable.RakeDeBuff = 1822
+    classtable.ThrashCatDeBuff = 106830
 
     --if MaxDps.db.global.debugMode then
     --   debugg()
