@@ -101,11 +101,12 @@ end
 local function ClearCDs()
     MaxDps:GlowCooldown(classtable.TigersFury, false)
     MaxDps:GlowCooldown(classtable.Incarnation, false)
+    MaxDps:GlowCooldown(classtable.SkullBashCat, false)
 end
 
 function Feral:callaction()
     if (MaxDps:CheckSpellUsable(classtable.SkullBashCat, 'SkullBashCat')) and cooldown[classtable.SkullBashCat].ready then
-        if not setSpell then setSpell = classtable.SkullBashCat end
+        MaxDps:GlowCooldown(classtable.SkullBashCat, ( select(8,UnitCastingInfo('target')) ~= nil and not select(8,UnitCastingInfo('target')) or select(7,UnitChannelInfo('target')) ~= nil and not select(7,UnitChannelInfo('target'))) )
     end
     if (MaxDps:CheckSpellUsable(classtable.SavageRoar, 'SavageRoar')) and (buff[classtable.SavageRoarBuff].remains <= 1 or not buff[classtable.SavageRoarBuff].up) and cooldown[classtable.SavageRoar].ready then
         if not setSpell then setSpell = classtable.SavageRoar end
