@@ -254,7 +254,7 @@ function Druid:Feral()
     classtable.SkullBashCat = 80965
     classtable.Incarnation = 106731
 
-    classtable.SavageRoarBuff = 52610
+    classtable.SavageRoarBuff = MaxDps:HasGlyphEnabled(127540) and 127538 or 52610
     classtable.OmenofClarityBuff = 135700
     classtable.TigersFuryBuff = 5217
     classtable.BerserkBuff = 106951
