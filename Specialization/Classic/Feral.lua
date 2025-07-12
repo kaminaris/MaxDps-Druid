@@ -89,12 +89,15 @@ function Feral:precombat()
 end
 function Feral:priorityList()
     if MaxDps:FindBuffAuraData ( 768 ) .up then
-        if (MaxDps:CheckSpellUsable(classtable.FaerieFire, 'FaerieFire')) and (MaxDps:FindBuffAuraData ( 17392 ) .remains <= 1.0 and MaxDps:FindBuffAuraData ( 9907 ) .remains <= 1.0) and cooldown[classtable.FaerieFire].ready then
-            if not setSpell then setSpell = classtable.FaerieFire end
+        --if (MaxDps:CheckSpellUsable(classtable.FaerieFire, 'FaerieFire')) and (MaxDps:FindBuffAuraData ( 17392 ) .remains <= 1) and cooldown[classtable.FaerieFire].ready then
+        --    if not setSpell then setSpell = classtable.FaerieFire end
+        --end
+        if MaxDps:IsSoDWow() then
+            if (MaxDps:CheckSpellUsable(classtable.Haste, 'Haste')) and (MaxDps:FindBuffAuraData ( 768 ) .up and IsSpellKnownOrOverridesKnown ( 13494 ) and not MaxDps:FindBuffAuraData ( 13494 ) .up and timeInCombat <90.0) and cooldown[classtable.Haste].ready then
+                if not setSpell then setSpell = classtable.Haste end
+            end
         end
-        if (MaxDps:CheckSpellUsable(classtable.Haste, 'Haste')) and (MaxDps:FindBuffAuraData ( 768 ) .up and IsSpellKnownOrOverridesKnown ( 13494 ) and not MaxDps:FindBuffAuraData ( 13494 ) .up and timeInCombat <90.0) and cooldown[classtable.Haste].ready then
-            if not setSpell then setSpell = classtable.Haste end
-        end
+        --print("CheckSpellUsable SavageRoar:", (MaxDps:CheckSpellUsable(classtable.SavageRoar, 'SavageRoar')), "ComboPoints", ComboPoints, "refreshable", MaxDps:FindBuffAuraData ( 407988 ) .refreshable, "cooldown ready", cooldown[classtable.SavageRoar].ready)
         if (MaxDps:CheckSpellUsable(classtable.SavageRoar, 'SavageRoar')) and ( ComboPoints >= 1 and MaxDps:FindBuffAuraData ( 407988 ) .refreshable ) and cooldown[classtable.SavageRoar].ready then
             if not setSpell then setSpell = classtable.SavageRoar end
         end
@@ -119,19 +122,17 @@ function Feral:priorityList()
                 if not setSpell then setSpell = classtable.FerociousBite end
             end
         end
+        --print("CheckSpellUsable Rake:", (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')), "Rake Up: ", MaxDps:FindBuffAuraData ( 9904 ) .up, "cooldown ready", cooldown[classtable.Rake].ready)
         if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (not MaxDps:FindBuffAuraData ( 9904 ) .up) and cooldown[classtable.Rake].ready  then
             if not setSpell then setSpell = classtable.Rake end
         end
-        if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and (not UnitThreatSituation("player", "target") or UnitThreatSituation("player", "target") <= 1) and cooldown[classtable.Shred].ready then
+        if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and (not UnitThreatSituation("player", "target") or (UnitThreatSituation("player", "target") and UnitThreatSituation("player", "target") <= 1)) and cooldown[classtable.Shred].ready then
             if not setSpell then setSpell = classtable.Shred end
         end
-        if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and (not UnitThreatSituation("player", "target") or UnitThreatSituation("player", "target") <= 1) and cooldown[classtable.Shred].ready then
-            if not setSpell then setSpell = classtable.Shred end
-        end
-        if (MaxDps:CheckSpellUsable(classtable.Claw, 'Claw')) and (talents[17061] and MaxDps:CheckSpellUsable ( 768 , "cat_form" ) ) and cooldown[classtable.Claw].ready then
+        if (MaxDps:CheckSpellUsable(classtable.Claw, 'Claw')) and (talents[17061]) and cooldown[classtable.Claw].ready then
             if not setSpell then setSpell = classtable.Claw end
         end
-        if (MaxDps:CheckSpellUsable(classtable.FaerieFire, 'FaerieFire')) and (MaxDps:FindBuffAuraData ( 17392 ) .remains <= 14.0 and MaxDps:FindBuffAuraData ( 9907 ) .remains <= 14.0) and cooldown[classtable.FaerieFire].ready then
+        if (MaxDps:CheckSpellUsable(classtable.FaerieFire, 'FaerieFire')) and (MaxDps:FindBuffAuraData ( 17392 ) .remains <= 1) and cooldown[classtable.FaerieFire].ready then
             if not setSpell then setSpell = classtable.FaerieFire end
         end
         --if (MaxDps:CheckSpellUsable(classtable.GoblinSapperCharge, 'GoblinSapperCharge')) and (not MaxDps:FindBuffAuraData ( 768 ) .up) and cooldown[classtable.GoblinSapperCharge].ready then
@@ -142,12 +143,6 @@ function Feral:priorityList()
         --end
         --if (MaxDps:CheckSpellUsable(classtable.MetamorphosisRune, 'MetamorphosisRune')) and (not MaxDps:FindBuffAuraData ( 768 ) .up and ManaPerc <= 80 and not IsSpellKnownOrOverridesKnown ( 12662 ) ) and cooldown[classtable.MetamorphosisRune].ready then
         --    if not setSpell then setSpell = classtable.MetamorphosisRune end
-        --end
-        if (MaxDps:CheckSpellUsable(classtable.Innervate, 'Innervate')) and (not MaxDps:FindBuffAuraData ( 768 ) .up and ManaPerc <= 40 and ttd >= 20.0 and not IsSpellKnownOrOverridesKnown ( 12662 ) ) and cooldown[classtable.Innervate].ready then
-            if not setSpell then setSpell = classtable.Innervate end
-        end
-        --if (MaxDps:CheckSpellUsable(classtable.CatForm, 'CatForm')) and (not MaxDps:FindBuffAuraData ( 768 ) .up) and cooldown[classtable.CatForm].ready then
-        --    if not setSpell then setSpell = classtable.CatForm end
         --end
     end
     if MaxDps:FindBuffAuraData ( 5487 ) .up or MaxDps:FindBuffAuraData ( 9634 ) .up then
