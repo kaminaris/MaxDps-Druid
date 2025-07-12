@@ -156,7 +156,7 @@ function Feral:callaction()
     if (MaxDps:CheckSpellUsable(classtable.Ravage, 'Ravage')) and (buff[classtable.OmenofClarityBuff].up and math.huge > 0 and targethealthPerc >60) and cooldown[classtable.Ravage].ready then
         if not setSpell then setSpell = classtable.Ravage end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and (buff[classtable.OmenofClarityBuff].up and math.huge > 0 and targethealthPerc >60) and cooldown[classtable.Shred].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and (not UnitThreatSituation("player", "target") or UnitThreatSituation("player", "target") <= 1 and buff[classtable.OmenofClarityBuff].up and math.huge > 0 and targethealthPerc >60) and cooldown[classtable.Shred].ready then
         if not setSpell then setSpell = classtable.Shred end
     end
     if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (buff[classtable.OmenofClarityBuff].up) and cooldown[classtable.Rake].ready then
