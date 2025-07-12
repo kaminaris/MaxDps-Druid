@@ -95,10 +95,37 @@ function Feral:priorityList()
         if (MaxDps:CheckSpellUsable(classtable.Haste, 'Haste')) and (MaxDps:FindBuffAuraData ( 768 ) .up and IsSpellKnownOrOverridesKnown ( 13494 ) and not MaxDps:FindBuffAuraData ( 13494 ) .up and timeInCombat <90.0) and cooldown[classtable.Haste].ready then
             if not setSpell then setSpell = classtable.Haste end
         end
-        if (MaxDps:CheckSpellUsable(classtable.FerociousBite, 'FerociousBite')) and (ComboPoints == 5.0 and not MaxDps:FindBuffAuraData ( 16870 ) .up and Energy + 20.2 <95) and cooldown[classtable.FerociousBite].ready then
-            if not setSpell then setSpell = classtable.FerociousBite end
+        if (MaxDps:CheckSpellUsable(classtable.SavageRoar, 'SavageRoar')) and ( ComboPoints >= 1 and MaxDps:FindBuffAuraData ( 407988 ) .refreshable ) and cooldown[classtable.SavageRoar].ready then
+            if not setSpell then setSpell = classtable.SavageRoar end
         end
-        if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and cooldown[classtable.Shred].ready then
+        if (MaxDps:CheckSpellUsable(classtable.TigersFury, 'TigersFury')) and (EnergyDeficit >= 40) and cooldown[classtable.TigersFury].ready  then
+            MaxDps:GlowCooldown(classtable.TigersFury, cooldown[classtable.TigersFury].ready)
+        end
+        if MaxDps:IsSoDWow() then
+            if (MaxDps:CheckSpellUsable(classtable.Berserk, 'Berserk')) and (MaxDps:FindBuffAuraData ( 417045 ) .up) and cooldown[classtable.Berserk].ready  then
+                MaxDps:GlowCooldown(classtable.Berserk, cooldown[classtable.Berserk].ready)
+            end
+            if (MaxDps:CheckSpellUsable(classtable.Mangle, 'Mangle')) and (not MaxDps:FindBuffAuraData ( 407993 ) .up) and cooldown[classtable.Mangle].ready  then
+                if not setSpell then setSpell = classtable.Mangle end
+            end
+        end
+        if MaxDps:IsSoDWow() then
+            if (MaxDps:CheckSpellUsable(classtable.Rip, 'Rip')) and (ComboPoints >= 5 and not MaxDps:FindBuffAuraData ( 9896 ) .up and MaxDps:FindBuffAuraData ( 407988 ) .remains >= 8) and cooldown[classtable.Rip].ready  then
+                if not setSpell then setSpell = classtable.Rip end
+            end
+        end
+        if not MaxDps:IsSoDWow() then
+            if (MaxDps:CheckSpellUsable(classtable.FerociousBite, 'FerociousBite')) and (ComboPoints == 5.0 and not MaxDps:FindBuffAuraData ( 16870 ) .up) and cooldown[classtable.FerociousBite].ready then
+                if not setSpell then setSpell = classtable.FerociousBite end
+            end
+        end
+        if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (not MaxDps:FindBuffAuraData ( 9904 ) .up) and cooldown[classtable.Rake].ready  then
+            if not setSpell then setSpell = classtable.Rake end
+        end
+        if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and (not UnitThreatSituation("player", "target") or UnitThreatSituation("player", "target") <= 1) and cooldown[classtable.Shred].ready then
+            if not setSpell then setSpell = classtable.Shred end
+        end
+        if (MaxDps:CheckSpellUsable(classtable.Shred, 'Shred')) and (not UnitThreatSituation("player", "target") or UnitThreatSituation("player", "target") <= 1) and cooldown[classtable.Shred].ready then
             if not setSpell then setSpell = classtable.Shred end
         end
         if (MaxDps:CheckSpellUsable(classtable.Claw, 'Claw')) and (talents[17061] and MaxDps:CheckSpellUsable ( 768 , "cat_form" ) ) and cooldown[classtable.Claw].ready then
@@ -208,6 +235,12 @@ function Druid:Feral()
     classtable.DemonicRune=12662
     classtable.MetamorphosisRune=23724
     classtable.Innervate=29166
+
+    classtable.SavageRoar = 407988
+    classtable.Rip = 9896
+    classtable.Rake = 9904
+    classtable.Shred = 9830
+
 
     local function debugg()
     end
