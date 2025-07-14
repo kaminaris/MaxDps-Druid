@@ -131,6 +131,7 @@ function Druid:Guardian()
     Rage = UnitPower('player', RagePT)
     RageMax = UnitPowerMax('player', RagePT)
     RageDeficit = RageMax - Rage
+    classtable = MaxDps.SpellTable
 
     classtable.Mangle = 33917
     classtable.Berserk = 50334
