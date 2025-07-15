@@ -128,6 +128,12 @@ function Druid:Guardian()
     debuff = fd.debuff
     talents = fd.talents
     targets = MaxDps:SmartAoe()
+    targetHP = UnitHealth('target')
+    targetmaxHP = UnitHealthMax('target')
+    targethealthPerc = (targetHP >0 and targetmaxHP >0 and (targetHP / targetmaxHP) * 100) or 100
+    curentHP = UnitHealth('player')
+    maxHP = UnitHealthMax('player')
+    healthPerc = (curentHP / maxHP) * 100
     Rage = UnitPower('player', RagePT)
     RageMax = UnitPowerMax('player', RagePT)
     RageDeficit = RageMax - Rage
@@ -143,6 +149,7 @@ function Druid:Guardian()
     classtable.Enrage = 5229
     classtable.Swipe = 213771
     classtable.ToothandClawBuff = 135286
+    classtable.MarkoftheWildBuff = 1126
     classtable.ThrashDeBuff = 77758
     classtable.LacerateDeBuff = 33745
 
