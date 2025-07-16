@@ -119,7 +119,7 @@ local function ClearCDs()
     MaxDps:GlowCooldown(classtable.Incarnation, false)
 end
 
-function Balance:callaction()
+function Balance:single()
     if (MaxDps:CheckSpellUsable(classtable.Starfall, 'Starfall')) and (not buff[classtable.StarfallBuff].up) and cooldown[classtable.Starfall].ready then
         if not setSpell then setSpell = classtable.Starfall end
     end
@@ -195,6 +195,132 @@ function Balance:callaction()
     if (MaxDps:CheckSpellUsable(classtable.Sunfire, 'Sunfire')) and cooldown[classtable.Sunfire].ready then
         if not setSpell then setSpell = classtable.Sunfire end
     end
+end
+
+function Balance:aoe()
+    if targets >= 5 then
+        -- Cast Celestial Alignment
+        if (MaxDps:CheckSpellUsable(classtable.CelestialAlignment, 'CelestialAlignment')) and cooldown[classtable.CelestialAlignment].ready then
+            if not setSpell then setSpell = classtable.CelestialAlignment end
+        end
+
+        -- Cast Starsurge while having Shooting Stars buffs
+        if (MaxDps:CheckSpellUsable(classtable.Starsurge, 'Starsurge')) and buff[classtable.ShootingStarsBuff].up and cooldown[classtable.Starsurge].ready then
+            if not setSpell then setSpell = classtable.Starsurge end
+        end
+
+        -- Cast Starfall
+        if (MaxDps:CheckSpellUsable(classtable.Starfall, 'Starfall')) and (not buff[classtable.StarfallBuff].up) and cooldown[classtable.Starfall].ready then
+            if not setSpell then setSpell = classtable.Starfall end
+        end
+
+        -- Apply or Refresh Sunfire on all targets while in Solar Eclipse
+        if (MaxDps:CheckSpellUsable(classtable.Sunfire, 'Sunfire')) and buff[classtable.SolarEclipseBuff].up and cooldown[classtable.Sunfire].ready then
+            if not setSpell then setSpell = classtable.Sunfire end
+        end
+
+        -- Apply or Refresh Moonfire on all targets while in Lunar Eclipse
+        if (MaxDps:CheckSpellUsable(classtable.Moonfire, 'Moonfire')) and buff[classtable.LunarEclipseBuff].up and cooldown[classtable.Moonfire].ready then
+            if not setSpell then setSpell = classtable.Moonfire end
+        end
+
+        -- Apply or Refresh Sunfire on all targets
+        if (MaxDps:CheckSpellUsable(classtable.Sunfire, 'Sunfire')) and cooldown[classtable.Sunfire].ready then
+            if not setSpell then setSpell = classtable.Sunfire end
+        end
+
+        -- Apply or Refresh Moonfire on all targets
+        if (MaxDps:CheckSpellUsable(classtable.Moonfire, 'Moonfire')) and cooldown[classtable.Moonfire].ready then
+            if not setSpell then setSpell = classtable.Moonfire end
+        end
+
+        -- Cast Starsurge
+        if (MaxDps:CheckSpellUsable(classtable.Starsurge, 'Starsurge')) and cooldown[classtable.Starsurge].ready then
+            if not setSpell then setSpell = classtable.Starsurge end
+        end
+
+        -- Cast Wrath if outside Eclipse and previous Eclipse was Solar
+        if (MaxDps:CheckSpellUsable(classtable.Wrath, 'Wrath')) and eclipse_dir == -1 and cooldown[classtable.Wrath].ready then
+            if not setSpell then setSpell = classtable.Wrath end
+        end
+
+        -- Cast Starfire if outside Eclipse and previous Eclipse was Lunar
+        if (MaxDps:CheckSpellUsable(classtable.Starfire, 'Starfire')) and eclipse_dir == 1 and cooldown[classtable.Starfire].ready then
+            if not setSpell then setSpell = classtable.Starfire end
+        end
+
+        -- Channel Hurricane
+        if (MaxDps:CheckSpellUsable(classtable.Hurricane, 'Hurricane')) and cooldown[classtable.Hurricane].ready then
+            if not setSpell then setSpell = classtable.Hurricane end
+        end
+    else
+        -- Cast Celestial Alignment
+        if (MaxDps:CheckSpellUsable(classtable.CelestialAlignment, 'CelestialAlignment')) and cooldown[classtable.CelestialAlignment].ready then
+            if not setSpell then setSpell = classtable.CelestialAlignment end
+        end
+
+        -- Cast Starsurge while having Shooting Stars buffs
+        if (MaxDps:CheckSpellUsable(classtable.Starsurge, 'Starsurge')) and buff[classtable.ShootingStarsBuff].up and cooldown[classtable.Starsurge].ready then
+            if not setSpell then setSpell = classtable.Starsurge end
+        end
+
+        -- Cast Starfall
+        if (MaxDps:CheckSpellUsable(classtable.Starfall, 'Starfall')) and (not buff[classtable.StarfallBuff].up) and cooldown[classtable.Starfall].ready then
+            if not setSpell then setSpell = classtable.Starfall end
+        end
+
+        -- Apply or Refresh Sunfire on all targets while in Solar Eclipse
+        if (MaxDps:CheckSpellUsable(classtable.Sunfire, 'Sunfire')) and buff[classtable.SolarEclipseBuff].up and cooldown[classtable.Sunfire].ready then
+            if not setSpell then setSpell = classtable.Sunfire end
+        end
+
+        -- Apply or Refresh Moonfire on all targets while in Lunar Eclipse
+        if (MaxDps:CheckSpellUsable(classtable.Moonfire, 'Moonfire')) and buff[classtable.LunarEclipseBuff].up and cooldown[classtable.Moonfire].ready then
+            if not setSpell then setSpell = classtable.Moonfire end
+        end
+
+        -- Apply or Refresh Sunfire on all targets
+        if (MaxDps:CheckSpellUsable(classtable.Sunfire, 'Sunfire')) and cooldown[classtable.Sunfire].ready then
+            if not setSpell then setSpell = classtable.Sunfire end
+        end
+
+        -- Apply or Refresh Moonfire on all targets
+        if (MaxDps:CheckSpellUsable(classtable.Moonfire, 'Moonfire')) and cooldown[classtable.Moonfire].ready then
+            if not setSpell then setSpell = classtable.Moonfire end
+        end
+
+        -- Cast Starsurge
+        if (MaxDps:CheckSpellUsable(classtable.Starsurge, 'Starsurge')) and cooldown[classtable.Starsurge].ready then
+            if not setSpell then setSpell = classtable.Starsurge end
+        end
+
+        -- Cast Wrath while in Solar Eclipse
+        if (MaxDps:CheckSpellUsable(classtable.Wrath, 'Wrath')) and buff[classtable.SolarEclipseBuff].up and cooldown[classtable.Wrath].ready then
+            if not setSpell then setSpell = classtable.Wrath end
+        end
+
+        -- Cast Starfire while in Lunar Eclipse
+        if (MaxDps:CheckSpellUsable(classtable.Starfire, 'Starfire')) and buff[classtable.LunarEclipseBuff].up and cooldown[classtable.Starfire].ready then
+            if not setSpell then setSpell = classtable.Starfire end
+        end
+
+        -- Cast Wrath if outside Eclipse and previous Eclipse was Solar
+        if (MaxDps:CheckSpellUsable(classtable.Wrath, 'Wrath')) and eclipse_dir == -1 and cooldown[classtable.Wrath].ready then
+            if not setSpell then setSpell = classtable.Wrath end
+        end
+
+        -- Cast Starfire if outside Eclipse and previous Eclipse was Lunar
+        if (MaxDps:CheckSpellUsable(classtable.Starfire, 'Starfire')) and eclipse_dir == 1 and cooldown[classtable.Starfire].ready then
+            if not setSpell then setSpell = classtable.Starfire end
+        end
+    end
+end
+
+function Balance:callaction()
+    if targets > 1 then
+        Balance:aoe()
+    end
+    Balance:single()
 end
 function Druid:Balance()
     fd = MaxDps.FrameData
