@@ -104,7 +104,7 @@ local function ClearCDs()
     MaxDps:GlowCooldown(classtable.SkullBashCat, false)
 end
 
-function Feral:callaction()
+function Feral:single()
     if (MaxDps:CheckSpellUsable(classtable.SkullBashCat, 'SkullBashCat')) and cooldown[classtable.SkullBashCat].ready then
         MaxDps:GlowCooldown(classtable.SkullBashCat, ( select(8,UnitCastingInfo('target')) ~= nil and not select(8,UnitCastingInfo('target')) or select(7,UnitChannelInfo('target')) ~= nil and not select(7,UnitChannelInfo('target'))) )
     end
@@ -202,6 +202,56 @@ function Feral:callaction()
         if not setSpell then setSpell = classtable.Treants end
     end
 end
+
+function Feral:aoe()
+    -- Force of Nature
+    if (MaxDps:CheckSpellUsable(classtable.Treants, 'Treants')) and ((talents[classtable.ForceofNature] and true or false)) and cooldown[classtable.Treants].ready then
+        if not setSpell then setSpell = classtable.Treants end
+    end
+
+    -- Savage Roar
+    if (MaxDps:CheckSpellUsable(classtable.SavageRoar, 'SavageRoar')) and (buff[classtable.SavageRoarBuff].remains <= 1 or not buff[classtable.SavageRoarBuff].up) and cooldown[classtable.SavageRoar].ready then
+        if not setSpell then setSpell = classtable.SavageRoar end
+    end
+
+    -- Tiger's Fury
+    if (MaxDps:CheckSpellUsable(classtable.TigersFury, 'TigersFury')) and (Energy <= 35) and cooldown[classtable.TigersFury].ready then
+        MaxDps:GlowCooldown(classtable.TigersFury, cooldown[classtable.TigersFury].ready)
+    end
+
+    -- Berserk
+    if (MaxDps:CheckSpellUsable(classtable.Berserk, 'Berserk')) and (Energy >= 90 or buff[classtable.TigersFuryBuff].up) and cooldown[classtable.Berserk].ready then
+        MaxDps:GlowCooldown(classtable.Berserk, cooldown[classtable.Berserk].ready)
+    end
+
+    -- Thrash
+    if (MaxDps:CheckSpellUsable(classtable.ThrashCat, 'ThrashCat')) and (debuff[classtable.ThrashCatDeBuff].remains < 3) and cooldown[classtable.ThrashCat].ready then
+        if not setSpell then setSpell = classtable.ThrashCat end
+    end
+
+    -- Rip
+    if (MaxDps:CheckSpellUsable(classtable.Rip, 'Rip')) and (ComboPoints == 5 and targets < 4 and (debuff[classtable.RipDeBuff].remains < 3 or not debuff[classtable.RipDeBuff].up)) and cooldown[classtable.Rip].ready then
+        if not setSpell then setSpell = classtable.Rip end
+    end
+
+    -- Rake
+    if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (targets <= 4 and (debuff[classtable.RakeDeBuff].remains < 2 or not debuff[classtable.RakeDeBuff].up)) and cooldown[classtable.Rake].ready then
+        if not setSpell then setSpell = classtable.Rake end
+    end
+
+    -- Swipe
+    if (MaxDps:CheckSpellUsable(classtable.SwipeCat, 'SwipeCat')) and (targets >= 4) and cooldown[classtable.SwipeCat].ready then
+        if not setSpell then setSpell = classtable.SwipeCat end
+    end
+end
+
+function Feral:callaction()
+    if targets >= 3 then
+        Feral:aoe()
+    end
+    Feral:single()
+end
+
 function Druid:Feral()
     fd = MaxDps.FrameData
     ttd = (fd.timeToDie and fd.timeToDie) or 500
