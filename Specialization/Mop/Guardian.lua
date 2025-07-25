@@ -111,6 +111,9 @@ function Guardian:single()
 end
 
 function Guardian:callaction()
+    if (MaxDps:CheckSpellUsable(classtable.BearForm, 'BearForm')) and not buff[classtable.BearForm].up and cooldown[classtable.BearForm].ready then
+        if not setSpell then setSpell = classtable.BearForm end
+    end
     -- AoE Priority
     if targets > 1 then
         Guardian:aoe()
