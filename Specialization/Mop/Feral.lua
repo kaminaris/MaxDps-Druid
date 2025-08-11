@@ -306,8 +306,8 @@ function Druid:Feral()
     if setSpell then return setSpell end
 end
 
-local buffBleed = CreateFrame("Frame")
-buffBleed:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+local bleedTracker = CreateFrame("Frame")
+bleedTracker:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 local bleeds = {}  -- [targetGUID] = { rip = {}, rake = {}, thrash = {} }
 
 bleedTracker:SetScript("OnEvent", function(self, event)
