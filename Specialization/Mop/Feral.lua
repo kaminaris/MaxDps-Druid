@@ -311,6 +311,7 @@ bleedTracker:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 local bleeds = {}  -- [targetGUID] = { rip = {}, rake = {}, thrash = {} }
 
 bleedTracker:SetScript("OnEvent", function(self, event)
+    if not classtable then return end
     local timestamp, subEvent, _, sourceGUID, _, _, _, destGUID, _, _, _, spellId = CombatLogGetCurrentEventInfo()
 
     if sourceGUID ~= UnitGUID("player") then return end
