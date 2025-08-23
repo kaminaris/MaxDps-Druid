@@ -37,4 +37,5 @@ Specialization/Classic/Guardian.lua
 Specialization/Mop/Balance.lua
 Specialization/Mop/Feral.lua
 Specialization/MoP/Guardian.lua
+Specialization/MoP/Restoration.lua
 #@end-version-mists@
