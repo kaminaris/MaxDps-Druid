@@ -478,7 +478,7 @@ end
 
 function Balance:callaction()
     if (MaxDps:CheckSpellUsable(classtable.SolarBeam, 'SolarBeam')) and cooldown[classtable.SolarBeam].ready then
-        MaxDps:GlowCooldown(classtable.SolarBeam, ( select(8,UnitCastingInfo('targets')) ~= nil and not select(8,UnitCastingInfo('targets')) or select(7,UnitChannelInfo('targets')) ~= nil and not select(7,UnitChannelInfo('targets'))) )
+        MaxDps:GlowCooldown(classtable.SolarBeam, ( select(8,UnitCastingInfo('target')) ~= nil and not select(8,UnitCastingInfo('target')) or select(7,UnitChannelInfo('target')) ~= nil and not select(7,UnitChannelInfo('target'))) )
     end
     if (MaxDps:CheckSpellUsable(classtable.Wrath, 'Wrath')) and (timeInCombat <2 and fd.wrathCount == 1) and cooldown[classtable.Wrath].ready then
         if not setSpell then setSpell = classtable.Wrath end
@@ -524,8 +524,8 @@ function Druid:Balance()
     debuff = fd.debuff
     talents = fd.talents
     targets = MaxDps:SmartAoe()
-    targetHP = UnitHealth('targets')
-    targetmaxHP = UnitHealthMax('targets')
+    targetHP = UnitHealth('target')
+    targetmaxHP = UnitHealthMax('target')
     targethealthPerc = (targetHP >0 and targetmaxHP >0 and (targetHP / targetmaxHP) * 100) or 100
     curentHP = UnitHealth('player')
     maxHP = UnitHealthMax('player')
