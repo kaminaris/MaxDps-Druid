@@ -210,7 +210,7 @@ function Balance:aoe()
     if (MaxDps:CheckSpellUsable(classtable.Starfire, 'Starfire')) and (not enter_lunar and ((not fd.eclipseInLunar and not fd.eclipseInSolar) or (buff[classtable.EclipseLunarBuff].up and buff[classtable.EclipseLunarBuff].remains or buff[classtable.EclipseSolarBuff].up and buff[classtable.EclipseSolarBuff].remains or 0) <( classtable and classtable.Starfire and GetSpellInfo(classtable.Starfire).castTime /1000 or 0))) and cooldown[classtable.Starfire].ready then
         if not setSpell then setSpell = classtable.Starfire end
     end
-    if (MaxDps:CheckSpellUsable(classtable.StellarFlare, 'StellarFlare') and talents[classtable.StellarFlare]) and (debuff[classtable.StellarFlareDeBuff].refreshable and (ttd - debuff[classtable.StellarFlareDeBuff].remains-target >7+targets) and targets<(11 - (talents[classtable.UmbralIntensity] and talents[classtable.UmbralIntensity] or 0)-(2 * (talents[classtable.AstralSmolder] and talents[classtable.AstralSmolder] or 0))-(talents[classtable.LunarCalling] and talents[classtable.LunarCalling] or 0))) and cooldown[classtable.StellarFlare].ready then
+    if (MaxDps:CheckSpellUsable(classtable.StellarFlare, 'StellarFlare') and talents[classtable.StellarFlare]) and (debuff[classtable.StellarFlareDeBuff].refreshable and (ttd - debuff[classtable.StellarFlareDeBuff].remains-targets >7+targets) and targets<(11 - (talents[classtable.UmbralIntensity] and talents[classtable.UmbralIntensity] or 0)-(2 * (talents[classtable.AstralSmolder] and talents[classtable.AstralSmolder] or 0))-(talents[classtable.LunarCalling] and talents[classtable.LunarCalling] or 0))) and cooldown[classtable.StellarFlare].ready then
         if not setSpell then setSpell = classtable.StellarFlare end
     end
     if (MaxDps:CheckSpellUsable(classtable.ForceofNature, 'ForceofNature')) and (pre_cd_condition or cooldown[classtable.CaInc].fullRecharge + 5+15 * (talents[classtable.ControloftheDream] and talents[classtable.ControloftheDream] or 0)>cooldown[classtable.ForceofNature].remains and (not talents[classtable.ConvoketheSpirits] or cooldown[classtable.ConvoketheSpirits].remains + 10+15 * (talents[classtable.ControloftheDream] and talents[classtable.ControloftheDream] or 0)>cooldown[classtable.ForceofNature].remains or ttd <cooldown[classtable.ConvoketheSpirits].remains+cooldown[classtable.ConvoketheSpirits].duration + 5) and (on_use_trinket == 0 or (on_use_trinket == 1 or on_use_trinket == 3) and (MaxDps:CheckTrinketCooldown('13') >5+15 * (talents[classtable.ControloftheDream] and talents[classtable.ControloftheDream] or 0) or cooldown[classtable.CaInc].remains >20 or MaxDps:CheckTrinketReady('13')) or on_use_trinket == 2 and (MaxDps:CheckTrinketCooldown('14') >5+15 * (talents[classtable.ControloftheDream] and talents[classtable.ControloftheDream] or 0) or cooldown[classtable.CaInc].remains >20 or MaxDps:CheckTrinketReady('14'))) and (ttd >cooldown[classtable.ForceofNature].remains+5 or ttd <cooldown[classtable.CaInc].remains+7) or talents[classtable.WhirlingStars] and talents[classtable.ConvoketheSpirits] and cooldown[classtable.ConvoketheSpirits].remains >cooldown[classtable.ForceofNature].duration-10 and ttd >cooldown[classtable.ConvoketheSpirits].remains+6) and cooldown[classtable.ForceofNature].ready then
@@ -336,7 +336,7 @@ function Balance:kotg_st()
     if (MaxDps:CheckSpellUsable(classtable.ConvoketheSpirits, 'ConvoketheSpirits') and talents[classtable.ConvoketheSpirits]) and (convoke_condition and buff[classtable.HarmonyoftheGroveBuff].up) and cooldown[classtable.ConvoketheSpirits].ready then
         MaxDps:GlowCooldown(classtable.ConvoketheSpirits, cooldown[classtable.ConvoketheSpirits].ready)
     end
-    if (MaxDps:CheckSpellUsable(classtable.StellarFlare, 'StellarFlare') and talents[classtable.StellarFlare]) and (debuff[classtable.StellarFlareDeBuff].refreshable and (ttd - debuff[classtable.StellarFlareDeBuff].remains-target >7+targets) and not buff[classtable.CaIncBuff].up) and cooldown[classtable.StellarFlare].ready then
+    if (MaxDps:CheckSpellUsable(classtable.StellarFlare, 'StellarFlare') and talents[classtable.StellarFlare]) and (debuff[classtable.StellarFlareDeBuff].refreshable and (ttd - debuff[classtable.StellarFlareDeBuff].remains-targets >7+targets) and not buff[classtable.CaIncBuff].up) and cooldown[classtable.StellarFlare].ready then
         if not setSpell then setSpell = classtable.StellarFlare end
     end
     if (MaxDps:CheckSpellUsable(classtable.Starsurge, 'Starsurge')) and ((buff[classtable.StarlordBuff].remains >4 and boat_stacks >= 7 or ttd <4) and not pool_in_ca) and cooldown[classtable.Starsurge].ready then
@@ -478,7 +478,7 @@ end
 
 function Balance:callaction()
     if (MaxDps:CheckSpellUsable(classtable.SolarBeam, 'SolarBeam')) and cooldown[classtable.SolarBeam].ready then
-        MaxDps:GlowCooldown(classtable.SolarBeam, ( select(8,UnitCastingInfo('target')) ~= nil and not select(8,UnitCastingInfo('target')) or select(7,UnitChannelInfo('target')) ~= nil and not select(7,UnitChannelInfo('target'))) )
+        MaxDps:GlowCooldown(classtable.SolarBeam, ( select(8,UnitCastingInfo('targets')) ~= nil and not select(8,UnitCastingInfo('targets')) or select(7,UnitChannelInfo('targets')) ~= nil and not select(7,UnitChannelInfo('targets'))) )
     end
     if (MaxDps:CheckSpellUsable(classtable.Wrath, 'Wrath')) and (timeInCombat <2 and fd.wrathCount == 1) and cooldown[classtable.Wrath].ready then
         if not setSpell then setSpell = classtable.Wrath end
@@ -524,8 +524,8 @@ function Druid:Balance()
     debuff = fd.debuff
     talents = fd.talents
     targets = MaxDps:SmartAoe()
-    targetHP = UnitHealth('target')
-    targetmaxHP = UnitHealthMax('target')
+    targetHP = UnitHealth('targets')
+    targetmaxHP = UnitHealthMax('targets')
     targethealthPerc = (targetHP >0 and targetmaxHP >0 and (targetHP / targetmaxHP) * 100) or 100
     curentHP = UnitHealth('player')
     maxHP = UnitHealthMax('player')
