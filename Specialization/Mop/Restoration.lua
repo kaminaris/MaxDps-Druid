@@ -98,6 +98,9 @@ function Druid:Restoration()
     SpellCrit = GetCritChance()
     ManaPerc = (Mana / ManaMax) * 100
 
+    classtable.Moonfire = 8921
+    classtable.Sunfire = 93402
+
     setSpell = nil
     ClearCDs()
 
