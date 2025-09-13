@@ -569,7 +569,7 @@ function Druid:Balance()
     local starfireCount = GetSpellCastCount(classtable.Starfire)
     local origWrathCount = wrathCount
     local origStarfireCount = starfireCount
-    classtable.Incarnation =  talents[102560] and C_Spell.GetSpellInfo(C_Spell.GetSpellInfo(102560).name).spellID or 102560
+    classtable.Incarnation =  talents[102560] and C_Spell.GetSpellInfo(102560) and C_Spell.GetSpellInfo(C_Spell.GetSpellInfo(102560).name) and C_Spell.GetSpellInfo(C_Spell.GetSpellInfo(102560).name).name or 102560
     local CaInc = talents[102560] and classtable.Incarnation or classtable.CelestialAlignment
     local castingMoonSpell = false
     if currentSpell == classtable.Wrath then
