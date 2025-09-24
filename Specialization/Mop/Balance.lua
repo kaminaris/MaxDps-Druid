@@ -150,10 +150,12 @@ function Balance:single()
     if (MaxDps:CheckSpellUsable(classtable.Starfire, 'Starfire')) and (eclipse >= 60 and eclipse_dir >= 0) and cooldown[classtable.Starfire].ready then
         if not setSpell then setSpell = classtable.Starfire end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Moonfire, 'Moonfire')) and (buff[classtable.LunarEclipseBuff].up and ( debuff[classtable.MoonfireDeBuff].remains <( buff[classtable.NaturesGraceBuff].remains - 2 + 2 * (MaxDps.tier and MaxDps.tier[14].count >= 4 and 1 or 0) ) )) and cooldown[classtable.Moonfire].ready then
+    --or MaxDps:DebuffCounter(classtable.MoonfireDeBuff) < targets
+    if (MaxDps:CheckSpellUsable(classtable.Moonfire, 'Moonfire')) and (buff[classtable.LunarEclipseBuff].up and (debuff[classtable.MoonfireDeBuff].refreshable)) and cooldown[classtable.Moonfire].ready then
         if not setSpell then setSpell = classtable.Moonfire end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Sunfire, 'Sunfire')) and (buff[classtable.SolarEclipseBuff].up and not buff[classtable.CelestialAlignmentBuff].up and ( debuff[classtable.SunfireDeBuff].remains <( buff[classtable.NaturesGraceBuff].remains - 2 + 2 * (MaxDps.tier and MaxDps.tier[14].count >= 4 and 1 or 0) ) )) and cooldown[classtable.Sunfire].ready then
+    --or MaxDps:DebuffCounter(classtable.SunfireDeBuff) < targets
+    if (MaxDps:CheckSpellUsable(classtable.Sunfire, 'Sunfire')) and (buff[classtable.SolarEclipseBuff].up and not buff[classtable.CelestialAlignmentBuff].up and (debuff[classtable.SunfireDeBuff].refreshable)) and cooldown[classtable.Sunfire].ready then
         if not setSpell then setSpell = classtable.Sunfire end
     end
     if (MaxDps:CheckSpellUsable(classtable.Moonfire, 'Moonfire')) and (not debuff[classtable.MoonfireDeBuff].up and not buff[classtable.CelestialAlignmentBuff].up and ( buff[classtable.DreamofCenariusDamageBuff].up or not (talents[classtable.DreamofCenarius] and true or false) )) and cooldown[classtable.Moonfire].ready then
@@ -189,11 +191,20 @@ function Balance:single()
     if (MaxDps:CheckSpellUsable(classtable.Starsurge, 'Starsurge')) and (buff[classtable.ShootingStarsBuff].up) and cooldown[classtable.Starsurge].ready then
         if not setSpell then setSpell = classtable.Starsurge end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Moonfire, 'Moonfire')) and (buff[classtable.LunarEclipseBuff].up) and cooldown[classtable.Moonfire].ready then
-        if not setSpell then setSpell = classtable.Moonfire end
+    --if (MaxDps:CheckSpellUsable(classtable.Moonfire, 'Moonfire')) and (buff[classtable.LunarEclipseBuff].up) and cooldown[classtable.Moonfire].ready then
+    --    if not setSpell then setSpell = classtable.Moonfire end
+    --end
+    --if (MaxDps:CheckSpellUsable(classtable.Sunfire, 'Sunfire')) and cooldown[classtable.Sunfire].ready then
+    --    if not setSpell then setSpell = classtable.Sunfire end
+    --end
+    -- Cast Wrath if outside Eclipse and previous Eclipse was Solar
+    if (MaxDps:CheckSpellUsable(classtable.Wrath, 'Wrath')) and eclipse_dir == -1 and cooldown[classtable.Wrath].ready then
+        if not setSpell then setSpell = classtable.Wrath end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Sunfire, 'Sunfire')) and cooldown[classtable.Sunfire].ready then
-        if not setSpell then setSpell = classtable.Sunfire end
+
+    -- Cast Starfire if outside Eclipse and previous Eclipse was Lunar
+    if (MaxDps:CheckSpellUsable(classtable.Starfire, 'Starfire')) and eclipse_dir == 1 and cooldown[classtable.Starfire].ready then
+        if not setSpell then setSpell = classtable.Starfire end
     end
 end
 
@@ -214,23 +225,27 @@ function Balance:aoe()
             if not setSpell then setSpell = classtable.Starfall end
         end
 
+        --or MaxDps:DebuffCounter(classtable.SunfireDeBuff) < targets
         -- Apply or Refresh Sunfire on all targets while in Solar Eclipse
-        if (MaxDps:CheckSpellUsable(classtable.Sunfire, 'Sunfire')) and buff[classtable.SolarEclipseBuff].up and cooldown[classtable.Sunfire].ready then
+        if (MaxDps:CheckSpellUsable(classtable.Sunfire, 'Sunfire')) and buff[classtable.SolarEclipseBuff].up and (debuff[classtable.SunfireDeBuff].refreshable) and cooldown[classtable.Sunfire].ready then
             if not setSpell then setSpell = classtable.Sunfire end
         end
 
+        --or MaxDps:DebuffCounter(classtable.MoonfireDeBuff) < targets
         -- Apply or Refresh Moonfire on all targets while in Lunar Eclipse
-        if (MaxDps:CheckSpellUsable(classtable.Moonfire, 'Moonfire')) and buff[classtable.LunarEclipseBuff].up and cooldown[classtable.Moonfire].ready then
+        if (MaxDps:CheckSpellUsable(classtable.Moonfire, 'Moonfire')) and buff[classtable.LunarEclipseBuff].up and (debuff[classtable.MoonfireDeBuff].refreshable) and cooldown[classtable.Moonfire].ready then
             if not setSpell then setSpell = classtable.Moonfire end
         end
 
+        --or MaxDps:DebuffCounter(classtable.SunfireDeBuff) < targets
         -- Apply or Refresh Sunfire on all targets
-        if (MaxDps:CheckSpellUsable(classtable.Sunfire, 'Sunfire')) and cooldown[classtable.Sunfire].ready then
+        if (MaxDps:CheckSpellUsable(classtable.Sunfire, 'Sunfire')) and (debuff[classtable.SunfireDeBuff].refreshable) and cooldown[classtable.Sunfire].ready then
             if not setSpell then setSpell = classtable.Sunfire end
         end
 
+        --or MaxDps:DebuffCounter(classtable.MoonfireDeBuff) < targets
         -- Apply or Refresh Moonfire on all targets
-        if (MaxDps:CheckSpellUsable(classtable.Moonfire, 'Moonfire')) and cooldown[classtable.Moonfire].ready then
+        if (MaxDps:CheckSpellUsable(classtable.Moonfire, 'Moonfire')) and (debuff[classtable.MoonfireDeBuff].refreshable) and cooldown[classtable.Moonfire].ready then
             if not setSpell then setSpell = classtable.Moonfire end
         end
 
@@ -269,23 +284,27 @@ function Balance:aoe()
             if not setSpell then setSpell = classtable.Starfall end
         end
 
+        --or MaxDps:DebuffCounter(classtable.SunfireDeBuff) < targets
         -- Apply or Refresh Sunfire on all targets while in Solar Eclipse
-        if (MaxDps:CheckSpellUsable(classtable.Sunfire, 'Sunfire')) and buff[classtable.SolarEclipseBuff].up and cooldown[classtable.Sunfire].ready then
+        if (MaxDps:CheckSpellUsable(classtable.Sunfire, 'Sunfire')) and buff[classtable.SolarEclipseBuff].up and (debuff[classtable.SunfireDeBuff].refreshable) and cooldown[classtable.Sunfire].ready then
             if not setSpell then setSpell = classtable.Sunfire end
         end
 
+        --or MaxDps:DebuffCounter(classtable.MoonfireDeBuff) < targets
         -- Apply or Refresh Moonfire on all targets while in Lunar Eclipse
-        if (MaxDps:CheckSpellUsable(classtable.Moonfire, 'Moonfire')) and buff[classtable.LunarEclipseBuff].up and cooldown[classtable.Moonfire].ready then
+        if (MaxDps:CheckSpellUsable(classtable.Moonfire, 'Moonfire')) and buff[classtable.LunarEclipseBuff].up and (debuff[classtable.MoonfireDeBuff].refreshable) and cooldown[classtable.Moonfire].ready then
             if not setSpell then setSpell = classtable.Moonfire end
         end
 
+        --or MaxDps:DebuffCounter(classtable.SunfireDeBuff) < targets
         -- Apply or Refresh Sunfire on all targets
-        if (MaxDps:CheckSpellUsable(classtable.Sunfire, 'Sunfire')) and cooldown[classtable.Sunfire].ready then
+        if (MaxDps:CheckSpellUsable(classtable.Sunfire, 'Sunfire')) and (debuff[classtable.SunfireDeBuff].refreshable) and cooldown[classtable.Sunfire].ready then
             if not setSpell then setSpell = classtable.Sunfire end
         end
 
+        --or MaxDps:DebuffCounter(classtable.MoonfireDeBuff) < targets
         -- Apply or Refresh Moonfire on all targets
-        if (MaxDps:CheckSpellUsable(classtable.Moonfire, 'Moonfire')) and cooldown[classtable.Moonfire].ready then
+        if (MaxDps:CheckSpellUsable(classtable.Moonfire, 'Moonfire')) and (debuff[classtable.MoonfireDeBuff].refreshable) and cooldown[classtable.Moonfire].ready then
             if not setSpell then setSpell = classtable.Moonfire end
         end
 
