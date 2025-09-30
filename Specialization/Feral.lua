@@ -200,9 +200,9 @@ function Feral:aoe_builder()
     if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (not debuff[classtable.RakeDeBuff].up and (MaxDps.ActiveHeroTree == 'wildstalker')) and cooldown[classtable.Rake].ready then
         if not setSpell then setSpell = classtable.Rake end
     end
-    --if (MaxDps:CheckSpellUsable(classtable.MoonfireCat, 'MoonfireCat')) and (debuff[classtable.MoonfireCatDeBuff].refreshable and not (need_bt and need_bt_trigger('Moonfire')) and not buff[classtable.ClearcastingBuff].count == 1) and cooldown[classtable.MoonfireCat].ready then
-    --    if not setSpell then setSpell = classtable.MoonfireCat end
-    --end
+    if (MaxDps:CheckSpellUsable(classtable.MoonfireCat, 'MoonfireCat')) and talents[classtable.LunarInspiration] and (debuff[classtable.MoonfireCatDeBuff].refreshable and not (need_bt and need_bt_trigger('Moonfire')) and not buff[classtable.ClearcastingBuff].count == 1) and cooldown[classtable.MoonfireCat].ready then
+        if not setSpell then setSpell = classtable.MoonfireCat end
+    end
     if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (debuff[classtable.RakeDeBuff].refreshable and not (need_bt and need_bt_trigger('Rake')) and not buff[classtable.ClearcastingBuff].count == 1) and cooldown[classtable.Rake].ready then
         if not setSpell then setSpell = classtable.Rake end
     end
@@ -221,9 +221,9 @@ function Feral:aoe_builder()
     if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (talents[classtable.DoubleclawedRake] and buff[classtable.SuddenAmbushBuff].up and need_bt and need_bt_trigger('Rake')) and cooldown[classtable.Rake].ready then
         if not setSpell then setSpell = classtable.Rake end
     end
-    --if (MaxDps:CheckSpellUsable(classtable.MoonfireCat, 'MoonfireCat')) and (need_bt and need_bt_trigger('Moonfire')) and cooldown[classtable.MoonfireCat].ready then
-    --    if not setSpell then setSpell = classtable.MoonfireCat end
-    --end
+    if (MaxDps:CheckSpellUsable(classtable.MoonfireCat, 'MoonfireCat')) and talents[classtable.LunarInspiration] and (need_bt and need_bt_trigger('Moonfire')) and cooldown[classtable.MoonfireCat].ready then
+        if not setSpell then setSpell = classtable.MoonfireCat end
+    end
     if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (buff[classtable.SuddenAmbushBuff].up and need_bt and need_bt_trigger('Rake')) and cooldown[classtable.Rake].ready then
         if not setSpell then setSpell = classtable.Rake end
     end
@@ -253,9 +253,9 @@ function Feral:builder()
     if (MaxDps:CheckSpellUsable(classtable.BrutalSlash, 'BrutalSlash')) and talents[classtable.BrutalSlash] and (cooldown[classtable.BrutalSlash].fullRecharge <4 and not (need_bt and need_bt_trigger('BrutalSlash'))) and cooldown[classtable.BrutalSlash].ready then
         if not setSpell then setSpell = classtable.BrutalSlash end
     end
-    --if (MaxDps:CheckSpellUsable(classtable.MoonfireCat, 'MoonfireCat')) and (debuff[classtable.MoonfireCatDeBuff].refreshable) and cooldown[classtable.MoonfireCat].ready then
-    --    if not setSpell then setSpell = classtable.MoonfireCat end
-    --end
+    if (MaxDps:CheckSpellUsable(classtable.MoonfireCat, 'MoonfireCat')) and talents[classtable.LunarInspiration] and (debuff[classtable.MoonfireCatDeBuff].refreshable) and cooldown[classtable.MoonfireCat].ready then
+        if not setSpell then setSpell = classtable.MoonfireCat end
+    end
     if (MaxDps:CheckSpellUsable(classtable.ThrashCat, 'ThrashCat')) and (debuff[classtable.ThrashCatDeBuff].refreshable and not talents[classtable.ThrashingClaws] and not buff[classtable.BsIncBuff].up) and cooldown[classtable.ThrashCat].ready then
         if not setSpell then setSpell = classtable.ThrashCat end
     end
@@ -280,9 +280,9 @@ function Feral:builder()
     if (MaxDps:CheckSpellUsable(classtable.Rake, 'Rake')) and (need_bt and need_bt_trigger('Rake') and 1 >= debuff[classtable.RakeDeBuff].remains) and cooldown[classtable.Rake].ready then
         if not setSpell then setSpell = classtable.Rake end
     end
-    --if (MaxDps:CheckSpellUsable(classtable.MoonfireCat, 'MoonfireCat')) and (need_bt and need_bt_trigger('Moonfire')) and cooldown[classtable.MoonfireCat].ready then
-    --    if not setSpell then setSpell = classtable.MoonfireCat end
-    --end
+    if (MaxDps:CheckSpellUsable(classtable.MoonfireCat, 'MoonfireCat')) and talents[classtable.LunarInspiration] and (need_bt and need_bt_trigger('Moonfire')) and cooldown[classtable.MoonfireCat].ready then
+        if not setSpell then setSpell = classtable.MoonfireCat end
+    end
     if (MaxDps:CheckSpellUsable(classtable.ThrashCat, 'ThrashCat')) and (need_bt and need_bt_trigger('Thrash')) and cooldown[classtable.ThrashCat].ready then
         if not setSpell then setSpell = classtable.ThrashCat end
     end
