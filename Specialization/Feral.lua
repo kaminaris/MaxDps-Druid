@@ -490,7 +490,7 @@ function Druid:Feral()
     classtable.RipDeBuff = 1079
     classtable.AdaptiveSwarmDamageDeBuff = 391889
     classtable.RakeDeBuff = 155722
-    classtable.PrimalWrathDeBuff = 285381
+    classtable.PrimalWrathDeBuff = 1079
     classtable.BloodseekerVinesDeBuff = 439531
     classtable.SabertoothDeBuff = 391722
     classtable.ThrashCatDeBuff = 405233
