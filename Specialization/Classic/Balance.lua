@@ -115,7 +115,7 @@ function Balance:callaction()
         end
     end
     --MaxDps:FindDeBuffAuraData ( classtable.Lacerate ) .refreshable or MaxDps:FindDeBuffAuraData ( classtable.Lacerate ) .count
-    if (MaxDps:CheckSpellUsable(classtable.MarkoftheWild, 'MarkoftheWild')) and not MaxDps:FindBuffAuraData(classtable.MarkoftheWildBuff).up and cooldown[classtable.MarkoftheWild].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MarkoftheWild, 'MarkoftheWild')) and not MaxDps:FindBuffAuraData(classtable.MarkoftheWild).up and cooldown[classtable.MarkoftheWild].ready then
         if not setSpell then setSpell = classtable.MarkoftheWild end
     end
     if (MaxDps:CheckSpellUsable(classtable.MoonkinForm, 'MoonkinForm')) and not MaxDps:FindBuffAuraData(classtable.MoonkinFormBuff).up and cooldown[classtable.MoonkinForm].ready then
@@ -202,6 +202,7 @@ function Druid:Balance()
     classtable.InsectSwarm = 5570
     classtable.Moonfire = 9835
     classtable.Starfire = 25298
+    classtable.Hurricane = 16914
 
     local function debugg()
     end
