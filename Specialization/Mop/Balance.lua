@@ -117,6 +117,7 @@ end
 local function ClearCDs()
     MaxDps:GlowCooldown(classtable.NaturesSwiftness, false)
     MaxDps:GlowCooldown(classtable.Incarnation, false)
+    MaxDps:GlowCooldown(classtable.CelestialAlignment, false)
 end
 
 function Balance:single()
@@ -139,7 +140,7 @@ function Balance:single()
         MaxDps:GlowCooldown(classtable.Incarnation, cooldown[classtable.Incarnation].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.CelestialAlignment, 'CelestialAlignment')) and (( ( eclipse_dir == - 1 and eclipse <= 0 ) or ( eclipse_dir == 1 and eclipse >= 0 ) ) and ( buff[classtable.ChosenofEluneBuff].up or not (talents[classtable.Incarnation] and true or false) )) and cooldown[classtable.CelestialAlignment].ready then
-        if not setSpell then setSpell = classtable.CelestialAlignment end
+        MaxDps:GlowCooldown(classtable.CelestialAlignment, cooldown[classtable.CelestialAlignment].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.NaturesVigil, 'NaturesVigil') and talents[classtable.NaturesVigil]) and (( ( (talents[classtable.Incarnation] and true or false) and buff[classtable.ChosenofEluneBuff].up ) or ( not (talents[classtable.Incarnation] and true or false) and buff[classtable.CelestialAlignmentBuff].up ) ) and (talents[classtable.NaturesVigil] and true or false)) and cooldown[classtable.NaturesVigil].ready then
         if not setSpell then setSpell = classtable.NaturesVigil end
@@ -212,7 +213,7 @@ function Balance:aoe()
     if targets >= 5 then
         -- Cast Celestial Alignment
         if (MaxDps:CheckSpellUsable(classtable.CelestialAlignment, 'CelestialAlignment')) and cooldown[classtable.CelestialAlignment].ready then
-            if not setSpell then setSpell = classtable.CelestialAlignment end
+            MaxDps:GlowCooldown(classtable.CelestialAlignment, cooldown[classtable.CelestialAlignment].ready)
         end
 
         -- Cast Starsurge while having Shooting Stars buffs
@@ -271,7 +272,7 @@ function Balance:aoe()
     else
         -- Cast Celestial Alignment
         if (MaxDps:CheckSpellUsable(classtable.CelestialAlignment, 'CelestialAlignment')) and cooldown[classtable.CelestialAlignment].ready then
-            if not setSpell then setSpell = classtable.CelestialAlignment end
+            MaxDps:GlowCooldown(classtable.CelestialAlignment, cooldown[classtable.CelestialAlignment].ready)
         end
 
         -- Cast Starsurge while having Shooting Stars buffs
