@@ -16,7 +16,7 @@ Druid.spellMeta = {
 }
 
 function Druid:Enable()
-	if MaxDps:IsClassicWow() or MaxDps:IsCataWow() then
+	if MaxDps:IsClassicWow() or MaxDps:IsCataWow() or MaxDps:IsTBCWow() then
 		if MaxDps.Spec == 1 then
 			MaxDps.NextSpell = Druid.Balance
 			MaxDps:Print(MaxDps.Colors.Info .. 'Druid Balance', "info")
