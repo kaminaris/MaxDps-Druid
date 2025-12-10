@@ -103,9 +103,13 @@ local Balance = {}
 --end
 
 local function ClearCDs()
+    MaxDps:GlowCooldown(classtable.Thorns, false)
 end
 
 function Balance:callaction()
+    if (MaxDps:CheckSpellUsable(classtable.Thorns, 'Thorns')) and not MaxDps:FindBuffAuraData(classtable.Thorns).up and cooldown[classtable.Thorns].ready then
+        MaxDps:GlowCooldown(classtable.Thorns, cooldown[classtable.Thorns].ready)
+    end
     if targets >3 then
         if (MaxDps:CheckSpellUsable(classtable.Moonfire, 'Moonfire')) and ( MaxDps:DebuffCounter(classtable.MoonfireDeBuff, 0) < targets ) and cooldown[classtable.Moonfire].ready then
             if not setSpell then setSpell = classtable.Moonfire end
@@ -196,6 +200,7 @@ function Druid:Balance()
     classtable.MoonfireDeBuff = 8921
     classtable.MarkoftheWildBuff = 79061
     classtable.MoonkinFormBuff = 24858
+    classtable.ThornsBuff = 467
 
     classtable.MarkoftheWild = 9884
     classtable.MoonkinForm = 24858
@@ -203,6 +208,7 @@ function Druid:Balance()
     classtable.Moonfire = 9835
     classtable.Starfire = 25298
     classtable.Hurricane = 16914
+    classtable.Thorns = 467
 
     local function debugg()
     end
