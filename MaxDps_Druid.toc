@@ -28,6 +28,12 @@ Specialization/Cata/Feral.lua
 Specialization/Cata/Guardian.lua
 #@end-version-cata@
 
+#@version-bcc@
+Specialization/TBC/Balance.lua
+Specialization/TBC/Feral.lua
+Specialization/TBC/Guardian.lua
+#@end-version-bcc@
+
 #@version-classic@
 Specialization/Classic/Balance.lua
 Specialization/Classic/Feral.lua
