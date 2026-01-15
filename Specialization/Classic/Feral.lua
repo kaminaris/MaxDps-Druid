@@ -65,12 +65,14 @@ local EnergyMax
 local EnergyDeficit
 local EnergyRegen
 local EnergyTimeToMax
+local EnergyPerc
 local ComboPoints
 local ComboPointsMax
 local ComboPointsDeficit
 local Mana
 local ManaMax
 local ManaDeficit
+local ManaPerc
 local Rage
 local RageMax
 local RageDeficit
