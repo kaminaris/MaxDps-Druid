@@ -93,43 +93,53 @@ function Balance:Single()
 end
 
 function Druid:Balance()
-classtable = MaxDps.SpellTable
-local fd = MaxDps.FrameData
-local ttd = (fd.timeToDie and fd.timeToDie) or 500
-local gcd = fd.gcd
-local cooldown = fd.cooldown
-local buff = fd.buff
-local debuff = fd.debuff
-local talents = fd.talents
-local targets = MaxDps:SmartAoe()
+    fd = MaxDps.FrameData
+    ttd = (fd.timeToDie and fd.timeToDie) or 500
+    timeShift = fd.timeShift
+    gcd = fd.gcd
+    cooldown = fd.cooldown
+    buff = fd.buff
+    debuff = fd.debuff
+    talents = fd.talents
+    targets = MaxDps:SmartAoe()
+    targetHP = UnitHealth('target')
+    targetmaxHP = UnitHealthMax('target')
+    targethealthPerc = (targetHP >0 and targetmaxHP >0 and (targetHP / targetmaxHP) * 100) or 100
+    curentHP = UnitHealth('player')
+    maxHP = UnitHealthMax('player')
+    healthPerc = (curentHP / maxHP) * 100
+    timeInCombat = MaxDps.combatTime or 0
+    classtable = MaxDps.SpellTable
+    SpellHaste = UnitSpellHaste('player')
+    SpellCrit = GetCritChance()
 
-classtable.FaerieFireDeBuff = 91565
-classtable.InsectSwarmDeBuff = 5570
-classtable.MoonfireDeBuff = 8921
-classtable.MarkoftheWildBuff = 79061
-classtable.MoonkinFormBuff = 24858
-classtable.ThornsBuff = 467
-classtable.MarkoftheWild = 9884
-classtable.MoonkinForm = 24858
-classtable.InsectSwarm = 5570
-classtable.FaerieFire = 770
-classtable.ForceOfNature = 33831
-classtable.Moonfire = 9835
-classtable.Starfire = 25298
-classtable.Hurricane = 16914
-classtable.Thorns = 467
+    classtable.FaerieFireDeBuff = 91565
+    classtable.InsectSwarmDeBuff = 5570
+    classtable.MoonfireDeBuff = 8921
+    classtable.MarkoftheWildBuff = 79061
+    classtable.MoonkinFormBuff = 24858
+    classtable.ThornsBuff = 467
+    classtable.MarkoftheWild = 9884
+    classtable.MoonkinForm = 24858
+    classtable.InsectSwarm = 5570
+    classtable.FaerieFire = 770
+    classtable.ForceOfNature = 33831
+    classtable.Moonfire = 9835
+    classtable.Starfire = 25298
+    classtable.Hurricane = 16914
+    classtable.Thorns = 467
 
-ClearCDs()
+    ClearCDs()
 
---AoE Rotation
---Channel Hurricane Hurricane if it will hit 3 targets or more for its whole duration.
-if targets >= 3 then
-    Balance:AoE()
-end
---Use the single target rotation.
+    --AoE Rotation
+    --Channel Hurricane Hurricane if it will hit 3 targets or more for its whole duration.
+    if targets >= 3 then
+        Balance:AoE()
+    end
+    --Use the single target rotation.
 
---Single Target Rotation
-Balance:Single()
+    --Single Target Rotation
+    Balance:Single()
 
-if setSpell then return setSpell end
+    if setSpell then return setSpell end
 end

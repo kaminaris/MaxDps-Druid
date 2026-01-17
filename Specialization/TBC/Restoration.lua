@@ -138,15 +138,25 @@ function Restoration:Single()
 end
 
 function Druid:Restoration()
+    fd = MaxDps.FrameData
+    ttd = (fd.timeToDie and fd.timeToDie) or 500
+    timeShift = fd.timeShift
+    gcd = fd.gcd
+    cooldown = fd.cooldown
+    buff = fd.buff
+    debuff = fd.debuff
+    talents = fd.talents
+    targets = MaxDps:SmartAoe()
+    targetHP = UnitHealth('target')
+    targetmaxHP = UnitHealthMax('target')
+    targethealthPerc = (targetHP >0 and targetmaxHP >0 and (targetHP / targetmaxHP) * 100) or 100
+    curentHP = UnitHealth('player')
+    maxHP = UnitHealthMax('player')
+    healthPerc = (curentHP / maxHP) * 100
+    timeInCombat = MaxDps.combatTime or 0
     classtable = MaxDps.SpellTable
-    local fd = MaxDps.FrameData
-    local ttd = (fd.timeToDie and fd.timeToDie) or 500
-    local gcd = fd.gcd
-    local cooldown = fd.cooldown
-    local buff = fd.buff
-    local debuff = fd.debuff
-    local talents = fd.talents
-    local targets = MaxDps:SmartAoe()
+    SpellHaste = UnitSpellHaste('player')
+    SpellCrit = GetCritChance()
 
     ComboPoints = UnitPower('player', ComboPointsPT)
     ComboPointsMax = UnitPowerMax('player', ComboPointsPT)
