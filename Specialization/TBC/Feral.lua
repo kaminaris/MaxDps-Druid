@@ -77,6 +77,7 @@ local totalAP
 local function ClearCDs()
     MaxDps:GlowCooldown(classtable.CatForm, false)
     MaxDps:GlowCooldown(classtable.DemoralizingRoar, false)
+    MaxDps:GlowCooldown(classtable.FaerieFire, false)
 end
 
 function Feral:AoE()
@@ -96,6 +97,15 @@ end
 
 function Feral:Single()
     if MaxDps:FindBuffAuraData(classtable.CatForm) .up then
+        if MaxDps:CheckSpellUsable(classtable.FaerieFire, 'FaerieFire') and not UnitAffectingCombat('player') and not MaxDps:FindBuffAuraData(classtable.Prowl).up and cooldown[classtable.FaerieFire].ready then
+            if not setSpell then setSpell = classtable.FaerieFire end
+        end
+        if MaxDps:CheckSpellUsable(classtable.Prowl, 'Prowl') and not UnitAffectingCombat('player') and not MaxDps:FindBuffAuraData(classtable.Prowl).up and cooldown[classtable.Prowl].ready then
+            if not setSpell then setSpell = classtable.Prowl end
+        end
+        if MaxDps:CheckSpellUsable(classtable.Pounce, 'Pounce') and not UnitAffectingCombat('player') and MaxDps:FindBuffAuraData(classtable.Prowl).up and cooldown[classtable.Pounce].ready then
+            if not setSpell then setSpell = classtable.Pounce end
+        end
         if MaxDps:CheckSpellUsable(classtable.Rip, 'Rip') and ComboPoints >= 4 and ttd >= 12 and cooldown[classtable.Rip].ready then
             if not setSpell then setSpell = classtable.Rip end
         end
@@ -179,18 +189,30 @@ function Druid:Feral()
     classtable.Maul=9881
     classtable.DemoralizingRoar=26998
 
-    --classtable.FaerieFire=17392
+    classtable.FaerieFire=16857
     --classtable.TigersFury=9846
     --classtable.Haste=13494
     classtable.CatForm=768
-    classtable.Rip = 9896
+    classtable.Rip = 1079
     classtable.Shred=9830
-    classtable.FerociousBite=22829
+    classtable.FerociousBite=22568
     --classtable.Claw=9850
     --classtable.Innervate=29166
     classtable.MangleCat=33876
+    classtable.Thorns=467
+    classtable.MarkoftheWild = 1126
+    classtable.OmenofClarity = 16864
+    classtable.Prowl = 5215
+    classtable.Pounce = 9005
 
     ClearCDs()
+
+    if (MaxDps:CheckSpellUsable(classtable.MarkoftheWild, 'MarkoftheWild')) and MaxDps:FindBuffAuraData(classtable.MarkoftheWild).refreshable and cooldown[classtable.MarkoftheWild].ready then
+        if not setSpell then setSpell = classtable.MarkoftheWild end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.Thorns, 'Thorns')) and MaxDps:FindBuffAuraData(classtable.Thorns).refreshable and cooldown[classtable.Thorns].ready then
+        if not setSpell then setSpell = classtable.Thorns end
+    end
 
     --AoE Rotation
     if targets >= 3 then
