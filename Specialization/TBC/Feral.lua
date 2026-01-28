@@ -106,17 +106,20 @@ function Feral:Single()
         if MaxDps:CheckSpellUsable(classtable.Pounce, 'Pounce') and not UnitAffectingCombat('player') and MaxDps:FindBuffAuraData(classtable.Prowl).up and cooldown[classtable.Pounce].ready then
             if not setSpell then setSpell = classtable.Pounce end
         end
-        if MaxDps:CheckSpellUsable(classtable.Rip, 'Rip') and ComboPoints >= 4 and ttd >= 12 and cooldown[classtable.Rip].ready then
+        if MaxDps:CheckSpellUsable(classtable.Shred, 'Shred') and not MaxDps:CheckSpellUsable(classtable.Pounce, 'Pounce') and cooldown[classtable.Shred].ready then
+            if not setSpell then setSpell = classtable.Shred end
+        end
+        if MaxDps:CheckSpellUsable(classtable.MangleCat, 'MangleCat') and MaxDps:FindDeBuffAuraData(classtable.MangleCat).refreshable and cooldown[classtable.MangleCat].ready then
+            if not setSpell then setSpell = classtable.MangleCat end
+        end
+        if MaxDps:CheckSpellUsable(classtable.Rip, 'Rip') and not MaxDps:FindDeBuffAuraData(classtable.Rip).up and ComboPoints >= 4 and ttd >= 12 and cooldown[classtable.Rip].ready then
             if not setSpell then setSpell = classtable.Rip end
         end
         if MaxDps:CheckSpellUsable(classtable.FerociousBite, 'Ferocious Bite') and ComboPoints >= 4 and cooldown[classtable.FerociousBite].ready then
             if not setSpell then setSpell = classtable.FerociousBite end
         end
-        if MaxDps:CheckSpellUsable(classtable.MangleCat, 'MangleCat') and MaxDps:FindDeBuffAuraData(classtable.MangleCat).refreshable and cooldown[classtable.MangleCat].ready then
-            if not setSpell then setSpell = classtable.MangleCat end
-        end
-        if MaxDps:CheckSpellUsable(classtable.Shred, 'Shred') and cooldown[classtable.Shred].ready then
-            if not setSpell then setSpell = classtable.Shred end
+        if (MaxDps:CheckSpellUsable(classtable.Claw, 'Claw')) and not MaxDps:CheckSpellUsable(classtable.MangleCat, 'MangleCat') and cooldown[classtable.Claw].ready then
+            if not setSpell then setSpell = classtable.Claw end
         end
         if MaxDps:CheckSpellUsable(classtable.CatForm, 'Cat Form') and Energy <= 10 and cooldown[classtable.CatForm].ready then
             --if not setSpell then setSpell = classtable.CatForm end
@@ -182,8 +185,8 @@ function Druid:Feral()
     totalAP = base + posBuff + negBuff
 
 
-    classtable.Lacerate=414644
-    classtable.MangleBear=407995
+    classtable.Lacerate=33745
+    classtable.MangleBear=33878
     classtable.Berserk=417141
     classtable.Swipe=9908
     classtable.Maul=9881
