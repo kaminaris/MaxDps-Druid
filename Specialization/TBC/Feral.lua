@@ -208,6 +208,8 @@ function Druid:Feral()
     classtable.Prowl = 5215
     classtable.Pounce = 9005
 
+    setSpell = nil
+
     ClearCDs()
 
     if (MaxDps:CheckSpellUsable(classtable.MarkoftheWild, 'MarkoftheWild')) and MaxDps:FindBuffAuraData(classtable.MarkoftheWild).refreshable and cooldown[classtable.MarkoftheWild].ready then
