@@ -190,6 +190,8 @@ function Druid:Restoration()
     --classtable.Innervate=29166
     classtable.MangleCat=33876
 
+    setSpell = nil
+
     ClearCDs()
 
     --AoE Rotation
