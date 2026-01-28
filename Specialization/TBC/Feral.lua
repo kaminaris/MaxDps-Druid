@@ -109,7 +109,7 @@ function Feral:Single()
         if MaxDps:CheckSpellUsable(classtable.Shred, 'Shred') and not MaxDps:CheckSpellUsable(classtable.Pounce, 'Pounce') and cooldown[classtable.Shred].ready then
             if not setSpell then setSpell = classtable.Shred end
         end
-        if MaxDps:CheckSpellUsable(classtable.MangleCat, 'MangleCat') and MaxDps:FindDeBuffAuraData(classtable.MangleCat).refreshable and cooldown[classtable.MangleCat].ready then
+        if MaxDps:CheckSpellUsable(classtable.MangleCat, 'MangleCat') and MaxDps:FindDeBuffAuraData(classtable.MangleCat).refreshable or ComboPoints < 4 and cooldown[classtable.MangleCat].ready then
             if not setSpell then setSpell = classtable.MangleCat end
         end
         if MaxDps:CheckSpellUsable(classtable.Rip, 'Rip') and not MaxDps:FindDeBuffAuraData(classtable.Rip).up and ComboPoints >= 4 and ttd >= 12 and cooldown[classtable.Rip].ready then
