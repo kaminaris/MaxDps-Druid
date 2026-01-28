@@ -199,7 +199,7 @@ function Druid:Feral()
     classtable.Rip = 1079
     classtable.Shred=9830
     classtable.FerociousBite=22568
-    --classtable.Claw=9850
+    classtable.Claw=9850
     --classtable.Innervate=29166
     classtable.MangleCat=33876
     classtable.Thorns=467
