@@ -129,6 +129,8 @@ function Druid:Balance()
     classtable.Hurricane = 16914
     classtable.Thorns = 467
 
+    setSpell = nil
+
     ClearCDs()
 
     --AoE Rotation
