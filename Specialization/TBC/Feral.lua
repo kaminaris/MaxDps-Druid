@@ -78,6 +78,7 @@ local function ClearCDs()
     MaxDps:GlowCooldown(classtable.CatForm, false)
     MaxDps:GlowCooldown(classtable.DemoralizingRoar, false)
     MaxDps:GlowCooldown(classtable.FaerieFire, false)
+    MaxDps:GlowCooldown(classtable.Thorns, false)
 end
 
 function Feral:AoE()
@@ -106,11 +107,11 @@ function Feral:Single()
         if MaxDps:CheckSpellUsable(classtable.Pounce, 'Pounce') and not UnitAffectingCombat('player') and MaxDps:FindBuffAuraData(classtable.Prowl).up and cooldown[classtable.Pounce].ready then
             if not setSpell then setSpell = classtable.Pounce end
         end
-        if MaxDps:CheckSpellUsable(classtable.Shred, 'Shred') and not MaxDps:CheckSpellUsable(classtable.MangleCat, 'MangleCat') and not UnitThreatSituation("player", "target") and ComboPoints < 4 and cooldown[classtable.Shred].ready then
-            if not setSpell then setSpell = classtable.Shred end
-        end
-        if MaxDps:CheckSpellUsable(classtable.MangleCat, 'MangleCat') and MaxDps:FindDeBuffAuraData(classtable.MangleCat).refreshable or ComboPoints < 4 and cooldown[classtable.MangleCat].ready then
+        if MaxDps:CheckSpellUsable(classtable.MangleCat, 'MangleCat') and (MaxDps:FindDeBuffAuraData(classtable.MangleCat).refreshable or (UnitThreatSituation("player", "target") and UnitThreatSituation("player", "target") >= 2) ) and ComboPoints < 4 and cooldown[classtable.MangleCat].ready then
             if not setSpell then setSpell = classtable.MangleCat end
+        end
+        if MaxDps:CheckSpellUsable(classtable.Shred, 'Shred') and (not UnitThreatSituation("player", "target") or UnitThreatSituation("player", "target") < 2) and ComboPoints < 4 and cooldown[classtable.Shred].ready then
+            if not setSpell then setSpell = classtable.Shred end
         end
         if MaxDps:CheckSpellUsable(classtable.Rip, 'Rip') and not MaxDps:FindDeBuffAuraData(classtable.Rip).up and ComboPoints >= 4 and ttd >= 12 and cooldown[classtable.Rip].ready then
             if not setSpell then setSpell = classtable.Rip end
@@ -216,7 +217,8 @@ function Druid:Feral()
         if not setSpell then setSpell = classtable.MarkoftheWild end
     end
     if (MaxDps:CheckSpellUsable(classtable.Thorns, 'Thorns')) and MaxDps:FindBuffAuraData(classtable.Thorns).refreshable and cooldown[classtable.Thorns].ready then
-        if not setSpell then setSpell = classtable.Thorns end
+        --if not setSpell then setSpell = classtable.Thorns end
+        MaxDps:GlowCooldown(classtable.Thorns, true)
     end
 
     --AoE Rotation
