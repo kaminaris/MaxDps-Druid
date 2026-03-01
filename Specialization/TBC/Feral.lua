@@ -104,6 +104,16 @@ local function GetEnergyCost(spellId)
     return nil
 end
 
+local function HasFuror()
+    for j = 1, GetNumTalents(2) do
+        local name, _, _, _, rank = GetTalentInfo(2, j)
+        if name == "Furor" then
+            return (rank or 0) > 0
+        end
+    end
+    return false
+end
+
 local function NextCatActionEnergyCost(threat)
     if not UnitAffectingCombat('player') then return nil end
 
@@ -145,7 +155,7 @@ function Feral:Single()
     if MaxDps:FindBuffAuraData(classtable.CatForm) .up then
 		if UnitAffectingCombat('player') and not MaxDps:FindBuffAuraData(classtable.Prowl).up then
 			nextCost = NextCatActionEnergyCost(UnitThreatSituation("player", "target") or 0)
-			if nextCost and Energy < (nextCost - 20) then
+			if HasFuror and nextCost and Energy < (nextCost - 20) then
 				if not setSpell then setSpell = classtable.CatForm end
 			end
 		end
