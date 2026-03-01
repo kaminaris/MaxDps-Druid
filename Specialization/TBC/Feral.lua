@@ -98,7 +98,7 @@ end
 
 function Feral:Single()
     if MaxDps:FindBuffAuraData(classtable.CatForm) .up then
-		if MaxDps:CheckSpellUsable(classtable.FaerieFire, 'FaerieFire')	and not MaxDps:FindDeBuffAuraData(classtable.FaerieFire).up and cooldown[classtable.FaerieFire] and cooldown[classtable.FaerieFire].ready then
+		if MaxDps:CheckSpellUsable(classtable.FaerieFire, 'FaerieFire')	and not MaxDps:FindDeBuffAuraData(classtable.FaerieFire).up and not MaxDps:FindBuffAuraData(classtable.Prowl).up and cooldown[classtable.FaerieFire] and cooldown[classtable.FaerieFire].ready then
 			if not setSpell then setSpell = classtable.FaerieFire end
 		end
         if MaxDps:CheckSpellUsable(classtable.Prowl, 'Prowl') and not UnitAffectingCombat('player') and not MaxDps:FindBuffAuraData(classtable.Prowl).up and cooldown[classtable.Prowl].ready then
