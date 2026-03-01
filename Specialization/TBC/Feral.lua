@@ -104,14 +104,9 @@ local function GetEnergyCost(spellId)
     return nil
 end
 
-local function HasFuror()
-    for j = 1, GetNumTalents(2) do
-        local name, _, _, _, rank = GetTalentInfo(2, j)
-        if name == "Furor" then
-            return (rank or 0) > 0
-        end
-    end
-    return false
+function HasFuror()
+    local _, _, _, _, rank = GetTalentInfo(2, 3)
+    return (rank or 0) > 0
 end
 
 local function NextCatActionEnergyCost(threat)
