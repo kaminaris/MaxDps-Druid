@@ -119,7 +119,7 @@ function Feral:Single()
         if MaxDps:CheckSpellUsable(classtable.FerociousBite, 'Ferocious Bite') and ComboPoints >= 4 and cooldown[classtable.FerociousBite].ready then
             if not setSpell then setSpell = classtable.FerociousBite end
         end
-        if (MaxDps:CheckSpellUsable(classtable.Claw, 'Claw')) and cooldown[classtable.Claw].ready then
+        if (MaxDps:CheckSpellUsable(classtable.Claw, 'Claw')) and cooldown[classtable.Claw].ready and (not MaxDps:CheckSpellUsable(classtable.MangleCat, 'MangleCat')) then
             if not setSpell then setSpell = classtable.Claw end
         end
         if MaxDps:CheckSpellUsable(classtable.CatForm, 'Cat Form') and Energy <= 10 and cooldown[classtable.CatForm].ready then
