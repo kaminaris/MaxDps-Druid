@@ -98,9 +98,9 @@ end
 
 function Feral:Single()
     if MaxDps:FindBuffAuraData(classtable.CatForm) .up then
-        if MaxDps:CheckSpellUsable(classtable.FaerieFire, 'FaerieFire') and not UnitAffectingCombat('player') and not MaxDps:FindBuffAuraData(classtable.Prowl).up and cooldown[classtable.FaerieFire].ready then
-            if not setSpell then setSpell = classtable.FaerieFire end
-        end
+		if MaxDps:CheckSpellUsable(classtable.FaerieFire, 'FaerieFire')	and not MaxDps:FindDeBuffAuraData(classtable.FaerieFire).up and cooldown[classtable.FaerieFire] and cooldown[classtable.FaerieFire].ready then
+			if not setSpell then setSpell = classtable.FaerieFire end
+		end
         if MaxDps:CheckSpellUsable(classtable.Prowl, 'Prowl') and not UnitAffectingCombat('player') and not MaxDps:FindBuffAuraData(classtable.Prowl).up and cooldown[classtable.Prowl].ready then
             if not setSpell then setSpell = classtable.Prowl end
         end
@@ -192,7 +192,7 @@ function Druid:Feral()
     classtable.Swipe=9908
     classtable.Maul=9881
     classtable.DemoralizingRoar=26998
-
+    classtable.GiftoftheWild = 21849
     classtable.FaerieFire=16857
     --classtable.TigersFury=9846
     --classtable.Haste=13494
@@ -213,9 +213,13 @@ function Druid:Feral()
 
     ClearCDs()
 
-    if (MaxDps:CheckSpellUsable(classtable.MarkoftheWild, 'MarkoftheWild')) and MaxDps:FindBuffAuraData(classtable.MarkoftheWild).refreshable and cooldown[classtable.MarkoftheWild].ready then
-        if not setSpell then setSpell = classtable.MarkoftheWild end
-    end
+	if (MaxDps:CheckSpellUsable(classtable.MarkoftheWild, 'MarkoftheWild')) and cooldown[classtable.MarkoftheWild] and cooldown[classtable.MarkoftheWild].ready and not MaxDps:FindBuffAuraData(classtable.GiftoftheWild).up and MaxDps:FindBuffAuraData(classtable.MarkoftheWild).refreshable then
+		if not setSpell then setSpell = classtable.MarkoftheWild end
+	end
+	if (MaxDps:CheckSpellUsable(classtable.OmenofClarity, 'OmenofClarity')) and MaxDps:FindBuffAuraData(classtable.OmenofClarity).refreshable and cooldown[classtable.OmenofClarity].ready then
+		if not setSpell then setSpell = classtable.OmenofClarity end
+		--MaxDps:GlowCooldown(classtable.OmenofClarity, true)
+	end
     if (MaxDps:CheckSpellUsable(classtable.Thorns, 'Thorns')) and MaxDps:FindBuffAuraData(classtable.Thorns).refreshable and cooldown[classtable.Thorns].ready then
         --if not setSpell then setSpell = classtable.Thorns end
         MaxDps:GlowCooldown(classtable.Thorns, true)
