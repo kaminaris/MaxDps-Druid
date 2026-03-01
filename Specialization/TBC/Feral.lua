@@ -71,6 +71,11 @@ local EnergyDeficit
 local EnergyRegen
 local EnergyTimeToMax
 local EnergyPerc
+local Mana
+local ManaMax
+local ManaPerc
+
+local HasFuror
 
 local base, posBuff, negBuff
 local totalAP
@@ -104,20 +109,9 @@ local function GetEnergyCost(spellId)
     return nil
 end
 
-local function GetManaPercent()
-    local mana = UnitPower('player', ManaPT)
-    local manaMax = UnitPowerMax('player', ManaPT)
-    if manaMax == 0 then return 0 end
-    return (mana / manaMax) * 100
-end
-
-function HasFuror()
-    local _, _, _, _, rank = GetTalentInfo(2, 3)
-    return (rank or 0) > 0
-end
-
 local function NextCatActionEnergyCost(threat)
     if not UnitAffectingCombat('player') then return nil end
+    if threat == nil then threat = 0 end
 
     if (MaxDps:FindDeBuffAuraData(classtable.MangleCat).refreshable or threat >= 2) and ComboPoints < 4 and cooldown[classtable.MangleCat].ready then
         return GetEnergyCost(classtable.MangleCat)
@@ -156,8 +150,8 @@ end
 function Feral:Single()
     if MaxDps:FindBuffAuraData(classtable.CatForm) .up then
 		if UnitAffectingCombat('player') and not MaxDps:FindBuffAuraData(classtable.Prowl).up then
-			nextCost = NextCatActionEnergyCost(UnitThreatSituation("player", "target") or 0)
-			if HasFuror() and nextCost and Energy < (nextCost - 20) and GetManaPercent() >= 10 then
+			local nextCost = NextCatActionEnergyCost(UnitThreatSituation("player", "target") or 0)
+			if HasFuror and nextCost and Energy < (nextCost - 20) and ManaPerc >= 10 then
 				if not setSpell then setSpell = classtable.CatForm end
 			end
 		end
@@ -227,6 +221,9 @@ function Druid:Feral()
     curentHP = UnitHealth('player')
     maxHP = UnitHealthMax('player')
     healthPerc = (curentHP / maxHP) * 100
+    Mana = UnitPower('player', ManaPT)
+    ManaMax = UnitPowerMax('player', ManaPT)
+    ManaPerc = (Mana / ManaMax) * 100
     timeInCombat = MaxDps.combatTime or 0
     classtable = MaxDps.SpellTable
     SpellHaste = UnitSpellHaste('player')
@@ -245,6 +242,8 @@ function Druid:Feral()
     base, posBuff, negBuff = UnitAttackPower("player")
     totalAP = base + posBuff + negBuff
 
+    HasFuror = (MaxDps.PlayerTalents[17056] or MaxDps.PlayerTalents[17058] or MaxDps.PlayerTalents[17059] or MaxDps.PlayerTalents[17060] or MaxDps.PlayerTalents[17061]) or false
+
     classtable.BearForm = 5487
     classtable.DireBearForm = 9634
 	classtable.Lacerate=33745
@@ -253,7 +252,7 @@ function Druid:Feral()
     classtable.Swipe=9908
     classtable.Maul=9881
     classtable.DemoralizingRoar=26998
-	
+
     classtable.FaerieFire=16857
     --classtable.TigersFury=9846
     --classtable.Haste=13494
@@ -275,8 +274,14 @@ function Druid:Feral()
 
     ClearCDs()
 
-	if (MaxDps:CheckSpellUsable(classtable.MarkoftheWild, 'MarkoftheWild')) and MaxDps:FindBuffAuraData(classtable.MarkoftheWild).refreshable and cooldown[classtable.MarkoftheWild].ready and not MaxDps:FindBuffAuraData(classtable.GiftoftheWild).up then
+	if MaxDps:NumGroupFriends() <= 1 and (MaxDps:CheckSpellUsable(classtable.MarkoftheWild, 'MarkoftheWild'))
+    and MaxDps:FindBuffAuraData(classtable.MarkoftheWild).refreshable and cooldown[classtable.MarkoftheWild].ready
+    and not MaxDps:FindBuffAuraData(classtable.GiftoftheWild).up then
 		if not setSpell then setSpell = classtable.MarkoftheWild end
+	end
+	if MaxDps:NumGroupFriends() >= 2 and (MaxDps:CheckSpellUsable(classtable.GiftoftheWild, 'GiftoftheWild'))
+    and MaxDps:FindBuffAuraData(classtable.GiftoftheWild).refreshable and cooldown[classtable.GiftoftheWild].ready then
+		if not setSpell then setSpell = classtable.GiftoftheWild end
 	end
 	if (MaxDps:CheckSpellUsable(classtable.OmenofClarity, 'OmenofClarity')) and MaxDps:FindBuffAuraData(classtable.OmenofClarity).refreshable and cooldown[classtable.OmenofClarity].ready then
 		if not setSpell then setSpell = classtable.OmenofClarity end
