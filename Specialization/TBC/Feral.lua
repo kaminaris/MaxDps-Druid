@@ -15,6 +15,7 @@ local SpellCrit
 local GetSpellInfo = C_Spell.GetSpellInfo
 local GetSpellCooldown = C_Spell.GetSpellCooldown
 local GetSpellCount = C_Spell.GetSpellCastCount
+local GetSpellPowerCost = C_Spell.GetSpellPowerCost
 
 local ManaPT = Enum.PowerType.Mana
 local RagePT = Enum.PowerType.Rage
@@ -81,6 +82,50 @@ local function ClearCDs()
     MaxDps:GlowCooldown(classtable.Thorns, false)
 end
 
+local function GetEnergyCost(spellId)
+    local s = GetSpellInfo(spellId)
+    if s and s.powerCosts then
+        for _, p in ipairs(s.powerCosts) do
+            if p and p.type == EnergyPT and p.cost and p.cost > 0 then
+                return p.cost
+            end
+        end
+    end
+
+    local costs = GetSpellPowerCost and GetSpellPowerCost(spellId)
+    if costs then
+        for _, p in ipairs(costs) do
+            if p and p.type == EnergyPT and p.cost and p.cost > 0 then
+                return p.cost
+            end
+        end
+    end
+
+    return nil
+end
+
+local function NextCatActionEnergyCost(threat)
+    if not UnitAffectingCombat('player') then return nil end
+
+    if (MaxDps:FindDeBuffAuraData(classtable.MangleCat).refreshable or threat >= 2) and ComboPoints < 4 and cooldown[classtable.MangleCat].ready then
+        return GetEnergyCost(classtable.MangleCat)
+    end
+    if (threat < 2) and ComboPoints < 4 and cooldown[classtable.Shred].ready then
+        return GetEnergyCost(classtable.Shred)
+    end
+    if not MaxDps:FindDeBuffAuraData(classtable.Rip).up and ComboPoints >= 4 and ttd >= 8 and cooldown[classtable.Rip].ready then
+        return GetEnergyCost(classtable.Rip)
+    end
+    if ComboPoints >= 4 and cooldown[classtable.FerociousBite].ready then
+        return GetEnergyCost(classtable.FerociousBite)
+    end
+    if cooldown[classtable.Claw].ready then
+        return GetEnergyCost(classtable.Claw)
+    end
+
+    return nil
+end
+
 function Feral:AoE()
     if MaxDps:FindBuffAuraData(classtable.BearForm).up or MaxDps:FindBuffAuraData(classtable.DireBearForm).up then
         if (MaxDps:CheckSpellUsable(classtable.DemoralizingRoar, 'DemoralizingRoar')) and (MaxDps:FindDeBuffAuraData(classtable.DemoralizingRoar).refreshable) and cooldown[classtable.DemoralizingRoar].ready then
@@ -98,6 +143,12 @@ end
 
 function Feral:Single()
     if MaxDps:FindBuffAuraData(classtable.CatForm) .up then
+		if UnitAffectingCombat('player') and not MaxDps:FindBuffAuraData(classtable.Prowl).up then
+			nextCost = NextCatActionEnergyCost(UnitThreatSituation("player", "target") or 0)
+			if nextCost and Energy < (nextCost - 20) then
+				if not setSpell then setSpell = classtable.CatForm end
+			end
+		end
         if MaxDps:CheckSpellUsable(classtable.Prowl, 'Prowl') and not UnitAffectingCombat('player') and not MaxDps:FindBuffAuraData(classtable.Prowl).up and cooldown[classtable.Prowl].ready then
             if not setSpell then setSpell = classtable.Prowl end
         end
@@ -122,11 +173,8 @@ function Feral:Single()
         if (MaxDps:CheckSpellUsable(classtable.Claw, 'Claw')) and cooldown[classtable.Claw].ready and (not MaxDps:CheckSpellUsable(classtable.MangleCat, 'MangleCat')) then
             if not setSpell then setSpell = classtable.Claw end
         end
-        if MaxDps:CheckSpellUsable(classtable.CatForm, 'Cat Form') and Energy <= 10 and cooldown[classtable.CatForm].ready then
-            --if not setSpell then setSpell = classtable.CatForm end
-            MaxDps:GlowCooldown(classtable.CatForm, true)
-        end
     end
+
     if MaxDps:FindBuffAuraData(classtable.BearForm).up or MaxDps:FindBuffAuraData(classtable.DireBearForm).up then
         if targets >=3 then
             Feral:AoE()
@@ -185,7 +233,6 @@ function Druid:Feral()
     base, posBuff, negBuff = UnitAttackPower("player")
     totalAP = base + posBuff + negBuff
 
-
     classtable.BearForm = 5487
     classtable.DireBearForm = 9634
 	classtable.Lacerate=33745
@@ -195,14 +242,11 @@ function Druid:Feral()
     classtable.Maul=9881
     classtable.DemoralizingRoar=26998
     classtable.FaerieFire=16857
-    --classtable.TigersFury=9846
-    --classtable.Haste=13494
     classtable.CatForm=768
     classtable.Rip = 1079
     classtable.Shred=9830
     classtable.FerociousBite=22568
     classtable.Claw=9850
-    --classtable.Innervate=29166
     classtable.MangleCat=33876
     classtable.Thorns=467
     classtable.MarkoftheWild = 1126
