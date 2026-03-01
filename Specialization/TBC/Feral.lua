@@ -253,16 +253,19 @@ function Druid:Feral()
     classtable.Swipe=9908
     classtable.Maul=9881
     classtable.DemoralizingRoar=26998
+	
     classtable.FaerieFire=16857
+    --classtable.TigersFury=9846
+    --classtable.Haste=13494
     classtable.CatForm=768
     classtable.Rip = 1079
     classtable.Shred=9830
     classtable.FerociousBite=22568
     classtable.Claw=9850
+    --classtable.Innervate=29166
     classtable.MangleCat=33876
     classtable.Thorns=467
     classtable.MarkoftheWild = 1126
-	classtable.GiftoftheWild = 21849
     classtable.OmenofClarity = 16864
     classtable.Prowl = 5215
     classtable.Pounce = 9005
