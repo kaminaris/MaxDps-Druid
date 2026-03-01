@@ -15,6 +15,7 @@ local SpellCrit
 local GetSpellInfo = C_Spell.GetSpellInfo
 local GetSpellCooldown = C_Spell.GetSpellCooldown
 local GetSpellCount = C_Spell.GetSpellCastCount
+local GetSpellPowerCost = C_Spell.GetSpellPowerCost
 
 local ManaPT = Enum.PowerType.Mana
 local RagePT = Enum.PowerType.Rage
@@ -81,8 +82,64 @@ local function ClearCDs()
     MaxDps:GlowCooldown(classtable.Thorns, false)
 end
 
+local function GetEnergyCost(spellId)
+    local s = GetSpellInfo(spellId)
+    if s and s.powerCosts then
+        for _, p in ipairs(s.powerCosts) do
+            if p and p.type == EnergyPT and p.cost and p.cost > 0 then
+                return p.cost
+            end
+        end
+    end
+
+    local costs = GetSpellPowerCost and GetSpellPowerCost(spellId)
+    if costs then
+        for _, p in ipairs(costs) do
+            if p and p.type == EnergyPT and p.cost and p.cost > 0 then
+                return p.cost
+            end
+        end
+    end
+
+    return nil
+end
+
+local function GetManaPercent()
+    local mana = UnitPower('player', ManaPT)
+    local manaMax = UnitPowerMax('player', ManaPT)
+    if manaMax == 0 then return 0 end
+    return (mana / manaMax) * 100
+end
+
+function HasFuror()
+    local _, _, _, _, rank = GetTalentInfo(2, 3)
+    return (rank or 0) > 0
+end
+
+local function NextCatActionEnergyCost(threat)
+    if not UnitAffectingCombat('player') then return nil end
+
+    if (MaxDps:FindDeBuffAuraData(classtable.MangleCat).refreshable or threat >= 2) and ComboPoints < 4 and cooldown[classtable.MangleCat].ready then
+        return GetEnergyCost(classtable.MangleCat)
+    end
+    if (threat < 2) and ComboPoints < 4 and cooldown[classtable.Shred].ready then
+        return GetEnergyCost(classtable.Shred)
+    end
+    if not MaxDps:FindDeBuffAuraData(classtable.Rip).up and ComboPoints >= 4 and ttd >= 8 and cooldown[classtable.Rip].ready then
+        return GetEnergyCost(classtable.Rip)
+    end
+    if ComboPoints >= 4 and cooldown[classtable.FerociousBite].ready then
+        return GetEnergyCost(classtable.FerociousBite)
+    end
+    if cooldown[classtable.Claw].ready then
+        return GetEnergyCost(classtable.Claw)
+    end
+
+    return nil
+end
+
 function Feral:AoE()
-    if MaxDps:FindBuffAuraData(5487).up or MaxDps:FindBuffAuraData(9634).up then
+    if MaxDps:FindBuffAuraData(classtable.BearForm).up or MaxDps:FindBuffAuraData(classtable.DireBearForm).up then
         if (MaxDps:CheckSpellUsable(classtable.DemoralizingRoar, 'DemoralizingRoar')) and (MaxDps:FindDeBuffAuraData(classtable.DemoralizingRoar).refreshable) and cooldown[classtable.DemoralizingRoar].ready then
             --if not setSpell then setSpell = classtable.DemoralizingRoar end
             MaxDps:GlowCooldown(classtable.DemoralizingRoar, true)
@@ -98,36 +155,39 @@ end
 
 function Feral:Single()
     if MaxDps:FindBuffAuraData(classtable.CatForm) .up then
-        if MaxDps:CheckSpellUsable(classtable.FaerieFire, 'FaerieFire') and not UnitAffectingCombat('player') and not MaxDps:FindBuffAuraData(classtable.Prowl).up and cooldown[classtable.FaerieFire].ready then
-            if not setSpell then setSpell = classtable.FaerieFire end
-        end
+		if UnitAffectingCombat('player') and not MaxDps:FindBuffAuraData(classtable.Prowl).up then
+			nextCost = NextCatActionEnergyCost(UnitThreatSituation("player", "target") or 0)
+			if HasFuror() and nextCost and Energy < (nextCost - 20) and GetManaPercent() >= 10 then
+				if not setSpell then setSpell = classtable.CatForm end
+			end
+		end
         if MaxDps:CheckSpellUsable(classtable.Prowl, 'Prowl') and not UnitAffectingCombat('player') and not MaxDps:FindBuffAuraData(classtable.Prowl).up and cooldown[classtable.Prowl].ready then
             if not setSpell then setSpell = classtable.Prowl end
         end
         if MaxDps:CheckSpellUsable(classtable.Pounce, 'Pounce') and not UnitAffectingCombat('player') and MaxDps:FindBuffAuraData(classtable.Prowl).up and cooldown[classtable.Pounce].ready then
             if not setSpell then setSpell = classtable.Pounce end
         end
+		if MaxDps:CheckSpellUsable(classtable.FaerieFire, 'FaerieFire')	and not MaxDps:FindDeBuffAuraData(classtable.FaerieFire).up and not MaxDps:FindBuffAuraData(classtable.Prowl).up and cooldown[classtable.FaerieFire].ready then
+			if not setSpell then setSpell = classtable.FaerieFire end
+		end
         if MaxDps:CheckSpellUsable(classtable.MangleCat, 'MangleCat') and (MaxDps:FindDeBuffAuraData(classtable.MangleCat).refreshable or (UnitThreatSituation("player", "target") and UnitThreatSituation("player", "target") >= 2) ) and ComboPoints < 4 and cooldown[classtable.MangleCat].ready then
             if not setSpell then setSpell = classtable.MangleCat end
         end
         if MaxDps:CheckSpellUsable(classtable.Shred, 'Shred') and (not UnitThreatSituation("player", "target") or UnitThreatSituation("player", "target") < 2) and ComboPoints < 4 and cooldown[classtable.Shred].ready then
             if not setSpell then setSpell = classtable.Shred end
         end
-        if MaxDps:CheckSpellUsable(classtable.Rip, 'Rip') and not MaxDps:FindDeBuffAuraData(classtable.Rip).up and ComboPoints >= 4 and ttd >= 12 and cooldown[classtable.Rip].ready then
+        if MaxDps:CheckSpellUsable(classtable.Rip, 'Rip') and not MaxDps:FindDeBuffAuraData(classtable.Rip).up and ComboPoints >= 4 and ttd >= 8 and cooldown[classtable.Rip].ready then
             if not setSpell then setSpell = classtable.Rip end
         end
         if MaxDps:CheckSpellUsable(classtable.FerociousBite, 'Ferocious Bite') and ComboPoints >= 4 and cooldown[classtable.FerociousBite].ready then
             if not setSpell then setSpell = classtable.FerociousBite end
         end
-        if (MaxDps:CheckSpellUsable(classtable.Claw, 'Claw')) and cooldown[classtable.Claw].ready then
+        if (MaxDps:CheckSpellUsable(classtable.Claw, 'Claw')) and cooldown[classtable.Claw].ready and (not MaxDps:CheckSpellUsable(classtable.MangleCat, 'MangleCat')) then
             if not setSpell then setSpell = classtable.Claw end
         end
-        if MaxDps:CheckSpellUsable(classtable.CatForm, 'Cat Form') and Energy <= 10 and cooldown[classtable.CatForm].ready then
-            --if not setSpell then setSpell = classtable.CatForm end
-            MaxDps:GlowCooldown(classtable.CatForm, true)
-        end
     end
-    if MaxDps:FindBuffAuraData(5487).up or MaxDps:FindBuffAuraData(9634).up then
+
+    if MaxDps:FindBuffAuraData(classtable.BearForm).up or MaxDps:FindBuffAuraData(classtable.DireBearForm).up then
         if targets >=3 then
             Feral:AoE()
         else
@@ -185,14 +245,15 @@ function Druid:Feral()
     base, posBuff, negBuff = UnitAttackPower("player")
     totalAP = base + posBuff + negBuff
 
-
-    classtable.Lacerate=33745
+    classtable.BearForm = 5487
+    classtable.DireBearForm = 9634
+	classtable.Lacerate=33745
     classtable.MangleBear=33878
     classtable.Berserk=417141
     classtable.Swipe=9908
     classtable.Maul=9881
     classtable.DemoralizingRoar=26998
-
+	
     classtable.FaerieFire=16857
     --classtable.TigersFury=9846
     --classtable.Haste=13494
@@ -205,6 +266,7 @@ function Druid:Feral()
     classtable.MangleCat=33876
     classtable.Thorns=467
     classtable.MarkoftheWild = 1126
+	classtable.GiftoftheWild = 21849
     classtable.OmenofClarity = 16864
     classtable.Prowl = 5215
     classtable.Pounce = 9005
@@ -213,12 +275,16 @@ function Druid:Feral()
 
     ClearCDs()
 
-    if (MaxDps:CheckSpellUsable(classtable.MarkoftheWild, 'MarkoftheWild')) and MaxDps:FindBuffAuraData(classtable.MarkoftheWild).refreshable and cooldown[classtable.MarkoftheWild].ready then
-        if not setSpell then setSpell = classtable.MarkoftheWild end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.Thorns, 'Thorns')) and MaxDps:FindBuffAuraData(classtable.Thorns).refreshable and cooldown[classtable.Thorns].ready then
-        --if not setSpell then setSpell = classtable.Thorns end
-        MaxDps:GlowCooldown(classtable.Thorns, true)
+	if (MaxDps:CheckSpellUsable(classtable.MarkoftheWild, 'MarkoftheWild')) and MaxDps:FindBuffAuraData(classtable.MarkoftheWild).refreshable and cooldown[classtable.MarkoftheWild].ready and not MaxDps:FindBuffAuraData(classtable.GiftoftheWild).up then
+		if not setSpell then setSpell = classtable.MarkoftheWild end
+	end
+	if (MaxDps:CheckSpellUsable(classtable.OmenofClarity, 'OmenofClarity')) and MaxDps:FindBuffAuraData(classtable.OmenofClarity).refreshable and cooldown[classtable.OmenofClarity].ready then
+		if not setSpell then setSpell = classtable.OmenofClarity end
+		--MaxDps:GlowCooldown(classtable.OmenofClarity, true)
+	end
+	if (MaxDps:CheckSpellUsable(classtable.Thorns, 'Thorns')) and MaxDps:FindBuffAuraData(classtable.Thorns).refreshable and cooldown[classtable.Thorns].ready and ( MaxDps:FindBuffAuraData(classtable.BearForm).up or MaxDps:FindBuffAuraData(classtable.DireBearForm).up or (UnitThreatSituation("player", "target") and UnitThreatSituation("player", "target") >= 2) ) then
+        if not setSpell then setSpell = classtable.Thorns end
+        --MaxDps:GlowCooldown(classtable.Thorns, true)
     end
 
     --AoE Rotation
