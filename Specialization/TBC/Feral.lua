@@ -266,6 +266,7 @@ function Druid:Feral()
     classtable.MangleCat=33876
     classtable.Thorns=467
     classtable.MarkoftheWild = 1126
+	classtable.GiftoftheWild = 21849
     classtable.OmenofClarity = 16864
     classtable.Prowl = 5215
     classtable.Pounce = 9005
