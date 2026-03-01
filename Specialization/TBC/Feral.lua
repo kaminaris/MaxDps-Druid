@@ -150,7 +150,7 @@ function Feral:Single()
     if MaxDps:FindBuffAuraData(classtable.CatForm) .up then
 		if UnitAffectingCombat('player') and not MaxDps:FindBuffAuraData(classtable.Prowl).up then
 			nextCost = NextCatActionEnergyCost(UnitThreatSituation("player", "target") or 0)
-			if HasFuror and nextCost and Energy < (nextCost - 20) then
+			if HasFuror() and nextCost and Energy < (nextCost - 20) then
 				if not setSpell then setSpell = classtable.CatForm end
 			end
 		end
