@@ -82,7 +82,7 @@ local function ClearCDs()
 end
 
 function Feral:AoE()
-    if MaxDps:FindBuffAuraData(5487).up or MaxDps:FindBuffAuraData(9634).up then
+    if MaxDps:FindBuffAuraData(classtable.BearForm).up or MaxDps:FindBuffAuraData(classtable.DireBearForm).up then
         if (MaxDps:CheckSpellUsable(classtable.DemoralizingRoar, 'DemoralizingRoar')) and (MaxDps:FindDeBuffAuraData(classtable.DemoralizingRoar).refreshable) and cooldown[classtable.DemoralizingRoar].ready then
             --if not setSpell then setSpell = classtable.DemoralizingRoar end
             MaxDps:GlowCooldown(classtable.DemoralizingRoar, true)
@@ -127,7 +127,7 @@ function Feral:Single()
             MaxDps:GlowCooldown(classtable.CatForm, true)
         end
     end
-    if MaxDps:FindBuffAuraData(5487).up or MaxDps:FindBuffAuraData(9634).up then
+    if MaxDps:FindBuffAuraData(classtable.BearForm).up or MaxDps:FindBuffAuraData(classtable.DireBearForm).up then
         if targets >=3 then
             Feral:AoE()
         else
@@ -186,13 +186,14 @@ function Druid:Feral()
     totalAP = base + posBuff + negBuff
 
 
-    classtable.Lacerate=33745
+    classtable.BearForm = 5487
+    classtable.DireBearForm = 9634
+	classtable.Lacerate=33745
     classtable.MangleBear=33878
     classtable.Berserk=417141
     classtable.Swipe=9908
     classtable.Maul=9881
     classtable.DemoralizingRoar=26998
-    classtable.GiftoftheWild = 21849
     classtable.FaerieFire=16857
     --classtable.TigersFury=9846
     --classtable.Haste=13494
@@ -205,6 +206,7 @@ function Druid:Feral()
     classtable.MangleCat=33876
     classtable.Thorns=467
     classtable.MarkoftheWild = 1126
+	classtable.GiftoftheWild = 21849
     classtable.OmenofClarity = 16864
     classtable.Prowl = 5215
     classtable.Pounce = 9005
@@ -213,16 +215,16 @@ function Druid:Feral()
 
     ClearCDs()
 
-	if (MaxDps:CheckSpellUsable(classtable.MarkoftheWild, 'MarkoftheWild')) and cooldown[classtable.MarkoftheWild] and cooldown[classtable.MarkoftheWild].ready and not MaxDps:FindBuffAuraData(classtable.GiftoftheWild).up and MaxDps:FindBuffAuraData(classtable.MarkoftheWild).refreshable then
+	if (MaxDps:CheckSpellUsable(classtable.MarkoftheWild, 'MarkoftheWild')) and MaxDps:FindBuffAuraData(classtable.MarkoftheWild).refreshable and cooldown[classtable.MarkoftheWild].ready and not MaxDps:FindBuffAuraData(classtable.GiftoftheWild).up then
 		if not setSpell then setSpell = classtable.MarkoftheWild end
 	end
 	if (MaxDps:CheckSpellUsable(classtable.OmenofClarity, 'OmenofClarity')) and MaxDps:FindBuffAuraData(classtable.OmenofClarity).refreshable and cooldown[classtable.OmenofClarity].ready then
 		if not setSpell then setSpell = classtable.OmenofClarity end
 		--MaxDps:GlowCooldown(classtable.OmenofClarity, true)
 	end
-    if (MaxDps:CheckSpellUsable(classtable.Thorns, 'Thorns')) and MaxDps:FindBuffAuraData(classtable.Thorns).refreshable and cooldown[classtable.Thorns].ready then
-        --if not setSpell then setSpell = classtable.Thorns end
-        MaxDps:GlowCooldown(classtable.Thorns, true)
+	if (MaxDps:CheckSpellUsable(classtable.Thorns, 'Thorns')) and MaxDps:FindBuffAuraData(classtable.Thorns).refreshable and cooldown[classtable.Thorns].ready and ( MaxDps:FindBuffAuraData(classtable.BearForm).up or MaxDps:FindBuffAuraData(classtable.DireBearForm).up or (UnitThreatSituation("player", "target") and UnitThreatSituation("player", "target") >= 2) ) then
+        if not setSpell then setSpell = classtable.Thorns end
+        --MaxDps:GlowCooldown(classtable.Thorns, true)
     end
 
     --AoE Rotation
