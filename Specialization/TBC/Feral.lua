@@ -242,7 +242,7 @@ function Druid:Feral()
     base, posBuff, negBuff = UnitAttackPower("player")
     totalAP = base + posBuff + negBuff
 
-    HasFuror = (MaxDps.PlayerTalents[17056] or MaxDps.PlayerTalents[17058] or MaxDps.PlayerTalents[17059] or MaxDps.PlayerTalents[17060] or MaxDps.PlayerTalents[17061]) or false
+    HasFuror = MaxDps.PlayerTalents[822] or false
 
     classtable.BearForm = 5487
     classtable.DireBearForm = 9634
