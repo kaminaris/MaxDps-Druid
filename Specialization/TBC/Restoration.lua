@@ -154,7 +154,7 @@ function Druid:Restoration()
     maxHP = UnitHealthMax('player')
     healthPerc = (curentHP / maxHP) * 100
     timeInCombat = MaxDps.combatTime or 0
-    classtable = MaxDps.SpellTable
+    classtable = MaxDps.SpellTable or {}
     SpellHaste = UnitSpellHaste('player')
     SpellCrit = GetCritChance()
 

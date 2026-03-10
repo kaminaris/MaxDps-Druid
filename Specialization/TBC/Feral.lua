@@ -225,7 +225,7 @@ function Druid:Feral()
     ManaMax = UnitPowerMax('player', ManaPT)
     ManaPerc = (Mana / ManaMax) * 100
     timeInCombat = MaxDps.combatTime or 0
-    classtable = MaxDps.SpellTable
+    classtable = MaxDps.SpellTable or {}
     SpellHaste = UnitSpellHaste('player')
     SpellCrit = GetCritChance()
 
