@@ -274,12 +274,12 @@ function Druid:Feral()
 
     ClearCDs()
 
-	if MaxDps:NumGroupFriends() <= 1 and (MaxDps:CheckSpellUsable(classtable.MarkoftheWild, 'MarkoftheWild'))
+	if not InCombatLockdown() and MaxDps:NumGroupFriends() <= 1 and (MaxDps:CheckSpellUsable(classtable.MarkoftheWild, 'MarkoftheWild'))
     and MaxDps:FindBuffAuraData(classtable.MarkoftheWild).refreshable and cooldown[classtable.MarkoftheWild].ready
     and not MaxDps:FindBuffAuraData(classtable.GiftoftheWild).up then
 		if not setSpell then setSpell = classtable.MarkoftheWild end
 	end
-	if MaxDps:NumGroupFriends() >= 2 and (MaxDps:CheckSpellUsable(classtable.GiftoftheWild, 'GiftoftheWild'))
+	if not InCombatLockdown() and MaxDps:NumGroupFriends() >= 2 and (MaxDps:CheckSpellUsable(classtable.GiftoftheWild, 'GiftoftheWild'))
     and MaxDps:FindBuffAuraData(classtable.GiftoftheWild).refreshable and cooldown[classtable.GiftoftheWild].ready then
 		if not setSpell then setSpell = classtable.GiftoftheWild end
 	end
@@ -287,7 +287,7 @@ function Druid:Feral()
 		if not setSpell then setSpell = classtable.OmenofClarity end
 		--MaxDps:GlowCooldown(classtable.OmenofClarity, true)
 	end
-	if (MaxDps:CheckSpellUsable(classtable.Thorns, 'Thorns')) and MaxDps:FindBuffAuraData(classtable.Thorns).refreshable and cooldown[classtable.Thorns].ready and ( MaxDps:FindBuffAuraData(classtable.BearForm).up or MaxDps:FindBuffAuraData(classtable.DireBearForm).up or (UnitThreatSituation("player", "target") and UnitThreatSituation("player", "target") >= 2) ) then
+	if not InCombatLockdown() and (MaxDps:CheckSpellUsable(classtable.Thorns, 'Thorns')) and MaxDps:FindBuffAuraData(classtable.Thorns).refreshable and cooldown[classtable.Thorns].ready and ( MaxDps:FindBuffAuraData(classtable.BearForm).up or MaxDps:FindBuffAuraData(classtable.DireBearForm).up or (UnitThreatSituation("player", "target") and UnitThreatSituation("player", "target") >= 2) ) then
         if not setSpell then setSpell = classtable.Thorns end
         --MaxDps:GlowCooldown(classtable.Thorns, true)
     end
