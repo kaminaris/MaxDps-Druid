@@ -162,7 +162,8 @@ function Feral:Single()
             if not setSpell then setSpell = classtable.Pounce end
         end
 		if MaxDps:CheckSpellUsable(classtable.FaerieFire, 'FaerieFire')	and not MaxDps:FindDeBuffAuraData(classtable.FaerieFire).up and not MaxDps:FindBuffAuraData(classtable.Prowl).up and cooldown[classtable.FaerieFire].ready then
-			if not setSpell then setSpell = classtable.FaerieFire end
+			--if not setSpell then setSpell = classtable.FaerieFire end
+            MaxDps:GlowCooldown(classtable.FaerieFire, true)
 		end
         if MaxDps:CheckSpellUsable(classtable.MangleCat, 'MangleCat') and (MaxDps:FindDeBuffAuraData(classtable.MangleCat).refreshable or (UnitThreatSituation("player", "target") and UnitThreatSituation("player", "target") >= 2) ) and ComboPoints < 4 and cooldown[classtable.MangleCat].ready then
             if not setSpell then setSpell = classtable.MangleCat end
@@ -274,20 +275,20 @@ function Druid:Feral()
 
     ClearCDs()
 
-	if not InCombatLockdown() and MaxDps:NumGroupFriends() <= 1 and (MaxDps:CheckSpellUsable(classtable.MarkoftheWild, 'MarkoftheWild'))
+	if not InCombatLockdown() and (MaxDps:NumGroupFriends() <= 1 and (MaxDps:CheckSpellUsable(classtable.MarkoftheWild, 'MarkoftheWild'))
     and MaxDps:FindBuffAuraData(classtable.MarkoftheWild).refreshable and cooldown[classtable.MarkoftheWild].ready
-    and not MaxDps:FindBuffAuraData(classtable.GiftoftheWild).up then
+    and not MaxDps:FindBuffAuraData(classtable.GiftoftheWild).up) then
 		if not setSpell then setSpell = classtable.MarkoftheWild end
 	end
-	if not InCombatLockdown() and MaxDps:NumGroupFriends() >= 2 and (MaxDps:CheckSpellUsable(classtable.GiftoftheWild, 'GiftoftheWild'))
-    and MaxDps:FindBuffAuraData(classtable.GiftoftheWild).refreshable and cooldown[classtable.GiftoftheWild].ready then
+	if not InCombatLockdown() and (MaxDps:NumGroupFriends() >= 2 and (MaxDps:CheckSpellUsable(classtable.GiftoftheWild, 'GiftoftheWild'))
+    and MaxDps:FindBuffAuraData(classtable.GiftoftheWild).refreshable and cooldown[classtable.GiftoftheWild].ready) then
 		if not setSpell then setSpell = classtable.GiftoftheWild end
 	end
 	if (MaxDps:CheckSpellUsable(classtable.OmenofClarity, 'OmenofClarity')) and MaxDps:FindBuffAuraData(classtable.OmenofClarity).refreshable and cooldown[classtable.OmenofClarity].ready then
 		if not setSpell then setSpell = classtable.OmenofClarity end
 		--MaxDps:GlowCooldown(classtable.OmenofClarity, true)
 	end
-	if not InCombatLockdown() and (MaxDps:CheckSpellUsable(classtable.Thorns, 'Thorns')) and MaxDps:FindBuffAuraData(classtable.Thorns).refreshable and cooldown[classtable.Thorns].ready and ( MaxDps:FindBuffAuraData(classtable.BearForm).up or MaxDps:FindBuffAuraData(classtable.DireBearForm).up or (UnitThreatSituation("player", "target") and UnitThreatSituation("player", "target") >= 2) ) then
+	if not InCombatLockdown() and ((MaxDps:CheckSpellUsable(classtable.Thorns, 'Thorns')) and MaxDps:FindBuffAuraData(classtable.Thorns).refreshable and cooldown[classtable.Thorns].ready and ( MaxDps:FindBuffAuraData(classtable.BearForm).up or MaxDps:FindBuffAuraData(classtable.DireBearForm).up or (UnitThreatSituation("player", "target") and UnitThreatSituation("player", "target") >= 2) )) then
         if not setSpell then setSpell = classtable.Thorns end
         --MaxDps:GlowCooldown(classtable.Thorns, true)
     end
