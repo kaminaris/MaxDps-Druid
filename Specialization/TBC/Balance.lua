@@ -77,7 +77,7 @@ function Balance:Single()
         if not setSpell then setSpell = classtable.FaerieFire end
     end
     --Keep Moonfire Moonfire active on the target, but always let it fully finish its current duration before refreshing.
-    if MaxDps:CheckSpellUsable(classtable.Moonfire, 'Moonfire') and not debuff[classtable.MoonfireDeBuff].up and cooldown[classtable.Moonfire].ready then
+    if MaxDps:CheckSpellUsable(classtable.Moonfire, 'Moonfire') and MaxDps:FindDeBuffAuraData(classtable.MoonfireDeBuff).refreshable and cooldown[classtable.Moonfire].ready then
         if not setSpell then setSpell = classtable.Moonfire end
     end
     --Use Force of Nature Force of Nature if the trees will stay alive for most of their duration.
