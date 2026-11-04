@@ -1,4 +1,4 @@
-## Title: MaxDps_Druid
+﻿## Title: MaxDps_Druid
 ## Version: @project-version@
 ## Author: Kaminaris
 ## Interface: 120105
@@ -16,34 +16,28 @@
 ## X-Wago-ID: ANz0YDK4
 
 Main.lua
-#@retail@
-Specialization/Balance.lua
-Specialization/Feral.lua
-Specialization/Guardian.lua
-Specialization/Restoration.lua
-#@end-retail@
+Specialization/Balance.lua [AllowLoadGameType standard]
+Specialization/Feral.lua [AllowLoadGameType standard]
+Specialization/Guardian.lua [AllowLoadGameType standard]
+Specialization/Restoration.lua [AllowLoadGameType standard]
 
-#@version-cata@
-Specialization/Cata/Balance.lua
-Specialization/Cata/Feral.lua
-Specialization/Cata/Guardian.lua
-#@end-version-cata@
+Specialization/Cata/Balance.lua [AllowLoadGameType cata]
+Specialization/Cata/Feral.lua [AllowLoadGameType cata]
+Specialization/Cata/Guardian.lua [AllowLoadGameType cata]
 
-#@version-bcc@
-Specialization/TBC/Balance.lua
-Specialization/TBC/Feral.lua
-Specialization/TBC/Restoration.lua
-#@end-version-bcc@
+Specialization/TBC/Balance.lua [AllowLoadGameType tbc]
+Specialization/TBC/Feral.lua [AllowLoadGameType tbc]
+Specialization/TBC/Restoration.lua [AllowLoadGameType tbc]
 
-#@version-classic@
-Specialization/Classic/Balance.lua
-Specialization/Classic/Feral.lua
-Specialization/Classic/Guardian.lua
-#@end-version-classic@
+Specialization/Classic/Balance.lua [AllowLoadGameType vanilla]
+Specialization/Classic/Feral.lua [AllowLoadGameType vanilla]
+Specialization/Classic/Guardian.lua [AllowLoadGameType vanilla]
 
-#@version-mists@
-Specialization/Mop/Balance.lua
-Specialization/Mop/Feral.lua
-Specialization/MoP/Guardian.lua
-Specialization/MoP/Restoration.lua
-#@end-version-mists@
+Specialization/Mop/Balance.lua [AllowLoadGameType mists]
+Specialization/Mop/Feral.lua [AllowLoadGameType mists]
+Specialization/MoP/Guardian.lua [AllowLoadGameType mists]
+Specialization/MoP/Restoration.lua [AllowLoadGameType mists]
+
+Specialization/Forever/Balance.lua [AllowLoadGameType forever]
+Specialization/Forever/Feral.lua [AllowLoadGameType forever]
+Specialization/Forever/Guardian.lua [AllowLoadGameType forever]
