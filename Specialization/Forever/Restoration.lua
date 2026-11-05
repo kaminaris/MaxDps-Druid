@@ -7,6 +7,6 @@ local Restoration = {}
 
 function Druid:Restoration()
     --st
-    if not MaxDps.IsTrackedAuraActive(8921) then return 8921 end --  Moonfire
+    if (not MaxDps.IsTrackedAuraActive(8921)) and not MaxDps.IsSpellOnCooldown(8921, true) then return 8921 end --  Moonfire
     if not MaxDps.IsSpellOnCooldown(5176, true) then return 5176 end --  Wrath
 end
