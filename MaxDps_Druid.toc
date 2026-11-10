@@ -40,4 +40,4 @@ Specialization/MoP/Restoration.lua [AllowLoadGameType mists]
 
 Specialization/Forever/Balance.lua [ExcludeLoadGameType standard, mists, cata, wrath, tbc, vanilla]
 Specialization/Forever/Feral.lua [ExcludeLoadGameType standard, mists, cata, wrath, tbc, vanilla]
-Specialization/Forever/Guardian.lua [ExcludeLoadGameType standard, mists, cata, wrath, tbc, vanilla]
+Specialization/Forever/Restoration.lua [ExcludeLoadGameType standard, mists, cata, wrath, tbc, vanilla]
